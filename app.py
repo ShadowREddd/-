@@ -11,7 +11,15 @@
         body {
             font-family: Arial, "Helvetica Neue", "Microsoft JhengHei", sans-serif;
             background-color: #f0f2f5;
-            padding: 20px;
+            import streamlit as st
+st.markdown("""
+    <style>
+    .stApp {
+        padding: 20px;
+      
+    }
+    </style>
+    """, unsafe_allow_html=True)
             padding-bottom: 100px;
             margin: 0;
             overflow-x: hidden;
