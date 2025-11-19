@@ -1,3 +1,12 @@
+import streamlit as st
+import streamlit.components.v1 as components
+
+# 1. 設定頁面配置
+st.set_page_config(page_title="食際行動家", layout="wide")
+
+# 2. 將您的 HTML/CSS/JS 放入一個長字串變數中
+# 注意：我已經移除了原本卡在 CSS 裡面的 Python 錯誤代碼
+html_code = """
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -11,15 +20,7 @@
         body {
             font-family: Arial, "Helvetica Neue", "Microsoft JhengHei", sans-serif;
             background-color: #f0f2f5;
-            import streamlit as st
-st.markdown("""
-    <style>
-    .stApp {
-        padding: 20px;
-      
-    }
-    </style>
-    """, unsafe_allow_html=True)
+            /* 這裡原本有錯誤的 Python 程式碼，已經移除了 */
             padding-bottom: 100px;
             margin: 0;
             overflow-x: hidden;
@@ -42,8 +43,8 @@ st.markdown("""
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            transition: transform 0.8s cubic-bezier(0.7, 0, 0.3, 1); /* 調整滑動速度 */
-            cursor: pointer; /* 整個頁面都可以點 */
+            transition: transform 0.8s cubic-bezier(0.7, 0, 0.3, 1);
+            cursor: pointer;
         }
         
         #splash-screen.hidden {
@@ -51,14 +52,13 @@ st.markdown("""
         }
 
         .splash-logo {
-            /* LOGO 占滿頁面設定 */
-            width: 90%;           /* 寬度佔 90% */
-            height: 90%;          /* 高度佔 90% */
-            max-width: 1000px;    /* 最大寬度限制，避免在超大螢幕太誇張 */
-            object-fit: contain;  /* 保持圖片比例，完整顯示 */
-            cursor: pointer;      /* 滑鼠變手指 */
-            animation: breathe 3s infinite ease-in-out; /* 呼吸燈特效 */
-            user-select: none;    /* 防止圖片被選取反白 */
+            width: 90%;
+            height: 90%;
+            max-width: 1000px;
+            object-fit: contain;
+            cursor: pointer;
+            animation: breathe 3s infinite ease-in-out;
+            user-select: none;
         }
 
         @keyframes breathe {
@@ -67,14 +67,13 @@ st.markdown("""
             100% { transform: scale(0.98); opacity: 0.9; }
         }
 
-        /* 提示文字 (選用，讓使用者知道要點擊) */
         .click-hint {
             position: absolute;
             bottom: 50px;
             color: #999;
             font-size: 1.2rem;
             animation: blink 2s infinite;
-            pointer-events: none; /* 不擋住點擊 */
+            pointer-events: none;
         }
         @keyframes blink { 50% { opacity: 0; } }
 
@@ -303,7 +302,7 @@ st.markdown("""
 
     <div class="nav-header">
         <div class="logo-container">
-            <img src="images/食際行動家.png" alt="食際行動家 Logo">
+            <img src="images/食際行動家.png" alt="食際行動家 Logo" onerror="this.style.display='none'">
         </div>
         <h2>🛒 蔬果專區</h2>
         <button class="backend-entry-btn" id="backend-entry-btn">⚙️ 後台管理</button>
@@ -317,7 +316,7 @@ st.markdown("""
         <button class="back-to-list-btn">← 返回商品列表</button>
         
         <div class="detail-main-card">
-            <img id="detail-image" src="" alt="商品圖片">
+            <img id="detail-image" src="" alt="商品圖片" onerror="this.src='https://via.placeholder.com/800x350?text=No+Image'">
             <div class="detail-content">
                 <h1 id="detail-name">商品名稱</h1>
                 <div id="detail-tags"></div>
@@ -466,28 +465,29 @@ st.markdown("""
             return Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
         }
 
-        // --- 資料庫 (圖片使用本地 images 資料夾) ---
-        // 請確認您的資料夾內有以下圖片名稱
+        // --- 資料庫 (圖片連結) ---
+        // 注意：我已將圖片連結改成網路範例圖，因為在 Streamlit 元件中無法直接讀取您的 images/ 資料夾
+        // 如果您有自己的圖片網址，請替換掉下面的 https://...
         let productDatabase = [
-            { id: "F0001", name: "蘋果", price: 138.4, category: "水果", imageUrl: "images/蘋果.jpg", calories: 90, origin: "美國", storage: "冷凍", expiryDate: getFutureDate(6), vendor: "每日良品" },
-            { id: "F0002", name: "香蕉", price: 80, category: "水果", imageUrl: "images/香蕉.jpg", calories: 105, origin: "台灣", storage: "常溫", expiryDate: getFutureDate(3), vendor: "樂活農莊" },
-            { id: "F0003", name: "鳳梨", price: 155, category: "水果", imageUrl: "images/鳳梨.jpg", calories: 150, origin: "美國", storage: "冷凍", expiryDate: getFutureDate(5), vendor: "綠源生技" },
-            { id: "F0004", name: "高麗菜", price: 161.4, category: "蔬菜", imageUrl: "images/高麗菜.jpg", calories: 50, origin: "台灣", storage: "冷藏", expiryDate: getFutureDate(7), vendor: "安心食堂" },
-            { id: "F0005", name: "番茄", price: 70, category: "蔬菜", imageUrl: "images/番茄.jpg", calories: 30, origin: "台灣", storage: "冷藏", expiryDate: getFutureDate(4), vendor: "綠源生技" },
-            { id: "F0006", name: "菠菜", price: 90, category: "蔬菜", imageUrl: "images/菠菜.jpg", calories: 40, origin: "台灣", storage: "冷藏", expiryDate: getFutureDate(2), vendor: "樂活農莊" },
-            { id: "F0007", name: "柳橙", price: 120, category: "水果", imageUrl: "images/柳橙.jpg", calories: 120, origin: "美國", storage: "冷藏", expiryDate: getFutureDate(10), vendor: "每日良品" },
-            { id: "F0008", name: "地瓜", price: 190.7, category: "蔬菜", imageUrl: "images/地瓜.jpg", calories: 180, origin: "台灣", storage: "常溫", expiryDate: getFutureDate(14), vendor: "樂活農莊" },
-            { id: "F0009", name: "胡蘿蔔", price: 60, category: "蔬菜", imageUrl: "images/胡蘿蔔.jpg", calories: 70, origin: "韓國", storage: "冷藏", expiryDate: getFutureDate(8), vendor: "家香廚坊" },
-            { id: "F0010", name: "洋蔥", price: 50, category: "蔬菜", imageUrl: "images/洋蔥.jpg", calories: 60, origin: "美國", storage: "常溫", expiryDate: getFutureDate(20), vendor: "每日良品" }
+            { id: "F0001", name: "蘋果", price: 138.4, category: "水果", imageUrl: "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=400", calories: 90, origin: "美國", storage: "冷凍", expiryDate: getFutureDate(6), vendor: "每日良品" },
+            { id: "F0002", name: "香蕉", price: 80, category: "水果", imageUrl: "https://images.unsplash.com/photo-1571771896612-61871f015852?w=400", calories: 105, origin: "台灣", storage: "常溫", expiryDate: getFutureDate(3), vendor: "樂活農莊" },
+            { id: "F0003", name: "鳳梨", price: 155, category: "水果", imageUrl: "https://images.unsplash.com/photo-1550258987-190a2d41a8ba?w=400", calories: 150, origin: "美國", storage: "冷凍", expiryDate: getFutureDate(5), vendor: "綠源生技" },
+            { id: "F0004", name: "高麗菜", price: 161.4, category: "蔬菜", imageUrl: "https://images.unsplash.com/photo-1623341214825-9f4f963727da?w=400", calories: 50, origin: "台灣", storage: "冷藏", expiryDate: getFutureDate(7), vendor: "安心食堂" },
+            { id: "F0005", name: "番茄", price: 70, category: "蔬菜", imageUrl: "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400", calories: 30, origin: "台灣", storage: "冷藏", expiryDate: getFutureDate(4), vendor: "綠源生技" },
+            { id: "F0006", name: "菠菜", price: 90, category: "蔬菜", imageUrl: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400", calories: 40, origin: "台灣", storage: "冷藏", expiryDate: getFutureDate(2), vendor: "樂活農莊" },
+            { id: "F0007", name: "柳橙", price: 120, category: "水果", imageUrl: "https://images.unsplash.com/photo-1547514701-42782101795e?w=400", calories: 120, origin: "美國", storage: "冷藏", expiryDate: getFutureDate(10), vendor: "每日良品" },
+            { id: "F0008", name: "地瓜", price: 190.7, category: "蔬菜", imageUrl: "https://images.unsplash.com/photo-1573562389749-3740ba3b6e29?w=400", calories: 180, origin: "台灣", storage: "常溫", expiryDate: getFutureDate(14), vendor: "樂活農莊" },
+            { id: "F0009", name: "胡蘿蔔", price: 60, category: "蔬菜", imageUrl: "https://images.unsplash.com/photo-1447175008436-8123782ca61d?w=400", calories: 70, origin: "韓國", storage: "冷藏", expiryDate: getFutureDate(8), vendor: "家香廚坊" },
+            { id: "F0010", name: "洋蔥", price: 50, category: "蔬菜", imageUrl: "https://images.unsplash.com/photo-1618512496248-a07fe83aa829?w=400", calories: 60, origin: "美國", storage: "常溫", expiryDate: getFutureDate(20), vendor: "每日良品" }
         ];
 
         let recipeDatabase = [
-            { id: 1, name: "綜合蔬果沙拉", calories: 220, img: "images/綜合蔬果沙拉.jpg", ingredients: ["番茄", "菠菜", "洋蔥", "蘋果"], steps: ["菠菜洗淨瀝乾，番茄、蘋果切塊。", "將所有食材放入大碗中。", "淋上橄欖油、檸檬汁、鹽攪拌均勻。"] },
-            { id: 2, name: "蜂蜜烤地瓜", calories: 280, img: "images/蜂蜜烤地瓜.jpg", ingredients: ["地瓜"], steps: ["將地瓜洗淨，不需要削皮。", "烤箱 200°C 烤 30-40 分鐘。", "取出切開淋上蜂蜜。"] },
-            { id: 3, name: "鳳梨蘋果汁", calories: 240, img: "images/鳳梨蘋果汁.jpg", ingredients: ["鳳梨", "蘋果"], steps: ["鳳梨與蘋果去皮切塊。", "放入果汁機加適量開水。", "攪打均勻即可飲用。"] },
-            { id: 4, name: "番茄炒高麗菜", calories: 190, img: "images/番茄炒高麗菜.jpg", ingredients: ["番茄", "高麗菜"], steps: ["高麗菜洗淨切塊，番茄切塊。", "熱鍋爆香蒜末，先炒番茄。", "加入高麗菜快炒，加鹽調味。"] },
-            { id: 5, name: "香蕉柳橙冰沙", calories: 225, img: "images/香蕉柳橙冰沙.jpg", ingredients: ["香蕉", "柳橙"], steps: ["香蕉剝皮切塊，柳橙去皮取肉。", "加入冰塊放入果汁機。", "攪打至綿密冰沙狀。"] },
-            { id: 6, name: "義式烤蔬菜", calories: 200, img: "images/義式烤蔬菜.jpg", ingredients: ["胡蘿蔔", "洋蔥", "地瓜"], steps: ["蔬菜切滾刀塊。", "淋上橄欖油、鹽、義式香料拌勻。", "平鋪烤盤，200°C 烤 20-25 分鐘。"] }
+            { id: 1, name: "綜合蔬果沙拉", calories: 220, img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400", ingredients: ["番茄", "菠菜", "洋蔥", "蘋果"], steps: ["菠菜洗淨瀝乾，番茄、蘋果切塊。", "將所有食材放入大碗中。", "淋上橄欖油、檸檬汁、鹽攪拌均勻。"] },
+            { id: 2, name: "蜂蜜烤地瓜", calories: 280, img: "https://images.unsplash.com/photo-1596393332966-09105923c6d6?w=400", ingredients: ["地瓜"], steps: ["將地瓜洗淨，不需要削皮。", "烤箱 200°C 烤 30-40 分鐘。", "取出切開淋上蜂蜜。"] },
+            { id: 3, name: "鳳梨蘋果汁", calories: 240, img: "https://images.unsplash.com/photo-1603569283847-aa295f0d016a?w=400", ingredients: ["鳳梨", "蘋果"], steps: ["鳳梨與蘋果去皮切塊。", "放入果汁機加適量開水。", "攪打均勻即可飲用。"] },
+            { id: 4, name: "番茄炒高麗菜", calories: 190, img: "https://images.unsplash.com/photo-1598155523122-3842334d6c10?w=400", ingredients: ["番茄", "高麗菜"], steps: ["高麗菜洗淨切塊，番茄切塊。", "熱鍋爆香蒜末，先炒番茄。", "加入高麗菜快炒，加鹽調味。"] },
+            { id: 5, name: "香蕉柳橙冰沙", calories: 225, img: "https://images.unsplash.com/photo-1623065422902-30a2d299bbe4?w=400", ingredients: ["香蕉", "柳橙"], steps: ["香蕉剝皮切塊，柳橙去皮取肉。", "加入冰塊放入果汁機。", "攪打至綿密冰沙狀。"] },
+            { id: 6, name: "義式烤蔬菜", calories: 200, img: "https://images.unsplash.com/photo-1590301157890-4810ed35db42?w=400", ingredients: ["胡蘿蔔", "洋蔥", "地瓜"], steps: ["蔬菜切滾刀塊。", "淋上橄欖油、鹽、義式香料拌勻。", "平鋪烤盤，200°C 烤 20-25 分鐘。"] }
         ];
 
         // --- 購物車邏輯 ---
@@ -565,7 +565,7 @@ st.markdown("""
             const tmpl = t[Math.floor(Math.random()*t.length)];
             const p = productDatabase.find(p => p.name === productName);
             // 如果是生成食譜，圖片使用該商品的圖片
-            const newRecipe = { id: Date.now(), name: tmpl.title, calories: Math.floor(Math.random()*200+100), img: p?p.imageUrl:"images/default.jpg", ingredients: [productName, "鹽", "油"], steps: tmpl.steps };
+            const newRecipe = { id: Date.now(), name: tmpl.title, calories: Math.floor(Math.random()*200+100), img: p?p.imageUrl:"https://via.placeholder.com/400?text=Recipe", ingredients: [productName, "鹽", "油"], steps: tmpl.steps };
             recipeDatabase.push(newRecipe);
             reloadDetail(productName);
             showToast(`🎉 已新增至食譜：「${newRecipe.name}」！`);
@@ -624,7 +624,7 @@ st.markdown("""
             const category = document.getElementById('new-p-category').value;
             if(!name || !price) { alert("請輸入完整資訊"); return; }
             const newId = "F" + (productDatabase.length + 1).toString().padStart(4, '0');
-            productDatabase.push({ id: newId, name: name, price: price, category: category, imageUrl: "images/default.jpg", calories: 100, origin: "台灣", storage: "常溫", expiryDate: getFutureDate(7), vendor: "自有品牌" });
+            productDatabase.push({ id: newId, name: name, price: price, category: category, imageUrl: "https://via.placeholder.com/150?text=" + name, calories: 100, origin: "台灣", storage: "常溫", expiryDate: getFutureDate(7), vendor: "自有品牌" });
             document.getElementById('new-p-name').value = ''; document.getElementById('new-p-price').value = ''; renderAdminProductList(); showToast("✨ 商品新增成功！");
         };
         window.switchAdminTab = function(tab) {
@@ -718,3 +718,8 @@ st.markdown("""
     </script>
 </body>
 </html>
+"""
+
+# 3. 渲染 HTML 元件 (這步最關鍵，讓它在 Streamlit 中執行)
+# height 設定為 1000 確保有足夠空間顯示長頁面
+components.html(html_code, height=1000, scrolling=True)
