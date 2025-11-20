@@ -47,8 +47,7 @@ html_template = """
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
             background: white; z-index: 99999; 
             display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            transition: opacity 0.5s ease-out;
-            overflow: hidden; cursor: pointer;
+            transition: opacity 0.5s ease-out; overflow: hidden; cursor: pointer;
         }
         .splash-logo { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -57,7 +56,7 @@ html_template = """
         }
         @keyframes breathe { 0%, 100% { transform: scale(1); opacity: 0.95; } 50% { transform: scale(1.02); opacity: 1; } }
 
-        /* --- 2. 用戶登入頁面 --- */
+        /* --- 2. 登入頁面 --- */
         #login-page {
             display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: #fff; z-index: 8000;
@@ -136,9 +135,10 @@ html_template = """
         .cat-btn { white-space: nowrap; padding: 8px 16px; border-radius: 20px; border: 1px solid #ddd; background: white; color: #666; cursor: pointer; }
         .cat-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* 網格 & 卡片 (核心點擊修正) */
+        /* 網格 & 卡片 */
         .grid { display: grid; gap: 15px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
         
+        /* 卡片樣式 */
         .card { 
             background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
             cursor: pointer; transition: transform 0.2s; display: flex; flex-direction: column;
@@ -152,16 +152,11 @@ html_template = """
         .card-title { font-weight: bold; margin-bottom: 5px; color: #333; }
         .price { color: var(--primary); font-weight: bold; font-size: 1.1rem; margin-top: auto; }
         
-        /* 狀態標籤 */
-        .status-badge { display: inline-block; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; margin-bottom: 5px; }
-        .status-good { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .status-bad { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-
         /* 卡片按鈕 */
-        .card-actions { display: flex; gap: 5px; margin-top: 8px; z-index: 10; }
+        .card-actions { display: flex; gap: 5px; margin-top: 8px; z-index: 5; }
         .btn-card-action { 
             flex: 1; padding: 6px; border-radius: 6px; font-size: 0.85rem; 
-            cursor: pointer; border: none; font-weight: bold; transition: 0.2s; z-index: 10;
+            cursor: pointer; border: none; font-weight: bold; transition: 0.2s; 
         }
         .btn-outline-sm { background: white; border: 1px solid #ddd; color: #555; }
         .btn-outline-sm:hover { background: #f0f0f0; }
@@ -171,7 +166,7 @@ html_template = """
         .gen-recipe-btn {
             margin-top: 5px; width: 100%; padding: 6px; 
             background: #e3f2fd; border: 1px solid #90caf9; color: #1976d2;
-            border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: bold; z-index: 10;
+            border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: bold; z-index: 5;
         }
         .gen-recipe-btn:hover { background: #bbdefb; }
 
@@ -294,7 +289,6 @@ html_template = """
                     <div class="detail-info">
                         <h1 id="dt-name" style="margin:0; font-size:1.8rem;"></h1>
                         <div style="margin:10px 0;">
-                            <span id="dt-condition-badge"></span>
                             <span id="dt-price" style="color:#d9534f; font-size:1.5rem; font-weight:bold; float:right;"></span>
                         </div>
                         <hr style="border:0; border-top:1px solid #eee; margin:20px 0;">
@@ -431,8 +425,11 @@ html_template = """
         function renderProducts(list) {
             if(!list || list.length===0) { document.getElementById('grid-products').innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:50px; color:#888;"><div style="font-size:3rem;">🥦🍎🥩</div><div>請點擊上方分類開始選購</div></div>'; return; }
             document.getElementById('grid-products').innerHTML = list.map(p => {
-                let badgeClass = p.condition === '良好' ? 'status-good' : 'status-bad';
+                // 狀態標籤
                 let badgeText = p.condition === '良好' ? '✅ 外觀良好' : '⚠️ 外觀破損';
+                let badgeClass = p.condition === '良好' ? 'status-good' : 'status-bad';
+
+                // *** 關鍵修改：onclick 綁定在最外層 div，實現全卡片點擊 ***
                 return `
                 <div class="card" onclick="showDetail('${p.id}')">
                     <img src="${p.img}" class="card-img">
@@ -523,12 +520,9 @@ html_template = """
             document.getElementById('dt-expiry').innerText = p.date;
             document.getElementById('dt-tag').innerText = p.cat;
             
-            const badge = document.getElementById('dt-condition-badge');
-            badge.className = p.condition === '良好' ? 'status-badge status-good' : 'status-badge status-bad';
-            badge.innerText = p.condition === '良好' ? '✅ 外觀良好' : '⚠️ 外觀破損';
-            
+            // *** 新增：將狀態寫入詳情頁 ***
             const conditionText = document.getElementById('dt-condition-text');
-            conditionText.innerText = p.condition === '良好' ? '良好' : '破損';
+            conditionText.innerText = p.condition === '良好' ? '✅ 外觀良好，適合送禮或直接食用' : '⚠️ 外觀有輕微破損，建議盡快食用或加工';
             conditionText.style.color = p.condition === '良好' ? '#28a745' : '#dc3545';
 
             switchPage('detail');
