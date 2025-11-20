@@ -8,7 +8,7 @@ GITHUB_USER = "ShadowREddd"
 REPO_NAME = "-"     
 BRANCH_NAME = "main"            
 
-# 指向根目錄
+# 指向根目錄 (這個會自動替換 html 中的 images/ 路徑)
 BASE_URL = f"https://raw.githubusercontent.com/{GITHUB_USER}/{REPO_NAME}/{BRANCH_NAME}/"
 # ==========================================
 
@@ -330,40 +330,38 @@ html_template = """
     <script>
         function getFutureDate(d) { const date = new Date(); date.setDate(date.getDate()+d); return date.toISOString().split('T')[0]; }
 
-        // --- 資料庫 (圖片已更新為穩定 Unsplash 連結) ---
+        // --- 資料庫 (原圖使用本地路徑，新食材使用網圖) ---
         const products = [
-            // 水果
-            { id: "P1", name: "蘋果", price: 139, img: "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=400", cat: "水果", origin: "美國", storage: "冷藏", date: getFutureDate(6) },
-            { id: "P2", name: "香蕉", price: 80, img: "https://images.unsplash.com/photo-1571771896612-61871f015852?w=400", cat: "水果", origin: "台灣", storage: "常溫", date: getFutureDate(3) },
-            { id: "P7", name: "柳橙", price: 120, img: "https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?w=400", cat: "水果", origin: "美國", storage: "冷藏", date: getFutureDate(10) },
-            { id: "P10", name: "鳳梨", price: 155, img: "https://images.unsplash.com/photo-1550258987-190a2d41a8ba?w=400", cat: "水果", origin: "美國", storage: "冷凍", date: getFutureDate(5) },
+            // 水果 (原圖)
+            { id: "P1", name: "蘋果", price: 139, img: "images/蘋果.jpg", cat: "水果", origin: "美國", storage: "冷藏", date: getFutureDate(6) },
+            { id: "P2", name: "香蕉", price: 80, img: "images/香蕉.jpg", cat: "水果", origin: "台灣", storage: "常溫", date: getFutureDate(3) },
+            { id: "P7", name: "柳橙", price: 120, img: "images/柳橙.JPG", cat: "水果", origin: "美國", storage: "冷藏", date: getFutureDate(10) },
+            { id: "P10", name: "鳳梨", price: 155, img: "images/鳳梨.jpg", cat: "水果", origin: "美國", storage: "冷凍", date: getFutureDate(5) },
 
-            // 蔬菜 (包含根莖類)
-            { id: "P3", name: "高麗菜", price: 160, img: "https://images.unsplash.com/photo-1623341214825-9f4f963727da?w=400", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(7) },
-            { id: "P4", name: "番茄", price: 70, img: "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(5) },
-            { id: "P5", name: "洋蔥", price: 50, img: "https://images.unsplash.com/photo-1618512496248-a07fe83aa829?w=400", cat: "蔬菜", origin: "美國", storage: "常溫", date: getFutureDate(20) },
-            { id: "P6", name: "地瓜", price: 190, img: "https://images.unsplash.com/photo-1596097635121-14b63b7a0c19?w=400", cat: "蔬菜", origin: "台灣", storage: "常溫", date: getFutureDate(14) },
-            { id: "P8", name: "菠菜", price: 90, img: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(2) },
-            { id: "P9", name: "胡蘿蔔", price: 60, img: "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=400", cat: "蔬菜", origin: "韓國", storage: "冷藏", date: getFutureDate(8) },
-            { id: "P11", name: "花椰菜", price: 55, img: "https://images.unsplash.com/photo-1568584711075-3d021a7c3d54?w=400", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(5) },
+            // 蔬菜 (原圖)
+            { id: "P3", name: "高麗菜", price: 160, img: "images/高麗菜.JPG", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(7) },
+            { id: "P4", name: "番茄", price: 70, img: "images/番茄.JPG", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(5) },
+            { id: "P5", name: "洋蔥", price: 50, img: "images/洋蔥.jpg", cat: "蔬菜", origin: "美國", storage: "常溫", date: getFutureDate(20) },
+            { id: "P6", name: "地瓜", price: 190, img: "images/地瓜.jpg", cat: "蔬菜", origin: "台灣", storage: "常溫", date: getFutureDate(14) },
+            { id: "P8", name: "菠菜", price: 90, img: "images/菠菜.JPG", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(2) },
+            { id: "P9", name: "胡蘿蔔", price: 60, img: "images/胡蘿蔔.jpg", cat: "蔬菜", origin: "韓國", storage: "冷藏", date: getFutureDate(8) },
+            
+            // 新增食材 (網圖)
+            { id: "P11", name: "花椰菜", price: 55, img: "https://images.unsplash.com/photo-1583663848850-46af132dc08e?w=400", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(5) },
             { id: "P12", name: "甜玉米", price: 40, img: "https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=400", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(7) },
-            
-            // 彩椒 (已換新圖)
             { id: "P14", name: "彩椒", price: 45, img: "https://images.unsplash.com/photo-1563565375-f3fdf5ecfae9?w=400", cat: "蔬菜", origin: "荷蘭", storage: "冷藏", date: getFutureDate(12) },
-            
             { id: "P15", name: "馬鈴薯", price: 35, img: "https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400", cat: "蔬菜", origin: "美國", storage: "常溫", date: getFutureDate(30) },
-
-            // 菇類
             { id: "P13", name: "鮮香菇", price: 65, img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400", cat: "菇類", origin: "台灣", storage: "冷藏", date: getFutureDate(10) },
 
-            // 肉品 (僅保留 豬肉 & 牛肉)
+            // 肉品 (網圖，簡化名稱)
             { id: "P16", name: "豬肉", price: 220, img: "https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=400", cat: "肉品", origin: "台灣", storage: "冷凍", date: getFutureDate(30) },
             { id: "P17", name: "牛肉", price: 450, img: "https://images.unsplash.com/photo-1613482184648-47399b2df699?w=400", cat: "肉品", origin: "美國", storage: "冷凍", date: getFutureDate(30) },
 
-            // 海鮮
+            // 海鮮 (網圖)
             { id: "P20", name: "鮭魚切片", price: 350, img: "https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?w=400", cat: "海鮮", origin: "挪威", storage: "冷凍", date: getFutureDate(15) }
         ];
 
+        // 食譜 (原圖)
         const allRecipes = [
             { id: "R1", name: "綜合蔬果沙拉", cal: 220, img: "images/綜合蔬果沙拉.jpg", steps: ["所有食材洗淨切塊", "加入橄欖油與鹽拌勻"], ingredients: ["蘋果", "番茄", "洋蔥"] },
             { id: "R2", name: "番茄炒高麗菜", cal: 180, img: "images/番茄炒高麗菜.jpg", steps: ["熱鍋爆香", "加入番茄炒軟", "加入高麗菜炒熟"], ingredients: ["番茄", "高麗菜"] },
@@ -375,7 +373,7 @@ html_template = """
                 id: "Hidden1", 
                 name: "奶油酪梨雞胸肉佐蒜香地瓜葉", 
                 cal: 450, 
-                img: "https://images.unsplash.com/photo-1606756790138-7c48643e2912?w=400", 
+                img: "https://images.unsplash.com/photo-1606756790138-7c48643e2912?w=400", // 隱藏食譜維持網圖
                 hidden: true,
                 ingredients: ["雞胸肉 (250g)", "酪梨 1 顆", "地瓜葉 1 把", "牛奶/豆漿 100ml", "洋蔥 1/4 顆", "蒜頭 3-4 瓣"],
                 steps: ["雞胸肉切塊，加鹽、黑胡椒、橄欖油醃 10 分鐘。", "熱鍋煎雞胸肉至金黃，盛起備用。", "原鍋炒香洋蔥丁與蒜末，加入酪梨肉壓成泥。", "倒入牛奶煮成濃滑醬汁，加鹽調味。", "放回雞肉煨煮 1-2 分鐘即可。", "另起鍋爆香蒜片，快炒地瓜葉，加鹽調味。"]
