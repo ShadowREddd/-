@@ -70,7 +70,6 @@ html_template = """
             padding: 0 50px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 5000;
         }
         
-        /* 修改：Logo 區域改為返回按鈕樣式 */
         .back-home-btn { 
             font-size: 1.1rem; font-weight: bold; color: #666; cursor: pointer; 
             display: flex; align-items: center; gap: 8px; transition: color 0.2s; 
@@ -173,11 +172,7 @@ html_template = """
         .btn-primary { background: var(--primary); color: white; }
         .btn-outline { background: white; border: 1px solid #ddd; color: #555; }
         .tag { background: #eee; padding: 4px 10px; border-radius: 15px; font-size: 0.85rem; color: #666; }
-
-        /* 手機版頂部返回區 */
-        .mobile-top-bar {
-            display: flex; align-items: center; padding: 10px 5px; margin-bottom: 10px;
-        }
+        .mobile-top-bar { display: flex; align-items: center; padding: 10px 5px; margin-bottom: 10px; }
 
     </style>
 </head>
@@ -374,12 +369,21 @@ html_template = """
         ];
 
         const recipes = [
-            { id: "R1", name: "綜合蔬果沙拉", cal: 220, img: "images/綜合蔬果沙拉.jpg", steps: ["所有食材洗淨切塊", "加入橄欖油與鹽拌勻"] },
-            { id: "R2", name: "番茄炒高麗菜", cal: 180, img: "images/番茄炒高麗菜.jpg", steps: ["熱鍋爆香", "加入番茄炒軟", "加入高麗菜炒熟"] },
-            { id: "R3", name: "蜂蜜烤地瓜", cal: 250, img: "images/蜂蜜烤地瓜.jpg", steps: ["洗淨", "200度烤40分鐘"] },
-            { id: "R4", name: "鳳梨蘋果汁", cal: 150, img: "images/鳳梨蘋果汁.jpg", steps: ["切塊", "加水打成汁"] },
-            { id: "R5", name: "香蕉柳橙冰沙", cal: 180, img: "images/香蕉柳橙冰沙.jpg", steps: ["加冰塊", "打成冰沙"] },
-            { id: "R6", name: "義式烤蔬菜", cal: 200, img: "images/義式烤蔬菜.jpg", steps: ["切塊", "撒上香料烤熟"] }
+            { id: "R1", name: "綜合蔬果沙拉", cal: 220, img: "images/綜合蔬果沙拉.jpg", steps: ["所有食材洗淨切塊", "加入橄欖油與鹽拌勻"], ingredients: ["蘋果", "番茄", "洋蔥"] },
+            { id: "R2", name: "番茄炒高麗菜", cal: 180, img: "images/番茄炒高麗菜.jpg", steps: ["熱鍋爆香", "加入番茄炒軟", "加入高麗菜炒熟"], ingredients: ["番茄", "高麗菜"] },
+            { id: "R3", name: "蜂蜜烤地瓜", cal: 250, img: "images/蜂蜜烤地瓜.jpg", steps: ["洗淨", "200度烤40分鐘"], ingredients: ["地瓜"] },
+            { id: "R4", name: "鳳梨蘋果汁", cal: 150, img: "images/鳳梨蘋果汁.jpg", steps: ["切塊", "加水打成汁"], ingredients: ["鳳梨", "蘋果"] },
+            { id: "R5", name: "香蕉柳橙冰沙", cal: 180, img: "images/香蕉柳橙冰沙.jpg", steps: ["加冰塊", "打成冰沙"], ingredients: ["香蕉", "柳橙"] },
+            { id: "R6", name: "義式烤蔬菜", cal: 200, img: "images/義式烤蔬菜.jpg", steps: ["切塊", "撒上香料烤熟"], ingredients: ["胡蘿蔔", "洋蔥"] },
+            {
+                id: "Hidden1", 
+                name: "奶油酪梨雞胸肉佐蒜香地瓜葉", 
+                cal: 450, 
+                img: "images/奶油酪梨雞胸肉.jpg",
+                hidden: true,
+                ingredients: ["雞胸肉", "酪梨", "地瓜葉", "牛奶", "洋蔥"],
+                steps: ["雞胸肉切塊醃製，煎至金黃備用", "炒香洋蔥蒜末，加入酪梨壓泥", "倒入牛奶煮成醬汁", "放入雞肉煨煮入味", "另起鍋爆香蒜片，快炒地瓜葉"]
+            }
         ];
 
         let cart = [];
@@ -389,7 +393,7 @@ html_template = """
 
         function init() {
             renderProducts(products);
-            renderRecipes();
+            filterRecipes(); // 初始化時執行篩選，隱藏隱藏版食譜
         }
 
         function renderProducts(list) {
@@ -410,8 +414,23 @@ html_template = """
             renderProducts(cat === 'all' ? products : products.filter(p => p.cat === cat));
         }
 
-        function renderRecipes() {
-            document.getElementById('grid-recipes').innerHTML = recipes.map(r => `
+        // 修改過的 filterRecipes (支援隱藏菜單)
+        function filterRecipes() {
+            const kw = document.getElementById('recipe-search').value.trim();
+            
+            const filtered = recipes.filter(r => {
+                if (r.hidden) {
+                    return kw.includes("酪梨");
+                }
+                if (!kw) return true;
+                return r.name.includes(kw) || (r.ingredients && r.ingredients.some(i => i.includes(kw)));
+            });
+
+            renderRecipes(filtered);
+        }
+
+        function renderRecipes(list) {
+            document.getElementById('grid-recipes').innerHTML = list.map(r => `
                 <div class="card" onclick="showStep('${r.id}')">
                     <img src="${r.img}" class="card-img" onerror="this.src='https://via.placeholder.com/300?text=${r.name}'">
                     <div class="card-body">
@@ -517,13 +536,9 @@ html_template = """
 
         function updateCustomPreview() {
             const ingContainer = document.getElementById('new-ing-list');
-            if(tempIngredients.length === 0) {
-                ingContainer.innerHTML = '<span style="color:#999; font-size:0.9rem;">尚未加入食材</span>';
-            } else {
-                ingContainer.innerHTML = tempIngredients.map((ing, i) => 
-                    `<div class="ing-tag">${ing} <span onclick="tempIngredients.splice(${i},1);updateCustomPreview()">✕</span></div>`
-                ).join('');
-            }
+            ingContainer.innerHTML = tempIngredients.length ? tempIngredients.map((ing, i) => 
+                `<div class="ing-tag">${ing} <span onclick="tempIngredients.splice(${i},1);updateCustomPreview()">✕</span></div>`
+            ).join('') : '<span style="color:#999; font-size:0.9rem;">尚未加入食材</span>';
 
             const stepList = document.getElementById('new-step-list');
             stepList.innerHTML = tempSteps.length ? tempSteps.map((s, i) => 
@@ -536,10 +551,10 @@ html_template = """
             const cal = document.getElementById('new-r-cal').value;
             if(!name || tempIngredients.length===0 || tempSteps.length===0) { alert("請填寫名稱、食材與步驟！"); return; }
             
-            recipes.unshift({id:"C"+Date.now(), name:name, img:"https://via.placeholder.com/300?text="+name, cal:cal||0, steps:[...tempSteps]});
+            recipes.unshift({id:"C"+Date.now(), name:name, img:"https://via.placeholder.com/300?text="+name, cal:cal||0, steps:[...tempSteps], ingredients:[...tempIngredients]});
             alert("✨ 私房食譜發布成功！");
             closeModal('create');
-            renderRecipes();
+            renderRecipes(recipes);
         }
 
         function openModal(id) { 
