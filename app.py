@@ -47,7 +47,8 @@ html_template = """
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
             background: white; z-index: 99999; 
             display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            transition: opacity 0.5s ease-out; overflow: hidden; cursor: pointer;
+            transition: opacity 0.5s ease-out;
+            overflow: hidden; cursor: pointer;
         }
         .splash-logo { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -135,27 +136,33 @@ html_template = """
         .cat-btn { white-space: nowrap; padding: 8px 16px; border-radius: 20px; border: 1px solid #ddd; background: white; color: #666; cursor: pointer; }
         .cat-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* 網格 & 卡片 */
+        /* 網格 & 卡片 (優化點擊) */
         .grid { display: grid; gap: 15px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
         
-        /* 卡片樣式 */
         .card { 
             background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
-            cursor: pointer; transition: transform 0.2s; display: flex; flex-direction: column;
+            transition: transform 0.2s; display: flex; flex-direction: column;
             position: relative;
         }
-        .card:active { transform: scale(0.98); }
         .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
         
+        /* 點擊區域分離 */
+        .card-click-area { cursor: pointer; flex-grow: 1; }
+
         .card-img { width: 100%; height: 150px; object-fit: cover; }
-        .card-body { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; }
+        .card-body { padding: 10px; display: flex; flex-direction: column; }
         .card-title { font-weight: bold; margin-bottom: 5px; color: #333; }
         .price { color: var(--primary); font-weight: bold; font-size: 1.1rem; margin-top: auto; }
         
-        /* 卡片按鈕 */
-        .card-actions { display: flex; gap: 5px; margin-top: 8px; z-index: 5; }
+        /* 狀態標籤 */
+        .status-badge { display: inline-block; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; margin-bottom: 5px; }
+        .status-good { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .status-bad { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+        /* 卡片按鈕區 (獨立層) */
+        .card-actions { display: flex; gap: 5px; margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee; }
         .btn-card-action { 
-            flex: 1; padding: 6px; border-radius: 6px; font-size: 0.85rem; 
+            flex: 1; padding: 8px; border-radius: 6px; font-size: 0.85rem; 
             cursor: pointer; border: none; font-weight: bold; transition: 0.2s; 
         }
         .btn-outline-sm { background: white; border: 1px solid #ddd; color: #555; }
@@ -164,9 +171,9 @@ html_template = """
         .btn-primary-sm:hover { background: #c9302c; }
 
         .gen-recipe-btn {
-            margin-top: 5px; width: 100%; padding: 6px; 
+            margin-top: 5px; width: 100%; padding: 8px; 
             background: #e3f2fd; border: 1px solid #90caf9; color: #1976d2;
-            border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: bold; z-index: 5;
+            border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: bold;
         }
         .gen-recipe-btn:hover { background: #bbdefb; }
 
@@ -185,6 +192,11 @@ html_template = """
         .detail-hero img { width: 100%; height: 300px; object-fit: cover; }
         .detail-info { padding: 20px; background: white; border-radius: 20px 20px 0 0; margin-top: -20px; position: relative; }
         .back-btn { position: absolute; top: 20px; left: 20px; width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.9); border:none; z-index: 10; font-size:1.2rem; cursor:pointer;}
+        
+        /* 詳情頁狀態標籤 */
+        .detail-status-tag {
+            display: inline-block; padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 0.9rem;
+        }
 
         /* Modals */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 6000; }
@@ -288,17 +300,22 @@ html_template = """
                     <div class="detail-hero"><img id="dt-img" src=""></div>
                     <div class="detail-info">
                         <h1 id="dt-name" style="margin:0; font-size:1.8rem;"></h1>
-                        <div style="margin:10px 0;">
-                            <span id="dt-price" style="color:#d9534f; font-size:1.5rem; font-weight:bold; float:right;"></span>
+                        
+                        <div style="margin:10px 0; display:flex; align-items:center; justify-content:space-between;">
+                            <span id="dt-tag" class="tag" style="font-size:1rem;"></span>
+                            <span id="dt-price" style="color:#d9534f; font-size:1.8rem; font-weight:bold;"></span>
                         </div>
+                        
                         <hr style="border:0; border-top:1px solid #eee; margin:20px 0;">
-                        <p style="color:#666; line-height:1.6; font-size:1rem;">
-                            📍 產地：<span id="dt-origin"></span><br>
-                            ❄️ 保存：<span id="dt-storage"></span><br>
-                            📅 到期：<span id="dt-expiry"></span><br>
-                            👀 外觀：<span id="dt-condition-text" style="font-weight:bold;"></span>
-                        </p>
-                        <div style="display:flex; gap:10px; margin-top:20px;">
+                        
+                        <div style="color:#666; line-height:1.8; font-size:1.1rem;">
+                            <p>📍 <strong>產地：</strong><span id="dt-origin"></span></p>
+                            <p>❄️ <strong>保存：</strong><span id="dt-storage"></span></p>
+                            <p>📅 <strong>到期：</strong><span id="dt-expiry"></span></p>
+                            <p>👀 <strong>狀態：</strong><span id="dt-condition-text" class="detail-status-tag"></span></p>
+                        </div>
+
+                        <div style="display:flex; gap:10px; margin-top:30px;">
                             <button class="btn btn-primary" onclick="addToCart()">＋ 加入購物車</button>
                             <button class="btn btn-outline" onclick="quickGenerateRecipeDetail()">⚡ 生成食譜</button>
                         </div>
@@ -425,24 +442,26 @@ html_template = """
         function renderProducts(list) {
             if(!list || list.length===0) { document.getElementById('grid-products').innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:50px; color:#888;"><div style="font-size:3rem;">🥦🍎🥩</div><div>請點擊上方分類開始選購</div></div>'; return; }
             document.getElementById('grid-products').innerHTML = list.map(p => {
-                // 狀態標籤
-                let badgeText = p.condition === '良好' ? '✅ 外觀良好' : '⚠️ 外觀破損';
                 let badgeClass = p.condition === '良好' ? 'status-good' : 'status-bad';
-
-                // *** 關鍵修改：onclick 綁定在最外層 div，實現全卡片點擊 ***
+                let badgeText = p.condition === '良好' ? '✅ 外觀良好' : '⚠️ 外觀破損';
+                
+                // 關鍵修改：點擊事件綁定在兩個 div 上
                 return `
-                <div class="card" onclick="showDetail('${p.id}')">
-                    <img src="${p.img}" class="card-img">
-                    <div class="card-body">
-                        <div class="card-title">${p.name}</div>
-                        <div><span class="status-badge ${badgeClass}">${badgeText}</span></div>
-                        <div class="price">$${p.price}</div>
-                        
-                        <div class="card-actions">
-                             <button class="btn-card-action btn-outline-sm" onclick="event.stopPropagation(); showDetail('${p.id}')">📄 詳細</button>
-                             <button class="btn-card-action btn-primary-sm" onclick="event.stopPropagation(); addToCart('${p.id}')">🛒 加入</button>
+                <div class="card">
+                    <div class="card-click-area" onclick="showDetail('${p.id}')">
+                        <img src="${p.img}" class="card-img">
+                        <div class="card-body">
+                            <div class="card-title">${p.name}</div>
+                            <div><span class="status-badge ${badgeClass}">${badgeText}</span></div>
+                            <div class="price">$${p.price}</div>
                         </div>
-                        <button class="gen-recipe-btn" onclick="event.stopPropagation(); quickGenerateRecipe('${p.name}')">⚡ 生成食譜</button>
+                    </div>
+                    <div class="card-body" style="padding-top:0;">
+                        <div class="card-actions">
+                             <button class="btn-card-action btn-outline-sm" onclick="showDetail('${p.id}')">📄 詳細</button>
+                             <button class="btn-card-action btn-primary-sm" onclick="addToCart('${p.id}')">🛒 加入</button>
+                        </div>
+                        <button class="gen-recipe-btn" onclick="quickGenerateRecipe('${p.name}')">⚡ 生成食譜</button>
                     </div>
                 </div>`;
             }).join('');
@@ -520,10 +539,10 @@ html_template = """
             document.getElementById('dt-expiry').innerText = p.date;
             document.getElementById('dt-tag').innerText = p.cat;
             
-            // *** 新增：將狀態寫入詳情頁 ***
             const conditionText = document.getElementById('dt-condition-text');
             conditionText.innerText = p.condition === '良好' ? '✅ 外觀良好，適合送禮或直接食用' : '⚠️ 外觀有輕微破損，建議盡快食用或加工';
             conditionText.style.color = p.condition === '良好' ? '#28a745' : '#dc3545';
+            conditionText.className = p.condition === '良好' ? 'detail-status-tag status-good' : 'detail-status-tag status-bad';
 
             switchPage('detail');
         }
