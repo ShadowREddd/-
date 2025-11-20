@@ -42,30 +42,28 @@ html_template = """
             .mobile-only { display: none !important; }
         }
 
-        /* --- 登入封面 (修正：LOGO 佔滿屏) --- */
+        /* --- 登入封面 (強制滿版) --- */
         #splash { 
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
             background: white; z-index: 99999; 
             display: flex; flex-direction: column; justify-content: center; align-items: center; 
             transition: opacity 0.6s ease-out;
-            overflow: hidden; /* 防止圖片溢出 */
+            overflow: hidden;
         }
         .splash-logo { 
             position: absolute; top: 0; left: 0;
-            width: 100%; height: 100%; /* 強制佔滿寬高 */
-            object-fit: cover; /* 關鍵：填滿整個區域，保持比例但可能會裁切邊緣 */
+            width: 100%; height: 100%;
+            object-fit: cover; /* 強制填滿螢幕 */
             object-position: center;
             animation: breathe 3s infinite; 
-            z-index: -1; /* 放在最底層 */
+            z-index: -1;
         }
         @keyframes breathe { 0%, 100% { transform: scale(1); opacity: 0.95; } 50% { transform: scale(1.02); opacity: 1; } }
         
-        /* 調整提示文字樣式，確保在滿版圖上可見 */
         .click-hint { 
             position: absolute; bottom: 80px;
-            color: white; /* 改成白色 */
-            font-size: 1.5rem; font-weight: bold;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.7); /*加上陰影 */
+            color: white; font-size: 1.5rem; font-weight: bold;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
             animation: blink 2s infinite; 
             z-index: 10;
         }
@@ -102,15 +100,15 @@ html_template = """
         /* --- 主容器 --- */
         .container { max-width: 1200px; margin: 0 auto; padding: 15px; }
 
-        /* --- 橫幅 Banner --- */
+        /* --- 橫幅 Banner (已修改為滿版) --- */
         .banner-container {
             width: 100%; height: 180px;
-            background: linear-gradient(135deg, #fff5f5 0%, #fff 100%);
             border-radius: 15px; margin-bottom: 20px;
             display: flex; align-items: center; justify-content: center;
             overflow: hidden; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
-        .banner-img { height: 100%; width: auto; object-fit: contain; }
+        /* 關鍵修改：強制寬高 100% 並使用 cover 填滿 */
+        .banner-img { width: 100%; height: 100%; object-fit: cover; }
         @media (min-width: 768px) { .banner-container { height: 300px; } }
 
         /* --- 分類滑動列 --- */
@@ -245,7 +243,10 @@ html_template = """
         <div id="page-recipe" class="page">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
                 <h2>食譜牆</h2>
-                <button class="btn-outline" style="width:auto; padding:8px 20px;" onclick="openCreateRecipeModal()">＋ 自訂食譜</button>
+                <div style="display:flex; gap:10px;">
+                     <input type="text" id="recipe-search" placeholder="搜尋食譜..." oninput="filterRecipes()" style="padding:8px; border:1px solid #ddd; border-radius:20px; outline:none;">
+                    <button class="btn-outline" style="width:auto; padding:8px 20px;" onclick="openCreateRecipeModal()">＋ 自訂食譜</button>
+                </div>
             </div>
             <div id="grid-recipes" class="grid"></div>
         </div>
@@ -390,7 +391,8 @@ html_template = """
             { id: "P14", name: "鮮乳", price: 90, img: "https://via.placeholder.com/300?text=Milk", cat: "飲品", origin: "台灣", storage: "冷藏", date: getFutureDate(10) }
         ];
 
-        const recipes = [
+        // allRecipes 改名避免變數衝突
+        const allRecipes = [
             { id: "R1", name: "綜合蔬果沙拉", cal: 220, img: "images/綜合蔬果沙拉.jpg", steps: ["所有食材洗淨切塊", "加入橄欖油與鹽拌勻"], ingredients: ["蘋果", "番茄", "洋蔥"] },
             { id: "R2", name: "番茄炒高麗菜", cal: 180, img: "images/番茄炒高麗菜.jpg", steps: ["熱鍋爆香", "加入番茄炒軟", "加入高麗菜炒熟"], ingredients: ["番茄", "高麗菜"] },
             { id: "R3", name: "蜂蜜烤地瓜", cal: 250, img: "images/蜂蜜烤地瓜.jpg", steps: ["洗淨", "200度烤40分鐘"], ingredients: ["地瓜"] },
@@ -415,7 +417,10 @@ html_template = """
 
         function init() {
             renderProducts(products);
-            filterRecipes(); 
+            
+            // --- 修正重點：初始化時，只顯示沒有 hidden 標記的食譜 ---
+            const defaultRecipes = allRecipes.filter(r => !r.hidden);
+            renderRecipes(defaultRecipes);
         }
 
         function renderProducts(list) {
@@ -436,11 +441,20 @@ html_template = """
             renderProducts(cat === 'all' ? products : products.filter(p => p.cat === cat));
         }
 
+        // --- 修正後的篩選邏輯 ---
         function filterRecipes() {
-            const kw = document.getElementById('recipe-search').value.trim();
-            const filtered = recipes.filter(r => {
-                if (r.hidden) { return kw.includes("酪梨"); }
-                if (!kw) return true;
+            const searchInput = document.getElementById('recipe-search');
+            // 如果切換頁面時 input 還沒產生，就略過
+            const kw = searchInput ? searchInput.value.trim() : "";
+            
+            const filtered = allRecipes.filter(r => {
+                // 1. 隱藏版食譜：只有輸入「酪梨」才顯示
+                if (r.hidden === true) {
+                    return kw.includes("酪梨");
+                }
+                // 2. 一般食譜：如果沒輸入關鍵字，全部顯示
+                if (kw === "") return true;
+                // 3. 一般食譜：關鍵字搜尋
                 return r.name.includes(kw) || (r.ingredients && r.ingredients.some(i => i.includes(kw)));
             });
             renderRecipes(filtered);
@@ -448,7 +462,7 @@ html_template = """
 
         function renderRecipes(list) {
             if (!list || list.length === 0) {
-                document.getElementById('grid-recipes').innerHTML = '<div style="text-align:center; color:#999; grid-column:1/-1;">没有找到相關食譜，試試搜尋「酪梨」？</div>';
+                document.getElementById('grid-recipes').innerHTML = '<div style="text-align:center; color:#999; grid-column:1/-1; padding:20px;">找不到相關食譜... 試試輸入「酪梨」？</div>';
                 return;
             }
             document.getElementById('grid-recipes').innerHTML = list.map(r => `
@@ -473,9 +487,13 @@ html_template = """
 
             document.getElementById('page-'+page).style.display = 'block';
             
+            // 切換到食譜牆時，重置搜尋並顯示預設食譜
             if(page === 'recipe') {
-                document.getElementById('recipe-search').value = '';
-                filterRecipes();
+                const searchInput = document.getElementById('recipe-search');
+                if(searchInput) searchInput.value = '';
+                // 重新呼叫初始化篩選 (只顯示非隱藏)
+                const defaultRecipes = allRecipes.filter(r => !r.hidden);
+                renderRecipes(defaultRecipes);
             }
             window.scrollTo(0,0);
         }
@@ -514,7 +532,7 @@ html_template = """
         }
 
         function showStep(rid) {
-            const r = recipes.find(x => x.id === rid);
+            const r = allRecipes.find(x => x.id === rid);
             document.getElementById('step-title').innerText = r.name;
             
             let html = '<h4>🍽 食材</h4><ul class="ing-list">';
@@ -541,8 +559,15 @@ html_template = """
             const p = products.find(x => x.id === currentPid);
             alert(`正在為您尋找「${p.name}」相關食譜...`);
             switchPage('recipe');
-            document.getElementById('recipe-search').value = p.name;
-            filterRecipes();
+            
+            // 自動填入並搜尋
+            setTimeout(() => {
+                const searchInput = document.getElementById('recipe-search');
+                if(searchInput) {
+                    searchInput.value = p.name;
+                    filterRecipes();
+                }
+            }, 100);
         }
 
         // --- 自訂食譜邏輯 ---
@@ -596,12 +621,14 @@ html_template = """
             const cal = document.getElementById('new-r-cal').value;
             if(!name || tempIngredients.length===0 || tempSteps.length===0) { alert("請填寫名稱、食材與步驟！"); return; }
             
-            recipes.unshift({id:"C"+Date.now(), name:name, img:"https://via.placeholder.com/300?text="+name, cal:cal||0, steps:[...tempSteps], ingredients:[...tempIngredients]});
+            allRecipes.unshift({id:"C"+Date.now(), name:name, img:"https://via.placeholder.com/300?text="+name, cal:cal||0, steps:[...tempSteps], ingredients:[...tempIngredients]});
             alert("✨ 私房食譜發布成功！");
             closeModal('create');
             
-            document.getElementById('recipe-search').value = '';
-            filterRecipes();
+            // 強制刷新列表
+            const searchInput = document.getElementById('recipe-search');
+            if(searchInput) searchInput.value = '';
+            renderRecipes(allRecipes.filter(r => !r.hidden));
         }
 
         function openModal(id) { 
