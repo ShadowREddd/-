@@ -147,21 +147,24 @@ html_template = """
         .card:active { transform: scale(0.98); }
         .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
         
-        .card-click-area { cursor: pointer; flex-grow: 1; }
+        .card-click-area { cursor: pointer; flex-grow: 1; } /* 點擊區 */
 
         .card-img { width: 100%; height: 150px; object-fit: cover; }
-        .card-body { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; }
+        .card-body { padding: 10px; display: flex; flex-direction: column; }
         .card-title { font-weight: bold; margin-bottom: 5px; color: #333; }
         .price { color: var(--primary); font-weight: bold; font-size: 1.1rem; margin-top: auto; }
         
+        /* 狀態標籤 */
         .status-badge { display: inline-block; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; margin-bottom: 5px; }
         .status-good { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .status-bad { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
 
-        .card-actions { display: flex; gap: 5px; margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee; z-index: 10; }
+        /* 卡片按鈕 */
+        .card-actions { display: flex; gap: 5px; margin-top: 8px; border-top: 1px solid #eee; padding-top: 8px; z-index: 10; }
         .btn-card-action { 
             flex: 1; padding: 6px; border-radius: 6px; font-size: 0.85rem; 
-            cursor: pointer; border: none; font-weight: bold; transition: 0.2s; z-index: 10;
+            cursor: pointer; border: none; font-weight: bold; transition: 0.2s; 
+            z-index: 10; /* 確保最上層 */
         }
         .btn-outline-sm { background: white; border: 1px solid #ddd; color: #555; }
         .btn-outline-sm:hover { background: #f0f0f0; }
@@ -169,7 +172,7 @@ html_template = """
         .btn-primary-sm:hover { background: #c9302c; }
 
         .gen-recipe-btn {
-            margin-top: 5px; width: 100%; padding: 6px; 
+            margin-top: 5px; width: 100%; padding: 8px; 
             background: #e3f2fd; border: 1px solid #90caf9; color: #1976d2;
             border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: bold; z-index: 10;
         }
@@ -190,6 +193,7 @@ html_template = """
         .detail-hero img { width: 100%; height: 300px; object-fit: cover; }
         .detail-info { padding: 20px; background: white; border-radius: 20px 20px 0 0; margin-top: -20px; position: relative; }
         .back-btn { position: absolute; top: 20px; left: 20px; width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.9); border:none; z-index: 10; font-size:1.2rem; cursor:pointer;}
+        
         .detail-status-tag { display: inline-block; padding: 5px 10px; border-radius: 4px; font-size: 0.9rem; font-weight: bold; }
 
         /* Modals */
@@ -200,16 +204,6 @@ html_template = """
             .modal { align-items: center; justify-content: center; }
             .modal-content { position: relative; width: 500px; border-radius: 15px; bottom: auto; left: auto; animation: fadeIn 0.3s; }
         }
-
-        /* 購物車樣式 (新增) */
-        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #eee; }
-        .cart-info { flex: 1; }
-        .cart-name { font-weight: bold; font-size: 1rem; color: #333; }
-        .cart-price { color: #666; font-size: 0.9rem; }
-        .cart-controls { display: flex; align-items: center; gap: 10px; }
-        .qty-btn { width: 28px; height: 28px; border-radius: 50%; border: 1px solid #ddd; background: white; font-weight: bold; cursor: pointer; display:flex; align-items:center; justify-content:center;}
-        .qty-btn:active { background: #eee; }
-        .del-btn { color: #d9534f; background: none; border: none; cursor: pointer; font-size: 1.2rem; margin-left: 5px; }
 
         /* Admin & Form */
         .admin-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
@@ -305,17 +299,17 @@ html_template = """
                     <div class="detail-info">
                         <h1 id="dt-name" style="margin:0; font-size:1.8rem;"></h1>
                         <div style="margin:10px 0;">
-                            <span id="dt-condition-badge"></span>
-                            <span id="dt-price" style="color:#d9534f; font-size:1.5rem; font-weight:bold; float:right;"></span>
+                            <span id="dt-price" style="color:#d9534f; font-size:1.5rem; font-weight:bold;"></span>
+                            <span id="dt-tag" class="tag" style="float:right; margin-top:5px;"></span>
                         </div>
                         <hr style="border:0; border-top:1px solid #eee; margin:20px 0;">
-                        <p style="color:#666; line-height:1.6; font-size:1rem;">
-                            📍 產地：<span id="dt-origin"></span><br>
-                            ❄️ 保存：<span id="dt-storage"></span><br>
-                            📅 到期：<span id="dt-expiry"></span><br>
-                            👀 外觀：<span id="dt-condition-text" class="detail-status-tag"></span>
+                        <p style="color:#666; line-height:1.8; font-size:1.1rem;">
+                            📍 <strong>產地：</strong><span id="dt-origin"></span><br>
+                            ❄️ <strong>保存：</strong><span id="dt-storage"></span><br>
+                            📅 <strong>到期：</strong><span id="dt-expiry"></span><br>
+                            👀 <strong>外觀：</strong><span id="dt-condition-text" class="detail-status-tag"></span>
                         </p>
-                        <div style="display:flex; gap:10px; margin-top:20px;">
+                        <div style="display:flex; gap:10px; margin-top:30px;">
                             <button class="btn btn-primary" onclick="addToCart()">＋ 加入購物車</button>
                             <button class="btn btn-outline" onclick="quickGenerateRecipeDetail()">⚡ 生成食譜</button>
                         </div>
@@ -445,7 +439,7 @@ html_template = """
                 let badgeClass = p.condition === '良好' ? 'status-good' : 'status-bad';
                 let badgeText = p.condition === '良好' ? '✅ 外觀良好' : '⚠️ 外觀破損';
                 
-                // 點擊卡片任意位置都會觸發 showDetail (除了按鈕)
+                // *** 核心修復：onclick 放在最外層 div ***
                 return `
                 <div class="card">
                     <div class="card-click-area" onclick="showDetail('${p.id}')">
@@ -524,10 +518,16 @@ html_template = """
             if(document.getElementById('mb-nav-'+page)) document.getElementById('mb-nav-'+page).classList.add('active');
             if(document.getElementById('dt-nav-'+page)) document.getElementById('dt-nav-'+page).classList.add('active');
             document.getElementById('page-'+page).style.display = 'block';
+            
+            // 保持市集頁面狀態
             if(page==='recipe') { document.getElementById('recipe-search').value=''; renderRecipes(allRecipes.filter(r=>!r.hidden)); }
-            if(page==='market') { 
-                if(document.getElementById('grid-products').innerHTML.includes('請點擊上方')) { } 
-                else { } 
+            if(page==='market') {
+                 // 如果是第一次進入(或被重置)，不顯示商品，等待點擊
+                 if(document.getElementById('grid-products').innerHTML.includes('請點擊上方')) {
+                     // 保持空白
+                 } else {
+                     // 否則保持原狀
+                 }
             }
             window.scrollTo(0,0);
         }
@@ -544,7 +544,7 @@ html_template = """
             document.getElementById('dt-tag').innerText = p.cat;
             
             const conditionText = document.getElementById('dt-condition-text');
-            conditionText.innerText = p.condition === '良好' ? '✅ 外觀良好，適合送禮或直接食用' : '⚠️ 外觀有輕微破損，建議盡快食用或加工';
+            conditionText.innerText = p.condition === '良好' ? '✅ 外觀良好' : '⚠️ 外觀有破損';
             conditionText.style.color = p.condition === '良好' ? '#28a745' : '#dc3545';
             conditionText.className = p.condition === '良好' ? 'detail-status-tag status-good' : 'detail-status-tag status-bad';
 
@@ -560,53 +560,12 @@ html_template = """
             updateCartUI();
             alert('✅ 已加入購物車');
         }
-        
-        // 購物車數量增減功能
-        function changeQty(id, delta) {
-            const item = cart.find(x => x.id === id);
-            if (!item) return;
-            item.qty += delta;
-            if (item.qty <= 0) {
-                if(confirm('確定要移除此商品嗎？')) {
-                    cart = cart.filter(x => x.id !== id);
-                } else {
-                    item.qty = 1; // 恢復
-                }
-            }
-            updateCartUI();
-        }
-
-        function removeFromCart(id) {
-            if(confirm('確定要移除此商品嗎？')) {
-                cart = cart.filter(x => x.id !== id);
-                updateCartUI();
-            }
-        }
-
         function updateCartUI() {
             const count = cart.reduce((sum, i) => sum + i.qty, 0);
             const total = cart.reduce((sum, i) => sum + i.price*i.qty, 0);
             document.querySelectorAll('.cart-count-num').forEach(el => el.innerText = count);
             document.getElementById('cart-total').innerText = '$' + total;
-            
-            if (cart.length === 0) {
-                document.getElementById('cart-list').innerHTML = '<p style="text-align:center; color:#999;">購物車是空的</p>';
-            } else {
-                document.getElementById('cart-list').innerHTML = cart.map(item => `
-                    <div class="cart-item">
-                        <div class="cart-info">
-                            <div class="cart-name">${item.name}</div>
-                            <div class="cart-price">$${item.price} / 個</div>
-                        </div>
-                        <div class="cart-controls">
-                            <button class="qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
-                            <span style="font-weight:bold; min-width:20px; text-align:center;">${item.qty}</span>
-                            <button class="qty-btn" onclick="changeQty('${item.id}', 1)">+</button>
-                            <button class="del-btn" onclick="removeFromCart('${item.id}')">🗑️</button>
-                        </div>
-                    </div>
-                `).join('');
-            }
+            document.getElementById('cart-list').innerHTML = cart.length ? cart.map(i => `<div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #f5f5f5;"><span>${i.name} x ${i.qty}</span><span>$${i.price*i.qty}</span></div>`).join('') : '<p style="text-align:center; color:#999;">購物車是空的</p>';
         }
 
         function showStep(rid) {
