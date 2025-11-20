@@ -31,24 +31,32 @@ html_template = """
             overflow-x: hidden;
         }
 
-        /* --- CSS 變數 --- */
         :root { --primary: #d9534f; --text: #333; --bg: #fff; }
 
-        /* --- 響應式斷點控制 (關鍵！) --- */
-        /* 預設顯示手機版元件，隱藏電腦版元件 */
+        /* RWD 控制 */
         .desktop-only { display: none !important; }
         .mobile-only { display: flex !important; }
 
-        /* 當螢幕寬度大於 768px (電腦/平板) 時 */
         @media (min-width: 768px) {
-            body { padding-bottom: 0; padding-top: 70px; /* 電腦版預留頂部空間 */ }
+            body { padding-bottom: 0; padding-top: 70px; }
             .desktop-only { display: flex !important; }
             .mobile-only { display: none !important; }
         }
 
-        /* --- 1. 導覽列 (Navigation) --- */
-        
-        /* 📱 手機底部導覽列 */
+        /* --- 登入封面 (Splash Screen - 全螢幕滿版) --- */
+        #splash { 
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
+            background: white; z-index: 99999; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            transition: opacity 0.6s ease-out;
+        }
+        .splash-logo { width: 70%; max-width: 500px; animation: breathe 3s infinite; object-fit: contain; }
+        @keyframes breathe { 0%, 100% { transform: scale(0.95); opacity: 0.9; } 50% { transform: scale(1.05); opacity: 1; } }
+        .click-hint { margin-top: 20px; color: #999; font-size: 1.2rem; animation: blink 2s infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* --- 導覽列 --- */
+        /* 手機底部 */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; width: 100%; height: 65px;
             background: white; justify-content: space-around; align-items: center;
@@ -58,7 +66,7 @@ html_template = """
         .nav-item.active { color: var(--primary); font-weight: bold; }
         .nav-icon { font-size: 1.4rem; display: block; margin-bottom: 2px; }
 
-        /* 💻 電腦頂部導覽列 */
+        /* 電腦頂部 */
         .top-nav {
             position: fixed; top: 0; left: 0; width: 100%; height: 70px;
             background: white; justify-content: space-between; align-items: center;
@@ -71,17 +79,56 @@ html_template = """
         .desktop-menu button:hover, .desktop-menu button.active { color: var(--primary); font-weight: bold; }
         .cart-btn-desktop { background: var(--primary) !important; color: white !important; padding: 8px 20px; border-radius: 20px; }
 
-        /* --- 2. 版面容器 (Grid) --- */
+        /* --- 主容器 --- */
         .container { max-width: 1200px; margin: 0 auto; padding: 15px; }
-        
-        .grid { 
-            display: grid; 
-            gap: 15px;
-            /* 智能網格：手機 2 欄，電腦自動變多欄 */
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
+
+        /* --- 橫幅 (Banner) --- */
+        .banner-container {
+            width: 100%; 
+            height: 180px; /* 手機高度 */
+            background: linear-gradient(135deg, #fff5f5 0%, #fff 100%);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .banner-img { height: 100%; width: auto; object-fit: contain; }
+        /* 電腦版橫幅更高 */
+        @media (min-width: 768px) {
+            .banner-container { height: 300px; }
         }
 
-        /* 卡片樣式 */
+        /* --- 分類滑動列 (Categories) --- */
+        .category-bar {
+            display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px;
+            scrollbar-width: none; /* Firefox 隱藏捲軸 */
+        }
+        .category-bar::-webkit-scrollbar { display: none; /* Chrome 隱藏捲軸 */ }
+        
+        .cat-btn {
+            white-space: nowrap;
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid #ddd;
+            background: white;
+            color: #666;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .cat-btn.active {
+            background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 10px rgba(217, 83, 79, 0.3);
+        }
+
+        /* --- 商品網格 --- */
+        .grid { 
+            display: grid; gap: 15px;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
+        }
         .card { 
             background: white; border-radius: 12px; overflow: hidden; 
             box-shadow: 0 2px 5px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.2s; 
@@ -92,48 +139,37 @@ html_template = """
         .card-title { font-weight: bold; margin-bottom: 5px; color: #333; }
         .price { color: var(--primary); font-weight: bold; font-size: 1.1rem; }
 
-        /* --- 3. 詳情頁 (Detail) --- */
+        /* --- 詳情頁 --- */
         .page { display: none; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        /* 詳情頁佈局容器 */
-        .detail-wrapper { 
-            display: flex; flex-direction: column; /* 手機預設垂直 */
-            background: white; border-radius: 0; 
-        }
         
-        /* 💻 電腦版詳情頁優化 */
+        .detail-wrapper { 
+            display: flex; flex-direction: column; background: white; border-radius: 0; 
+        }
         @media (min-width: 768px) {
             .detail-wrapper { 
-                flex-direction: row; /* 電腦改為水平排列 */
-                border-radius: 20px; padding: 40px; gap: 40px; 
-                box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-top: 20px;
+                flex-direction: row; border-radius: 20px; padding: 40px; gap: 40px; margin-top: 20px;
             }
             .detail-hero { flex: 1; }
             .detail-hero img { border-radius: 15px; height: 400px !important; }
             .detail-info { flex: 1; padding: 0 !important; margin-top: 0 !important; background: none !important; }
             .back-btn { top: 90px !important; left: 40px !important; }
         }
-
         .detail-hero { position: relative; }
         .detail-hero img { width: 100%; height: 300px; object-fit: cover; }
         .detail-info { padding: 20px; background: white; border-radius: 20px 20px 0 0; margin-top: -20px; position: relative; }
-        .back-btn { position: absolute; top: 20px; left: 20px; width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.9); border:none; z-index: 10; font-size:1.2rem; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .back-btn { position: absolute; top: 20px; left: 20px; width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.9); border:none; z-index: 10; font-size:1.2rem; box-shadow: 0 2px 5px rgba(0,0,0,0.2); cursor:pointer;}
 
-        /* --- 4. Modal 彈跳視窗 --- */
+        /* --- Modal --- */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 6000; }
-        
-        /* 📱 手機：底部滑出 (Bottom Sheet) */
         .modal-content { 
             position: absolute; bottom: 0; left: 0; width: 100%; max-height: 85vh; 
             background: white; border-radius: 20px 20px 0 0; padding: 20px; 
             display: flex; flex-direction: column; animation: slideUp 0.3s;
         }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-
-        /* 💻 電腦：中央彈出 (Center Popup) */
         @media (min-width: 768px) {
-            .modal { align-items: center; justify-content: center; display: none; /* flex when active */ }
+            .modal { align-items: center; justify-content: center; }
             .modal-content { 
                 position: relative; width: 500px; border-radius: 15px; bottom: auto; left: auto; 
                 box-shadow: 0 10px 30px rgba(0,0,0,0.2); animation: fadeIn 0.3s;
@@ -143,22 +179,16 @@ html_template = """
         /* --- 通用元件 --- */
         .btn { width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: bold; font-size: 1rem; margin-top: 10px; cursor: pointer; }
         .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: #c9302c; }
         .btn-outline { background: white; border: 1px solid #ddd; color: #555; }
         .tag { background: #eee; padding: 4px 10px; border-radius: 15px; font-size: 0.85rem; color: #666; }
-
-        /* 登入封面 */
-        #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999; display: flex; justify-content: center; align-items: center; transition: opacity 0.5s; }
-        .splash-logo { width: 60%; max-width: 300px; animation: breathe 3s infinite; }
-        @keyframes breathe { 0%, 100% { transform: scale(0.98); opacity: 0.9; } 50% { transform: scale(1.02); opacity: 1; } }
 
     </style>
 </head>
 <body>
 
-    <div id="splash" onclick="this.style.opacity=0; setTimeout(()=>this.style.display='none',500)">
-        <img src="images/食際行動家.png" class="splash-logo">
-        <div style="position:absolute; bottom:50px; color:#999;">👆 點擊進入</div>
+    <div id="splash" onclick="this.style.opacity=0; setTimeout(()=>this.style.display='none',600)">
+        <img src="images/食際行動家.png" class="splash-logo" onerror="this.parentElement.innerHTML+='<h1 style=\\'color:#d9534f; font-size:3rem;\\'>食際行動家</h1>';this.style.display='none'">
+        <div class="click-hint">👆 點擊進入市集</div>
     </div>
 
     <div class="top-nav desktop-only">
@@ -175,7 +205,20 @@ html_template = """
     <div class="container">
         
         <div id="page-market" class="page" style="display:block;">
-            <h2 class="desktop-only">生鮮市集</h2>
+            
+            <div class="banner-container">
+                <img src="images/食際行動家.png" class="banner-img">
+            </div>
+
+            <div class="category-bar" id="cat-bar">
+                <button class="cat-btn active" onclick="filterCat('all', this)">全部</button>
+                <button class="cat-btn" onclick="filterCat('水果', this)">🍎 水果</button>
+                <button class="cat-btn" onclick="filterCat('蔬菜', this)">🥦 蔬菜</button>
+                <button class="cat-btn" onclick="filterCat('肉品', this)">🥩 肉品</button>
+                <button class="cat-btn" onclick="filterCat('海鮮', this)">🐟 海鮮</button>
+                <button class="cat-btn" onclick="filterCat('飲品', this)">🥤 飲品</button>
+            </div>
+
             <div id="grid-products" class="grid"></div>
         </div>
 
@@ -255,20 +298,26 @@ html_template = """
     </div>
 
     <script>
-        // --- 資料區 (副檔名對應 GitHub) ---
         function getFutureDate(d) { const date = new Date(); date.setDate(date.getDate()+d); return date.toISOString().split('T')[0]; }
 
+        // --- 資料庫 (已擴充分類) ---
         const products = [
-            { id: "P1", name: "蘋果", price: 139, img: "images/蘋果.jpg", cat: "水果", date: getFutureDate(6), origin: "美國", storage: "冷藏" },
-            { id: "P2", name: "香蕉", price: 80, img: "images/香蕉.jpg", cat: "水果", date: getFutureDate(3), origin: "台灣", storage: "常溫" },
-            { id: "P3", name: "高麗菜", price: 160, img: "images/高麗菜.JPG", cat: "蔬菜", date: getFutureDate(7), origin: "台灣", storage: "冷藏" },
-            { id: "P4", name: "番茄", price: 70, img: "images/番茄.JPG", cat: "蔬菜", date: getFutureDate(5), origin: "台灣", storage: "冷藏" },
-            { id: "P5", name: "洋蔥", price: 50, img: "images/洋蔥.jpg", cat: "蔬菜", date: getFutureDate(20), origin: "美國", storage: "常溫" },
-            { id: "P6", name: "地瓜", price: 190, img: "images/地瓜.jpg", cat: "蔬菜", date: getFutureDate(14), origin: "台灣", storage: "常溫" },
-            { id: "P7", name: "柳橙", price: 120, img: "images/柳橙.JPG", cat: "水果", date: getFutureDate(10), origin: "美國", storage: "冷藏" },
-            { id: "P8", name: "菠菜", price: 90, img: "images/菠菜.JPG", cat: "蔬菜", date: getFutureDate(2), origin: "台灣", storage: "冷藏" },
-            { id: "P9", name: "胡蘿蔔", price: 60, img: "images/胡蘿蔔.jpg", cat: "蔬菜", date: getFutureDate(8), origin: "韓國", storage: "冷藏" },
-            { id: "P10", name: "鳳梨", price: 155, img: "images/鳳梨.jpg", cat: "水果", date: getFutureDate(5), origin: "美國", storage: "冷凍" }
+            { id: "P1", name: "蘋果", price: 139, img: "images/蘋果.jpg", cat: "水果", origin: "美國", storage: "冷藏", date: getFutureDate(6) },
+            { id: "P2", name: "香蕉", price: 80, img: "images/香蕉.jpg", cat: "水果", origin: "台灣", storage: "常溫", date: getFutureDate(3) },
+            { id: "P3", name: "高麗菜", price: 160, img: "images/高麗菜.JPG", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(7) },
+            { id: "P4", name: "番茄", price: 70, img: "images/番茄.JPG", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(5) },
+            { id: "P5", name: "洋蔥", price: 50, img: "images/洋蔥.jpg", cat: "蔬菜", origin: "美國", storage: "常溫", date: getFutureDate(20) },
+            { id: "P6", name: "地瓜", price: 190, img: "images/地瓜.jpg", cat: "蔬菜", origin: "台灣", storage: "常溫", date: getFutureDate(14) },
+            { id: "P7", name: "柳橙", price: 120, img: "images/柳橙.JPG", cat: "水果", origin: "美國", storage: "冷藏", date: getFutureDate(10) },
+            { id: "P8", name: "菠菜", price: 90, img: "images/菠菜.JPG", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(2) },
+            { id: "P9", name: "胡蘿蔔", price: 60, img: "images/胡蘿蔔.jpg", cat: "蔬菜", origin: "韓國", storage: "冷藏", date: getFutureDate(8) },
+            { id: "P10", name: "鳳梨", price: 155, img: "images/鳳梨.jpg", cat: "水果", origin: "美國", storage: "冷凍", date: getFutureDate(5) },
+            
+            // 新增的肉品與海鮮假資料 (圖片暫用 placeholder)
+            { id: "P11", name: "豬梅花肉片", price: 200, img: "https://via.placeholder.com/300?text=Pork", cat: "肉品", origin: "台灣", storage: "冷凍", date: getFutureDate(30) },
+            { id: "P12", name: "牛小排", price: 500, img: "https://via.placeholder.com/300?text=Beef", cat: "肉品", origin: "美國", storage: "冷凍", date: getFutureDate(30) },
+            { id: "P13", name: "鮭魚切片", price: 350, img: "https://via.placeholder.com/300?text=Salmon", cat: "海鮮", origin: "挪威", storage: "冷凍", date: getFutureDate(15) },
+            { id: "P14", name: "鮮乳", price: 90, img: "https://via.placeholder.com/300?text=Milk", cat: "飲品", origin: "台灣", storage: "冷藏", date: getFutureDate(10) }
         ];
 
         const recipes = [
@@ -284,19 +333,35 @@ html_template = """
         let currentPid = null;
 
         function init() {
-            // 渲染商品
-            document.getElementById('grid-products').innerHTML = products.map(p => `
+            renderProducts(products); // 初始渲染所有商品
+            renderRecipes();
+        }
+
+        function renderProducts(list) {
+            document.getElementById('grid-products').innerHTML = list.map(p => `
                 <div class="card" onclick="showDetail('${p.id}')">
-                    <img src="${p.img}" class="card-img">
+                    <img src="${p.img}" class="card-img" onerror="this.src='https://via.placeholder.com/300?text=${p.name}'">
                     <div class="card-body">
                         <div class="card-title">${p.name}</div>
                         <div class="price">$${p.price}</div>
                     </div>
                 </div>
             `).join('');
+        }
 
-            // 渲染食譜
-            renderRecipes();
+        // 分類篩選功能
+        function filterCat(cat, btn) {
+            // 切換按鈕樣式
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            // 篩選資料
+            if (cat === 'all') {
+                renderProducts(products);
+            } else {
+                const filtered = products.filter(p => p.cat === cat);
+                renderProducts(filtered);
+            }
         }
 
         function renderRecipes() {
@@ -312,13 +377,11 @@ html_template = """
             `).join('');
         }
 
-        // 頁面切換 (同時控制手機和電腦的 active 狀態)
         function switchPage(page) {
             document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.querySelectorAll('.desktop-menu button').forEach(n => n.classList.remove('active'));
             
-            // 設定 Active
             if(document.getElementById('mb-nav-'+page)) document.getElementById('mb-nav-'+page).classList.add('active');
             if(document.getElementById('dt-nav-'+page)) document.getElementById('dt-nav-'+page).classList.add('active');
 
@@ -336,7 +399,6 @@ html_template = """
             document.getElementById('dt-storage').innerText = p.storage;
             document.getElementById('dt-expiry').innerText = p.date;
             document.getElementById('dt-tag').innerText = p.cat;
-            
             switchPage('detail');
         }
 
@@ -350,18 +412,14 @@ html_template = """
         }
 
         function updateCartUI() {
-            const total = cart.reduce((sum, i) => sum + i.price*i.qty, 0);
             const count = cart.reduce((sum, i) => sum + i.qty, 0);
-            
-            // 更新所有購物車數字
+            const total = cart.reduce((sum, i) => sum + i.price*i.qty, 0);
             document.querySelectorAll('.cart-count-num').forEach(el => el.innerText = count);
             document.getElementById('cart-total').innerText = '$' + total;
-            
             document.getElementById('cart-list').innerHTML = cart.length ? cart.map(i => `
                 <div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #f5f5f5;">
                     <span>${i.name} x ${i.qty}</span><span>$${i.price*i.qty}</span>
-                </div>
-            `).join('') : '<p style="text-align:center; color:#999;">購物車是空的</p>';
+                </div>`).join('') : '<p style="text-align:center; color:#999;">購物車是空的</p>';
         }
 
         function showStep(rid) {
@@ -387,7 +445,7 @@ html_template = """
 
         function openModal(id) { 
             const m = document.getElementById('modal-'+id);
-            m.style.display = (window.innerWidth >= 768) ? 'flex' : 'block'; // 電腦用 Flex 居中，手機用 Block 底部滑出
+            m.style.display = (window.innerWidth >= 768) ? 'flex' : 'block';
         }
         function closeModal(id) { document.getElementById('modal-'+id).style.display = 'none'; }
 
@@ -397,7 +455,5 @@ html_template = """
 </html>
 """
 
-# 替換根目錄圖片路徑
 final_html = html_template.replace("images/", BASE_URL)
-
-components.html(final_html, height=1000, scrolling=True)
+components.html(final_html, height=1200, scrolling=True)
