@@ -42,7 +42,7 @@ html_template = """
             .mobile-only { display: none !important; }
         }
 
-        /* --- 登入封面 (強制滿版) --- */
+        /* --- 登入封面 --- */
         #splash { 
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
             background: white; z-index: 99999; 
@@ -51,21 +51,14 @@ html_template = """
             overflow: hidden;
         }
         .splash-logo { 
-            position: absolute; top: 0; left: 0;
-            width: 100%; height: 100%;
-            object-fit: cover;
-            object-position: center;
-            animation: breathe 3s infinite; 
-            z-index: -1;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover; object-position: center;
+            animation: breathe 3s infinite; z-index: -1;
         }
         @keyframes breathe { 0%, 100% { transform: scale(1); opacity: 0.95; } 50% { transform: scale(1.02); opacity: 1; } }
-        
         .click-hint { 
-            position: absolute; bottom: 80px;
-            color: white; font-size: 1.5rem; font-weight: bold;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
-            animation: blink 2s infinite; 
-            z-index: 10;
+            position: absolute; bottom: 80px; color: white; font-size: 1.5rem; font-weight: bold;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.8); animation: blink 2s infinite; z-index: 10;
         }
         @keyframes blink { 50% { opacity: 0.5; } }
 
@@ -84,7 +77,6 @@ html_template = """
             background: white; justify-content: space-between; align-items: center;
             padding: 0 50px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 5000;
         }
-        
         .back-home-btn { 
             font-size: 1.1rem; font-weight: bold; color: #666; cursor: pointer; 
             display: flex; align-items: center; gap: 8px; transition: color 0.2s; 
@@ -231,6 +223,7 @@ html_template = """
                 <button class="cat-btn active" onclick="filterCat('all', this)">全部</button>
                 <button class="cat-btn" onclick="filterCat('水果', this)">🍎 水果</button>
                 <button class="cat-btn" onclick="filterCat('蔬菜', this)">🥦 蔬菜</button>
+                <button class="cat-btn" onclick="filterCat('菇類', this)">🍄 菇類</button>
                 <button class="cat-btn" onclick="filterCat('肉品', this)">🥩 肉品</button>
                 <button class="cat-btn" onclick="filterCat('海鮮', this)">🐟 海鮮</button>
                 <button class="cat-btn" onclick="filterCat('飲品', this)">🥤 飲品</button>
@@ -243,7 +236,7 @@ html_template = """
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
                 <h2>食譜牆</h2>
                 <div style="display:flex; gap:10px;">
-                     <input type="text" id="recipe-search" placeholder="搜尋食譜..." oninput="filterRecipes()" style="padding:8px; border:1px solid #ddd; border-radius:20px; outline:none;">
+                    <input type="text" id="recipe-search" placeholder="搜尋食譜..." oninput="filterRecipes()" style="padding:8px; border:1px solid #ddd; border-radius:20px; outline:none;">
                     <button class="btn-outline" style="width:auto; padding:8px 20px;" onclick="openCreateRecipeModal()">＋ 自訂</button>
                 </div>
             </div>
@@ -323,49 +316,14 @@ html_template = """
                 <h3 style="margin:0;">新增私房食譜</h3>
                 <span onclick="closeModal('create')" style="cursor:pointer; font-size:1.5rem;">✕</span>
             </div>
-            
             <div style="flex:1; overflow-y:auto; padding-right:5px;">
-                <div class="form-group">
-                    <label class="form-label">食譜名稱</label>
-                    <input type="text" id="new-r-name" class="form-input" placeholder="例如：阿嬤的紅燒肉">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">預估卡路里</label>
-                    <input type="number" id="new-r-cal" class="form-input" placeholder="例如：500">
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">選擇食材 (從市集)</label>
-                    <div class="add-row">
-                        <select id="product-select" class="form-select">
-                            <option value="">-- 請選擇食材 --</option>
-                        </select>
-                        <button class="add-btn-small" onclick="addIngredientFromSelect()">＋</button>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">或 手動輸入</label>
-                    <div class="add-row">
-                        <input type="text" id="manual-ing-input" class="form-input" placeholder="例如：鹽、醬油...">
-                        <button class="add-btn-small" onclick="addManualIngredient()">＋</button>
-                    </div>
-                </div>
-
-                <div id="new-ing-list" class="tag-container">
-                    <span style="color:#999; font-size:0.9rem;">尚未加入食材</span>
-                </div>
-
-                <div class="form-group" style="margin-top:15px;">
-                    <label class="form-label">步驟</label>
-                    <div class="add-row">
-                        <input type="text" id="new-step-input" class="form-input" placeholder="輸入步驟...">
-                        <button class="add-btn-small" onclick="addNewStep()">＋</button>
-                    </div>
-                    <div id="new-step-list" style="background:#f9f9f9; padding:10px; border-radius:8px; min-height:50px;"></div>
-                </div>
+                <div class="form-group"><label class="form-label">食譜名稱</label><input type="text" id="new-r-name" class="form-input" placeholder="例如：阿嬤的紅燒肉"></div>
+                <div class="form-group"><label class="form-label">預估卡路里</label><input type="number" id="new-r-cal" class="form-input" placeholder="例如：500"></div>
+                <div class="form-group"><label class="form-label">選擇食材 (從市集)</label><div class="add-row"><select id="product-select" class="form-select"><option value="">-- 請選擇食材 --</option></select><button class="add-btn-small" onclick="addIngredientFromSelect()">＋</button></div></div>
+                <div class="form-group"><label class="form-label">或 手動輸入</label><div class="add-row"><input type="text" id="manual-ing-input" class="form-input" placeholder="例如：鹽、醬油..."><button class="add-btn-small" onclick="addManualIngredient()">＋</button></div></div>
+                <div id="new-ing-list" class="tag-container"><span style="color:#999; font-size:0.9rem;">尚未加入食材</span></div>
+                <div class="form-group" style="margin-top:15px;"><label class="form-label">步驟</label><div class="add-row"><input type="text" id="new-step-input" class="form-input" placeholder="輸入步驟..."><button class="add-btn-small" onclick="addNewStep()">＋</button></div><div id="new-step-list" style="background:#f9f9f9; padding:10px; border-radius:8px; min-height:50px;"></div></div>
             </div>
-
             <button class="btn btn-primary" onclick="saveCustomRecipe()">✨ 完成並發布</button>
         </div>
     </div>
@@ -373,27 +331,40 @@ html_template = """
     <script>
         function getFutureDate(d) { const date = new Date(); date.setDate(date.getDate()+d); return date.toISOString().split('T')[0]; }
 
-        // --- 產品資料庫 (已替換為 AI 搜尋圖源) ---
+        // --- 資料庫 (蔬菜版) ---
         const products = [
+            // 水果
             { id: "P1", name: "蘋果", price: 139, img: "images/蘋果.jpg", cat: "水果", origin: "美國", storage: "冷藏", date: getFutureDate(6) },
             { id: "P2", name: "香蕉", price: 80, img: "images/香蕉.jpg", cat: "水果", origin: "台灣", storage: "常溫", date: getFutureDate(3) },
+            { id: "P7", name: "柳橙", price: 120, img: "images/柳橙.JPG", cat: "水果", origin: "美國", storage: "冷藏", date: getFutureDate(10) },
+            { id: "P10", name: "鳳梨", price: 155, img: "images/鳳梨.jpg", cat: "水果", origin: "美國", storage: "冷凍", date: getFutureDate(5) },
+
+            // 蔬菜 (包含原本的根莖類，統一歸類為蔬菜)
             { id: "P3", name: "高麗菜", price: 160, img: "images/高麗菜.JPG", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(7) },
             { id: "P4", name: "番茄", price: 70, img: "images/番茄.JPG", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(5) },
             { id: "P5", name: "洋蔥", price: 50, img: "images/洋蔥.jpg", cat: "蔬菜", origin: "美國", storage: "常溫", date: getFutureDate(20) },
             { id: "P6", name: "地瓜", price: 190, img: "images/地瓜.jpg", cat: "蔬菜", origin: "台灣", storage: "常溫", date: getFutureDate(14) },
-            { id: "P7", name: "柳橙", price: 120, img: "images/柳橙.JPG", cat: "水果", origin: "美國", storage: "冷藏", date: getFutureDate(10) },
             { id: "P8", name: "菠菜", price: 90, img: "images/菠菜.JPG", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(2) },
             { id: "P9", name: "胡蘿蔔", price: 60, img: "images/胡蘿蔔.jpg", cat: "蔬菜", origin: "韓國", storage: "冷藏", date: getFutureDate(8) },
-            { id: "P10", name: "鳳梨", price: 155, img: "images/鳳梨.jpg", cat: "水果", origin: "美國", storage: "冷凍", date: getFutureDate(5) },
-            
-            // AI 圖片補充
-            { id: "P11", name: "豬梅花肉片", price: 200, img: "https://images.unsplash.com/photo-1608755728617-aefab37d2547?w=400&q=80", cat: "肉品", origin: "台灣", storage: "冷凍", date: getFutureDate(30) },
-            { id: "P12", name: "牛小排", price: 500, img: "https://images.unsplash.com/photo-1588168333986-5078d3ae3976?w=400&q=80", cat: "肉品", origin: "美國", storage: "冷凍", date: getFutureDate(30) },
-            { id: "P13", name: "鮭魚切片", price: 350, img: "https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?w=400&q=80", cat: "海鮮", origin: "挪威", storage: "冷凍", date: getFutureDate(15) },
-            { id: "P14", name: "鮮乳", price: 90, img: "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&q=80", cat: "飲品", origin: "台灣", storage: "冷藏", date: getFutureDate(10) }
+            { id: "P11", name: "花椰菜", price: 55, img: "https://images.unsplash.com/photo-1583663848850-46af132dc08e?w=400&q=80", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(5) },
+            { id: "P12", name: "甜玉米", price: 40, img: "https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=400&q=80", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(7) },
+            { id: "P14", name: "彩椒", price: 45, img: "https://images.unsplash.com/photo-1563565375-f3fdf5ecfae9?w=400&q=80", cat: "蔬菜", origin: "荷蘭", storage: "冷藏", date: getFutureDate(12) },
+            { id: "P15", name: "馬鈴薯", price: 35, img: "https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400&q=80", cat: "蔬菜", origin: "美國", storage: "常溫", date: getFutureDate(30) },
+
+            // 菇類 (新增)
+            { id: "P13", name: "鮮香菇", price: 65, img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&q=80", cat: "菇類", origin: "台灣", storage: "冷藏", date: getFutureDate(10) },
+
+            // 肉品 (原型食物)
+            { id: "P16", name: "台灣豬五花", price: 220, img: "https://images.unsplash.com/photo-1608755728617-aefab37d2547?w=400&q=80", cat: "肉品", origin: "台灣", storage: "冷凍", date: getFutureDate(30) },
+            { id: "P17", name: "美國牛肋條", price: 450, img: "https://images.unsplash.com/photo-1588168333986-5078d3ae3976?w=400&q=80", cat: "肉品", origin: "美國", storage: "冷凍", date: getFutureDate(30) },
+            { id: "P18", name: "豬里肌", price: 180, img: "https://images.unsplash.com/photo-1627510160208-4188e08d2108?w=400&q=80", cat: "肉品", origin: "台灣", storage: "冷藏", date: getFutureDate(7) },
+            { id: "P19", name: "牛腱心", price: 380, img: "https://images.unsplash.com/photo-1615937657715-bc7b4b7962c1?w=400&q=80", cat: "肉品", origin: "澳洲", storage: "冷凍", date: getFutureDate(30) },
+
+            // 海鮮 & 飲品
+            { id: "P20", name: "鮭魚切片", price: 350, img: "https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?w=400&q=80", cat: "海鮮", origin: "挪威", storage: "冷凍", date: getFutureDate(15) },
+            { id: "P21", name: "鮮乳", price: 90, img: "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&q=80", cat: "飲品", origin: "台灣", storage: "冷藏", date: getFutureDate(10) }
         ];
 
-        // allRecipes 改名避免變數衝突
         const allRecipes = [
             { id: "R1", name: "綜合蔬果沙拉", cal: 220, img: "images/綜合蔬果沙拉.jpg", steps: ["所有食材洗淨切塊", "加入橄欖油與鹽拌勻"], ingredients: ["蘋果", "番茄", "洋蔥"] },
             { id: "R2", name: "番茄炒高麗菜", cal: 180, img: "images/番茄炒高麗菜.jpg", steps: ["熱鍋爆香", "加入番茄炒軟", "加入高麗菜炒熟"], ingredients: ["番茄", "高麗菜"] },
@@ -405,7 +376,7 @@ html_template = """
                 id: "Hidden1", 
                 name: "奶油酪梨雞胸肉佐蒜香地瓜葉", 
                 cal: 450, 
-                img: "奶油酪梨雞胸肉佐蒜香地瓜葉.jpg", 
+                img: "https://images.unsplash.com/photo-1606756790138-7c48643e2912?w=400&q=80", 
                 hidden: true,
                 ingredients: ["雞胸肉 (250g)", "酪梨 1 顆", "地瓜葉 1 把", "牛奶/豆漿 100ml", "洋蔥 1/4 顆", "蒜頭 3-4 瓣"],
                 steps: ["雞胸肉切塊，加鹽、黑胡椒、橄欖油醃 10 分鐘。", "熱鍋煎雞胸肉至金黃，盛起備用。", "原鍋炒香洋蔥丁與蒜末，加入酪梨肉壓成泥。", "倒入牛奶煮成濃滑醬汁，加鹽調味。", "放回雞肉煨煮 1-2 分鐘即可。", "另起鍋爆香蒜片，快炒地瓜葉，加鹽調味。"]
@@ -419,8 +390,6 @@ html_template = """
 
         function init() {
             renderProducts(products);
-            
-            // 初始化時：顯示所有非 hidden 的食譜
             const defaultRecipes = allRecipes.filter(r => !r.hidden);
             renderRecipes(defaultRecipes);
         }
@@ -443,15 +412,12 @@ html_template = """
             renderProducts(cat === 'all' ? products : products.filter(p => p.cat === cat));
         }
 
-        // --- 修正後的篩選邏輯 ---
         function filterRecipes() {
             const searchInput = document.getElementById('recipe-search');
             const kw = searchInput ? searchInput.value.trim() : "";
             
             const filtered = allRecipes.filter(r => {
-                if (r.hidden === true) {
-                    return kw.includes("酪梨");
-                }
+                if (r.hidden === true) { return kw.includes("酪梨"); }
                 if (kw === "") return true;
                 return r.name.includes(kw) || (r.ingredients && r.ingredients.some(i => i.includes(kw)));
             });
@@ -488,8 +454,7 @@ html_template = """
             if(page === 'recipe') {
                 const searchInput = document.getElementById('recipe-search');
                 if(searchInput) searchInput.value = '';
-                const defaultRecipes = allRecipes.filter(r => !r.hidden);
-                renderRecipes(defaultRecipes);
+                renderRecipes(allRecipes.filter(r => !r.hidden));
             }
             window.scrollTo(0,0);
         }
@@ -565,7 +530,6 @@ html_template = """
             }, 100);
         }
 
-        // --- 自訂食譜邏輯 ---
         function openCreateRecipeModal() {
             document.getElementById('new-r-name').value = '';
             document.getElementById('new-r-cal').value = '';
@@ -615,12 +579,11 @@ html_template = """
             const name = document.getElementById('new-r-name').value.trim();
             const cal = document.getElementById('new-r-cal').value;
 
-            // 關鍵字偵測：同時包含 "酪梨" 和 "雞胸肉" (無論是在名稱還是食材列表)
             const hasAvocado = name.includes("酪梨") || tempIngredients.some(i => i.includes("酪梨"));
             const hasChicken = name.includes("雞胸肉") || tempIngredients.some(i => i.includes("雞胸肉"));
 
             if (hasAvocado && hasChicken) {
-                alert("🥑🍗 為您推荐：奶油酪梨雞胸肉佐蒜香地瓜葉！");
+                alert("🥑🍗 恭喜！您發現了隱藏料理：奶油酪梨雞胸肉佐蒜香地瓜葉！");
                 
                 const hiddenRecipe = allRecipes.find(r => r.id === "Hidden1");
                 const unlockedRecipe = { ...hiddenRecipe, id: "Unlocked_" + Date.now(), hidden: false };
