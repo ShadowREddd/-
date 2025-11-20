@@ -42,17 +42,34 @@ html_template = """
             .mobile-only { display: none !important; }
         }
 
-        /* --- 登入封面 --- */
+        /* --- 登入封面 (修正：LOGO 佔滿屏) --- */
         #splash { 
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
             background: white; z-index: 99999; 
             display: flex; flex-direction: column; justify-content: center; align-items: center; 
             transition: opacity 0.6s ease-out;
+            overflow: hidden; /* 防止圖片溢出 */
         }
-        .splash-logo { width: 70%; max-width: 500px; animation: breathe 3s infinite; object-fit: contain; }
-        @keyframes breathe { 0%, 100% { transform: scale(0.95); opacity: 0.9; } 50% { transform: scale(1.05); opacity: 1; } }
-        .click-hint { margin-top: 20px; color: #999; font-size: 1.2rem; animation: blink 2s infinite; }
-        @keyframes blink { 50% { opacity: 0; } }
+        .splash-logo { 
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%; /* 強制佔滿寬高 */
+            object-fit: cover; /* 關鍵：填滿整個區域，保持比例但可能會裁切邊緣 */
+            object-position: center;
+            animation: breathe 3s infinite; 
+            z-index: -1; /* 放在最底層 */
+        }
+        @keyframes breathe { 0%, 100% { transform: scale(1); opacity: 0.95; } 50% { transform: scale(1.02); opacity: 1; } }
+        
+        /* 調整提示文字樣式，確保在滿版圖上可見 */
+        .click-hint { 
+            position: absolute; bottom: 80px;
+            color: white; /* 改成白色 */
+            font-size: 1.5rem; font-weight: bold;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.7); /*加上陰影 */
+            animation: blink 2s infinite; 
+            z-index: 10;
+        }
+        @keyframes blink { 50% { opacity: 0.5; } }
 
         /* --- 導覽列 --- */
         .bottom-nav {
@@ -166,26 +183,25 @@ html_template = """
         .tag-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px; background: #f9f9f9; border-radius: 8px; min-height: 50px; }
         .ing-tag { background: white; border: 1px solid #ddd; padding: 5px 12px; border-radius: 20px; font-size: 0.9rem; display: flex; align-items: center; gap: 5px; }
         .ing-tag span { color: #d9534f; cursor: pointer; font-weight: bold; margin-left: 5px; }
+        
+        /* --- 食譜內容 --- */
+        .step-list, .ing-list { padding-left: 20px; margin: 0; color: #444; line-height: 1.6; }
+        .ing-list { list-style-type: disc; margin-bottom: 15px; }
+        .step-list li, .ing-list li { margin-bottom: 5px; }
+        h4 { margin: 15px 0 8px 0; color: var(--primary); border-bottom: 1px solid #eee; padding-bottom: 5px; }
 
-        /* --- 通用元件 --- */
         .btn { width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: bold; font-size: 1rem; margin-top: 10px; cursor: pointer; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-outline { background: white; border: 1px solid #ddd; color: #555; }
         .tag { background: #eee; padding: 4px 10px; border-radius: 15px; font-size: 0.85rem; color: #666; }
         .mobile-top-bar { display: flex; align-items: center; padding: 10px 5px; margin-bottom: 10px; }
 
-        /* --- 食譜列表樣式 --- */
-        .step-list, .ing-list { padding-left: 20px; margin: 0; color: #444; line-height: 1.6; }
-        .ing-list { list-style-type: disc; margin-bottom: 15px; }
-        .step-list li, .ing-list li { margin-bottom: 5px; }
-        h4 { margin: 15px 0 8px 0; color: var(--primary); border-bottom: 1px solid #eee; padding-bottom: 5px; }
-
     </style>
 </head>
 <body>
 
     <div id="splash" onclick="this.style.opacity=0; setTimeout(()=>this.style.display='none',600)">
-        <img src="images/食際行動家.png" class="splash-logo" onerror="this.parentElement.innerHTML+='<h1 style=\\'color:#d9534f; font-size:3rem;\\'>食際行動家</h1>';this.style.display='none'">
+        <img src="images/食際行動家.png" class="splash-logo" onerror="this.parentElement.innerHTML+='<h1 style=\\'color:#d9534f; font-size:3rem; position:absolute; top:40%; left:50%; transform:translate(-50%,-50%);\\'>食際行動家</h1>';this.style.display='none'">
         <div class="click-hint">👆 點擊進入市集</div>
     </div>
 
@@ -387,8 +403,8 @@ html_template = """
                 cal: 450, 
                 img: "images/奶油酪梨雞胸肉.jpg",
                 hidden: true,
-                ingredients: ["雞胸肉", "酪梨", "地瓜葉", "牛奶", "洋蔥"],
-                steps: ["雞胸肉切塊醃製，煎至金黃備用", "炒香洋蔥蒜末，加入酪梨壓泥", "倒入牛奶煮成醬汁", "放入雞肉煨煮入味", "另起鍋爆香蒜片，快炒地瓜葉"]
+                ingredients: ["雞胸肉 (250g)", "酪梨 1 顆", "地瓜葉 1 把", "牛奶/豆漿 100ml", "洋蔥 1/4 顆", "蒜頭 3-4 瓣"],
+                steps: ["雞胸肉切塊，加鹽、黑胡椒、橄欖油醃 10 分鐘。", "熱鍋煎雞胸肉至金黃，盛起備用。", "原鍋炒香洋蔥丁與蒜末，加入酪梨肉壓成泥。", "倒入牛奶煮成濃滑醬汁，加鹽調味。", "放回雞肉煨煮 1-2 分鐘即可。", "另起鍋爆香蒜片，快炒地瓜葉，加鹽調味。"]
             }
         ];
 
@@ -423,9 +439,7 @@ html_template = """
         function filterRecipes() {
             const kw = document.getElementById('recipe-search').value.trim();
             const filtered = recipes.filter(r => {
-                if (r.hidden) {
-                    return kw.includes("酪梨");
-                }
+                if (r.hidden) { return kw.includes("酪梨"); }
                 if (!kw) return true;
                 return r.name.includes(kw) || (r.ingredients && r.ingredients.some(i => i.includes(kw)));
             });
@@ -433,6 +447,10 @@ html_template = """
         }
 
         function renderRecipes(list) {
+            if (!list || list.length === 0) {
+                document.getElementById('grid-recipes').innerHTML = '<div style="text-align:center; color:#999; grid-column:1/-1;">没有找到相關食譜，試試搜尋「酪梨」？</div>';
+                return;
+            }
             document.getElementById('grid-recipes').innerHTML = list.map(r => `
                 <div class="card" onclick="showStep('${r.id}')">
                     <img src="${r.img}" class="card-img" onerror="this.src='https://via.placeholder.com/300?text=${r.name}'">
@@ -454,6 +472,11 @@ html_template = """
             if(document.getElementById('dt-nav-'+page)) document.getElementById('dt-nav-'+page).classList.add('active');
 
             document.getElementById('page-'+page).style.display = 'block';
+            
+            if(page === 'recipe') {
+                document.getElementById('recipe-search').value = '';
+                filterRecipes();
+            }
             window.scrollTo(0,0);
         }
 
@@ -494,18 +517,20 @@ html_template = """
             const r = recipes.find(x => x.id === rid);
             document.getElementById('step-title').innerText = r.name;
             
-            // 這裡新增顯示食材清單
             let html = '<h4>🍽 食材</h4><ul class="ing-list">';
-            if (r.ingredients) {
+            if (r.ingredients && r.ingredients.length > 0) {
                 html += r.ingredients.map(i => `<li>${i}</li>`).join('');
             } else {
                 html += '<li>無詳細食材資料</li>';
             }
             html += '</ul>';
             
-            // 顯示步驟
             html += '<h4>👩‍🍳 做法</h4><ol class="step-list">';
-            html += r.steps.map(s => `<li>${s}</li>`).join('');
+            if (r.steps && r.steps.length > 0) {
+                html += r.steps.map(s => `<li>${s}</li>`).join('');
+            } else {
+                html += '<li>無詳細步驟</li>';
+            }
             html += '</ol>';
 
             document.getElementById('step-body').innerHTML = html;
@@ -516,6 +541,8 @@ html_template = """
             const p = products.find(x => x.id === currentPid);
             alert(`正在為您尋找「${p.name}」相關食譜...`);
             switchPage('recipe');
+            document.getElementById('recipe-search').value = p.name;
+            filterRecipes();
         }
 
         // --- 自訂食譜邏輯 ---
@@ -572,7 +599,9 @@ html_template = """
             recipes.unshift({id:"C"+Date.now(), name:name, img:"https://via.placeholder.com/300?text="+name, cal:cal||0, steps:[...tempSteps], ingredients:[...tempIngredients]});
             alert("✨ 私房食譜發布成功！");
             closeModal('create');
-            renderRecipes(recipes);
+            
+            document.getElementById('recipe-search').value = '';
+            filterRecipes();
         }
 
         function openModal(id) { 
