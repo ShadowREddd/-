@@ -323,14 +323,49 @@ html_template = """
                 <h3 style="margin:0;">新增私房食譜</h3>
                 <span onclick="closeModal('create')" style="cursor:pointer; font-size:1.5rem;">✕</span>
             </div>
+            
             <div style="flex:1; overflow-y:auto; padding-right:5px;">
-                <div class="form-group"><label class="form-label">食譜名稱</label><input type="text" id="new-r-name" class="form-input" placeholder="例如：阿嬤的紅燒肉"></div>
-                <div class="form-group"><label class="form-label">預估卡路里</label><input type="number" id="new-r-cal" class="form-input" placeholder="例如：500"></div>
-                <div class="form-group"><label class="form-label">選擇食材 (從市集)</label><div class="add-row"><select id="product-select" class="form-select"><option value="">-- 請選擇食材 --</option></select><button class="add-btn-small" onclick="addIngredientFromSelect()">＋</button></div></div>
-                <div class="form-group"><label class="form-label">或 手動輸入</label><div class="add-row"><input type="text" id="manual-ing-input" class="form-input" placeholder="例如：鹽、醬油..."><button class="add-btn-small" onclick="addManualIngredient()">＋</button></div></div>
-                <div id="new-ing-list" class="tag-container"><span style="color:#999; font-size:0.9rem;">尚未加入食材</span></div>
-                <div class="form-group" style="margin-top:15px;"><label class="form-label">步驟</label><div class="add-row"><input type="text" id="new-step-input" class="form-input" placeholder="輸入步驟..."><button class="add-btn-small" onclick="addNewStep()">＋</button></div><div id="new-step-list" style="background:#f9f9f9; padding:10px; border-radius:8px; min-height:50px;"></div></div>
+                <div class="form-group">
+                    <label class="form-label">食譜名稱</label>
+                    <input type="text" id="new-r-name" class="form-input" placeholder="例如：阿嬤的紅燒肉">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">預估卡路里</label>
+                    <input type="number" id="new-r-cal" class="form-input" placeholder="例如：500">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">選擇食材 (從市集)</label>
+                    <div class="add-row">
+                        <select id="product-select" class="form-select">
+                            <option value="">-- 請選擇食材 --</option>
+                        </select>
+                        <button class="add-btn-small" onclick="addIngredientFromSelect()">＋</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">或 手動輸入</label>
+                    <div class="add-row">
+                        <input type="text" id="manual-ing-input" class="form-input" placeholder="例如：鹽、醬油...">
+                        <button class="add-btn-small" onclick="addManualIngredient()">＋</button>
+                    </div>
+                </div>
+
+                <div id="new-ing-list" class="tag-container">
+                    <span style="color:#999; font-size:0.9rem;">尚未加入食材</span>
+                </div>
+
+                <div class="form-group" style="margin-top:15px;">
+                    <label class="form-label">步驟</label>
+                    <div class="add-row">
+                        <input type="text" id="new-step-input" class="form-input" placeholder="輸入步驟...">
+                        <button class="add-btn-small" onclick="addNewStep()">＋</button>
+                    </div>
+                    <div id="new-step-list" style="background:#f9f9f9; padding:10px; border-radius:8px; min-height:50px;"></div>
+                </div>
             </div>
+
             <button class="btn btn-primary" onclick="saveCustomRecipe()">✨ 完成並發布</button>
         </div>
     </div>
@@ -338,6 +373,7 @@ html_template = """
     <script>
         function getFutureDate(d) { const date = new Date(); date.setDate(date.getDate()+d); return date.toISOString().split('T')[0]; }
 
+        // --- 產品資料庫 (已替換為 AI 搜尋圖源) ---
         const products = [
             { id: "P1", name: "蘋果", price: 139, img: "images/蘋果.jpg", cat: "水果", origin: "美國", storage: "冷藏", date: getFutureDate(6) },
             { id: "P2", name: "香蕉", price: 80, img: "images/香蕉.jpg", cat: "水果", origin: "台灣", storage: "常溫", date: getFutureDate(3) },
@@ -349,10 +385,12 @@ html_template = """
             { id: "P8", name: "菠菜", price: 90, img: "images/菠菜.JPG", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(2) },
             { id: "P9", name: "胡蘿蔔", price: 60, img: "images/胡蘿蔔.jpg", cat: "蔬菜", origin: "韓國", storage: "冷藏", date: getFutureDate(8) },
             { id: "P10", name: "鳳梨", price: 155, img: "images/鳳梨.jpg", cat: "水果", origin: "美國", storage: "冷凍", date: getFutureDate(5) },
-            { id: "P11", name: "豬梅花肉片", price: 200, img: "https://via.placeholder.com/300?text=Pork", cat: "肉品", origin: "台灣", storage: "冷凍", date: getFutureDate(30) },
-            { id: "P12", name: "牛小排", price: 500, img: "https://via.placeholder.com/300?text=Beef", cat: "肉品", origin: "美國", storage: "冷凍", date: getFutureDate(30) },
-            { id: "P13", name: "鮭魚切片", price: 350, img: "https://via.placeholder.com/300?text=Salmon", cat: "海鮮", origin: "挪威", storage: "冷凍", date: getFutureDate(15) },
-            { id: "P14", name: "鮮乳", price: 90, img: "https://via.placeholder.com/300?text=Milk", cat: "飲品", origin: "台灣", storage: "冷藏", date: getFutureDate(10) }
+            
+            // AI 圖片補充
+            { id: "P11", name: "豬梅花肉片", price: 200, img: "https://images.unsplash.com/photo-1608755728617-aefab37d2547?w=400&q=80", cat: "肉品", origin: "台灣", storage: "冷凍", date: getFutureDate(30) },
+            { id: "P12", name: "牛小排", price: 500, img: "https://images.unsplash.com/photo-1588168333986-5078d3ae3976?w=400&q=80", cat: "肉品", origin: "美國", storage: "冷凍", date: getFutureDate(30) },
+            { id: "P13", name: "鮭魚切片", price: 350, img: "https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?w=400&q=80", cat: "海鮮", origin: "挪威", storage: "冷凍", date: getFutureDate(15) },
+            { id: "P14", name: "鮮乳", price: 90, img: "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&q=80", cat: "飲品", origin: "台灣", storage: "冷藏", date: getFutureDate(10) }
         ];
 
         // allRecipes 改名避免變數衝突
@@ -367,7 +405,7 @@ html_template = """
                 id: "Hidden1", 
                 name: "奶油酪梨雞胸肉佐蒜香地瓜葉", 
                 cal: 450, 
-                img: "images/奶油酪梨雞胸肉.jpg",
+                img: "奶油酪梨雞胸肉佐蒜香地瓜葉.jpg", 
                 hidden: true,
                 ingredients: ["雞胸肉 (250g)", "酪梨 1 顆", "地瓜葉 1 把", "牛奶/豆漿 100ml", "洋蔥 1/4 顆", "蒜頭 3-4 瓣"],
                 steps: ["雞胸肉切塊，加鹽、黑胡椒、橄欖油醃 10 分鐘。", "熱鍋煎雞胸肉至金黃，盛起備用。", "原鍋炒香洋蔥丁與蒜末，加入酪梨肉壓成泥。", "倒入牛奶煮成濃滑醬汁，加鹽調味。", "放回雞肉煨煮 1-2 分鐘即可。", "另起鍋爆香蒜片，快炒地瓜葉，加鹽調味。"]
@@ -582,7 +620,7 @@ html_template = """
             const hasChicken = name.includes("雞胸肉") || tempIngredients.some(i => i.includes("雞胸肉"));
 
             if (hasAvocado && hasChicken) {
-                alert("🥑🍗 恭喜！您發現了隱藏料理：奶油酪梨雞胸肉佐蒜香地瓜葉！");
+                alert("🥑🍗 為您推荐：奶油酪梨雞胸肉佐蒜香地瓜葉！");
                 
                 const hiddenRecipe = allRecipes.find(r => r.id === "Hidden1");
                 const unlockedRecipe = { ...hiddenRecipe, id: "Unlocked_" + Date.now(), hidden: false };
