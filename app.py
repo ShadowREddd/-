@@ -67,15 +67,8 @@ html_template = """
         .login-card { width: 100%; max-width: 400px; text-align: center; }
         .login-logo { width: 120px; margin-bottom: 20px; }
         .login-title { font-size: 1.8rem; margin-bottom: 30px; color: #333; }
-        .login-input { 
-            width: 100%; padding: 15px; margin-bottom: 15px; border: 1px solid #ddd;
-            border-radius: 10px; font-size: 1rem; background: #f9f9f9; 
-        }
-        .login-btn {
-            width: 100%; padding: 15px; background: var(--primary); color: white;
-            border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold;
-            cursor: pointer; box-shadow: 0 4px 15px rgba(217, 83, 79, 0.3);
-        }
+        .login-input { width: 100%; padding: 15px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 10px; font-size: 1rem; background: #f9f9f9; }
+        .login-btn { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
         .login-footer { margin-top: 20px; color: #999; font-size: 0.9rem; }
 
         /* --- 3. 主程式區域 --- */
@@ -96,15 +89,8 @@ html_template = """
             background: white; justify-content: space-between; align-items: center;
             padding: 0 50px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 5000;
         }
-        .back-home-btn { 
-            font-size: 1.1rem; font-weight: bold; color: #666; cursor: pointer; 
-            display: flex; align-items: center; gap: 8px; transition: color 0.2s; 
-        }
-        .back-home-btn:hover { color: var(--primary); }
-
-        .desktop-menu button {
-            background: none; border: none; font-size: 1rem; margin-left: 20px; cursor: pointer; color: #666; transition: 0.2s;
-        }
+        .back-home-btn { font-size: 1.1rem; font-weight: bold; color: #666; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        .desktop-menu button { background: none; border: none; font-size: 1rem; margin-left: 20px; cursor: pointer; color: #666; }
         .desktop-menu button:hover, .desktop-menu button.active { color: var(--primary); font-weight: bold; }
         .cart-btn-desktop { background: var(--primary) !important; color: white !important; padding: 8px 20px; border-radius: 20px; }
 
@@ -114,9 +100,7 @@ html_template = """
             width: 60px; height: 60px; border-radius: 50%; background: #2c3e50;
             color: white; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             font-size: 1.8rem; cursor: pointer; display: flex; justify-content: center; align-items: center;
-            transition: transform 0.2s;
         }
-        .chat-fab:hover { transform: scale(1.1); }
         @media (min-width: 768px) { .chat-fab { bottom: 30px; right: 30px; } }
 
         #chat-widget {
@@ -130,47 +114,40 @@ html_template = """
         .chat-header { background: #2c3e50; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
         .chat-body { flex: 1; padding: 15px; overflow-y: auto; background: #f4f6f8; display: flex; flex-direction: column; gap: 10px; }
         .chat-input-area { padding: 10px; background: white; border-top: 1px solid #eee; display: flex; gap: 5px; }
-        .msg { max-width: 80%; padding: 10px; border-radius: 15px; font-size: 0.9rem; line-height: 1.4; }
-        .msg-bot { align-self: flex-start; background: white; border: 1px solid #eee; border-top-left-radius: 2px; }
-        .msg-user { align-self: flex-end; background: #d9fdd3; border-top-right-radius: 2px; }
+        .msg { max-width: 80%; padding: 10px; border-radius: 15px; font-size: 0.9rem; }
+        .msg-bot { align-self: flex-start; background: white; border: 1px solid #eee; }
+        .msg-user { align-self: flex-end; background: #d9fdd3; }
 
         /* 主容器 */
         .container { max-width: 1200px; margin: 0 auto; padding: 15px; }
 
-        /* 橫幅 Banner */
+        /* 橫幅 */
         .banner-container {
-            width: 100%; height: 180px;
-            border-radius: 15px; margin-bottom: 20px;
-            display: flex; align-items: center; justify-content: center;
-            overflow: hidden; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            width: 100%; height: 180px; border-radius: 15px; margin-bottom: 20px;
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
+            position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
         .banner-img { width: 100%; height: 100%; object-fit: cover; }
         @media (min-width: 768px) { .banner-container { height: 300px; } }
 
-        /* 分類滑動列 */
-        .category-bar {
-            display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px;
-            scrollbar-width: none;
-        }
+        /* 分類列 */
+        .category-bar { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; scrollbar-width: none; }
         .category-bar::-webkit-scrollbar { display: none; }
-        .cat-btn {
-            white-space: nowrap; padding: 8px 16px; border-radius: 20px;
-            border: 1px solid #ddd; background: white; color: #666;
-            font-size: 0.9rem; cursor: pointer; transition: all 0.2s;
-        }
+        .cat-btn { white-space: nowrap; padding: 8px 16px; border-radius: 20px; border: 1px solid #ddd; background: white; color: #666; cursor: pointer; }
         .cat-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
         /* 網格 & 卡片 */
-        .grid { 
-            display: grid; gap: 15px;
-            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); 
-        }
+        .grid { display: grid; gap: 15px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+        
+        /* 關鍵修改：將 cursor: pointer 放在整個 card 上 */
         .card { 
-            background: white; border-radius: 12px; overflow: hidden; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.2s; 
-            display: flex; flex-direction: column;
+            background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+            cursor: pointer; transition: transform 0.2s; display: flex; flex-direction: column;
+            position: relative;
         }
+        .card:active { transform: scale(0.98); } /* 手機點擊回饋 */
         .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        
         .card-img { width: 100%; height: 150px; object-fit: cover; }
         .card-body { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; }
         .card-title { font-weight: bold; margin-bottom: 5px; color: #333; }
@@ -181,19 +158,23 @@ html_template = """
         .status-good { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .status-bad { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
 
-        /* 卡片按鈕群組 (新功能) */
+        /* 卡片按鈕 */
         .card-actions { display: flex; gap: 5px; margin-top: 8px; }
-        .btn-card-action { flex: 1; padding: 6px; border-radius: 6px; font-size: 0.85rem; cursor: pointer; border: none; font-weight: bold; transition: 0.2s; }
+        .btn-card-action { 
+            flex: 1; padding: 6px; border-radius: 6px; font-size: 0.85rem; 
+            cursor: pointer; border: none; font-weight: bold; transition: 0.2s; 
+            z-index: 5; /* 確保按鈕在卡片點擊層之上 */
+        }
         .btn-outline-sm { background: white; border: 1px solid #ddd; color: #555; }
         .btn-outline-sm:hover { background: #f0f0f0; }
         .btn-primary-sm { background: var(--primary); color: white; }
         .btn-primary-sm:hover { background: #c9302c; }
 
-        /* 生成食譜按鈕 */
         .gen-recipe-btn {
             margin-top: 5px; width: 100%; padding: 6px; 
             background: #e3f2fd; border: 1px solid #90caf9; color: #1976d2;
-            border-radius: 6px; font-size: 0.85rem; cursor: pointer; transition: 0.2s; font-weight: bold;
+            border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: bold;
+            z-index: 5;
         }
         .gen-recipe-btn:hover { background: #bbdefb; }
 
@@ -237,7 +218,6 @@ html_template = """
         .ing-list { list-style-type: disc; margin-bottom: 15px; }
         .step-list li, .ing-list li { margin-bottom: 5px; }
         h4 { margin: 15px 0 8px 0; color: var(--primary); border-bottom: 1px solid #eee; padding-bottom: 5px; }
-
         .btn { width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: bold; font-size: 1rem; margin-top: 10px; cursor: pointer; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-outline { background: white; border: 1px solid #ddd; color: #555; }
@@ -390,15 +370,13 @@ html_template = """
     <script>
         function getFutureDate(d) { const date = new Date(); date.setDate(date.getDate()+d); return date.toISOString().split('T')[0]; }
 
-        // --- 資料庫 (完整版) ---
+        // --- 資料庫 ---
         const products = [
-            // 水果
             { id: "P1", name: "蘋果", price: 139, img: "images/蘋果.jpg", cat: "水果", origin: "美國", storage: "冷藏", date: getFutureDate(6), condition: "良好" },
             { id: "P2", name: "香蕉", price: 80, img: "images/香蕉.jpg", cat: "水果", origin: "台灣", storage: "常溫", date: getFutureDate(3), condition: "破損" },
             { id: "P7", name: "柳橙", price: 120, img: "images/柳橙.JPG", cat: "水果", origin: "美國", storage: "冷藏", date: getFutureDate(10), condition: "良好" },
             { id: "P10", name: "鳳梨", price: 155, img: "images/鳳梨.jpg", cat: "水果", origin: "美國", storage: "冷凍", date: getFutureDate(5), condition: "良好" },
 
-            // 蔬菜
             { id: "P3", name: "高麗菜", price: 160, img: "images/高麗菜.JPG", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(7), condition: "良好" },
             { id: "P4", name: "番茄", price: 70, img: "images/番茄.JPG", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(5), condition: "破損" },
             { id: "P5", name: "洋蔥", price: 50, img: "images/洋蔥.jpg", cat: "蔬菜", origin: "美國", storage: "常溫", date: getFutureDate(20), condition: "良好" },
@@ -409,14 +387,10 @@ html_template = """
             { id: "P12", name: "甜玉米", price: 40, img: "https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=400", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(7), condition: "良好" },
             { id: "P14", name: "彩椒", price: 45, img: "https://images.unsplash.com/photo-1563565375-f3fdf5ecfae9?w=400", cat: "蔬菜", origin: "荷蘭", storage: "冷藏", date: getFutureDate(12), condition: "良好" },
             { id: "P15", name: "馬鈴薯", price: 35, img: "https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400", cat: "蔬菜", origin: "美國", storage: "常溫", date: getFutureDate(30), condition: "破損" },
-            
             { id: "P13", name: "鮮香菇", price: 65, img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400", cat: "菇類", origin: "台灣", storage: "冷藏", date: getFutureDate(10), condition: "良好" },
 
-            // 肉品
             { id: "P16", name: "豬肉", price: 220, img: "https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=400", cat: "肉品", origin: "台灣", storage: "冷凍", date: getFutureDate(30), condition: "良好" },
             { id: "P17", name: "牛肉", price: 450, img: "https://images.unsplash.com/photo-1613482184648-47399b2df699?w=400", cat: "肉品", origin: "美國", storage: "冷凍", date: getFutureDate(30), condition: "良好" },
-
-            // 海鮮
             { id: "P20", name: "鮭魚切片", price: 350, img: "https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?w=400", cat: "海鮮", origin: "挪威", storage: "冷凍", date: getFutureDate(15), condition: "良好" }
         ];
 
@@ -440,7 +414,6 @@ html_template = """
         let tempSteps = [];
 
         function init() {
-            // 初始不渲染商品
             const defaultRecipes = allRecipes.filter(r => !r.hidden);
             renderRecipes(defaultRecipes);
         }
@@ -462,18 +435,18 @@ html_template = """
                 let badgeClass = p.condition === '良好' ? 'status-good' : 'status-bad';
                 let badgeText = p.condition === '良好' ? '✅ 外觀良好' : '⚠️ 外觀破損';
                 return `
-                <div class="card">
-                    <img src="${p.img}" class="card-img" onclick="showDetail('${p.id}')">
+                <div class="card" onclick="showDetail('${p.id}')">
+                    <img src="${p.img}" class="card-img">
                     <div class="card-body">
-                        <div class="card-title" onclick="showDetail('${p.id}')">${p.name}</div>
+                        <div class="card-title">${p.name}</div>
                         <div><span class="status-badge ${badgeClass}">${badgeText}</span></div>
                         <div class="price">$${p.price}</div>
                         
                         <div class="card-actions">
-                             <button class="btn-card-action btn-outline-sm" onclick="showDetail('${p.id}')">📄 詳細</button>
-                             <button class="btn-card-action btn-primary-sm" onclick="addToCart('${p.id}')">🛒 加入</button>
+                             <button class="btn-card-action btn-outline-sm" onclick="event.stopPropagation(); showDetail('${p.id}')">📄 詳細</button>
+                             <button class="btn-card-action btn-primary-sm" onclick="event.stopPropagation(); addToCart('${p.id}')">🛒 加入</button>
                         </div>
-                        <button class="gen-recipe-btn" onclick="quickGenerateRecipe('${p.name}')">⚡ 生成食譜</button>
+                        <button class="gen-recipe-btn" onclick="event.stopPropagation(); quickGenerateRecipe('${p.name}')">⚡ 生成食譜</button>
                     </div>
                 </div>`;
             }).join('');
