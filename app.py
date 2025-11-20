@@ -174,6 +174,12 @@ html_template = """
         .tag { background: #eee; padding: 4px 10px; border-radius: 15px; font-size: 0.85rem; color: #666; }
         .mobile-top-bar { display: flex; align-items: center; padding: 10px 5px; margin-bottom: 10px; }
 
+        /* --- 食譜列表樣式 --- */
+        .step-list, .ing-list { padding-left: 20px; margin: 0; color: #444; line-height: 1.6; }
+        .ing-list { list-style-type: disc; margin-bottom: 15px; }
+        .step-list li, .ing-list li { margin-bottom: 5px; }
+        h4 { margin: 15px 0 8px 0; color: var(--primary); border-bottom: 1px solid #eee; padding-bottom: 5px; }
+
     </style>
 </head>
 <body>
@@ -393,7 +399,7 @@ html_template = """
 
         function init() {
             renderProducts(products);
-            filterRecipes(); // 初始化時執行篩選，隱藏隱藏版食譜
+            filterRecipes(); 
         }
 
         function renderProducts(list) {
@@ -414,10 +420,8 @@ html_template = """
             renderProducts(cat === 'all' ? products : products.filter(p => p.cat === cat));
         }
 
-        // 修改過的 filterRecipes (支援隱藏菜單)
         function filterRecipes() {
             const kw = document.getElementById('recipe-search').value.trim();
-            
             const filtered = recipes.filter(r => {
                 if (r.hidden) {
                     return kw.includes("酪梨");
@@ -425,7 +429,6 @@ html_template = """
                 if (!kw) return true;
                 return r.name.includes(kw) || (r.ingredients && r.ingredients.some(i => i.includes(kw)));
             });
-
             renderRecipes(filtered);
         }
 
@@ -490,7 +493,22 @@ html_template = """
         function showStep(rid) {
             const r = recipes.find(x => x.id === rid);
             document.getElementById('step-title').innerText = r.name;
-            document.getElementById('step-body').innerHTML = `<ol style="padding-left:20px;">${r.steps.map(s=>`<li>${s}</li>`).join('')}</ol>`;
+            
+            // 這裡新增顯示食材清單
+            let html = '<h4>🍽 食材</h4><ul class="ing-list">';
+            if (r.ingredients) {
+                html += r.ingredients.map(i => `<li>${i}</li>`).join('');
+            } else {
+                html += '<li>無詳細食材資料</li>';
+            }
+            html += '</ul>';
+            
+            // 顯示步驟
+            html += '<h4>👩‍🍳 做法</h4><ol class="step-list">';
+            html += r.steps.map(s => `<li>${s}</li>`).join('');
+            html += '</ol>';
+
+            document.getElementById('step-body').innerHTML = html;
             openModal('step');
         }
         
