@@ -47,8 +47,7 @@ html_template = """
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
             background: white; z-index: 99999; 
             display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            transition: opacity 0.6s ease-out;
-            overflow: hidden;
+            transition: opacity 0.6s ease-out; overflow: hidden;
         }
         .splash-logo { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -82,12 +81,48 @@ html_template = """
             display: flex; align-items: center; gap: 8px; transition: color 0.2s; 
         }
         .back-home-btn:hover { color: var(--primary); }
-
+        
         .desktop-menu button {
             background: none; border: none; font-size: 1rem; margin-left: 20px; cursor: pointer; color: #666; transition: 0.2s;
         }
         .desktop-menu button:hover, .desktop-menu button.active { color: var(--primary); font-weight: bold; }
         .cart-btn-desktop { background: var(--primary) !important; color: white !important; padding: 8px 20px; border-radius: 20px; }
+
+        /* --- 後台按鈕 (右上角) --- */
+        .backend-btn {
+            position: absolute; right: 15px; top: 15px; z-index: 5001;
+            background: rgba(255,255,255,0.8); border: 1px solid #ccc;
+            padding: 5px 12px; border-radius: 20px; color: #555; cursor: pointer; font-size: 0.9rem;
+        }
+        @media (min-width: 768px) { .backend-btn { top: 20px; right: 50px; } }
+
+        /* --- 客服懸浮按鈕 (右下角) --- */
+        .chat-fab {
+            position: fixed; bottom: 80px; right: 20px; z-index: 5500;
+            width: 60px; height: 60px; border-radius: 50%; background: #2c3e50;
+            color: white; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            font-size: 1.8rem; cursor: pointer; display: flex; justify-content: center; align-items: center;
+            transition: transform 0.2s;
+        }
+        .chat-fab:hover { transform: scale(1.1); }
+        @media (min-width: 768px) { .chat-fab { bottom: 30px; right: 30px; } }
+
+        /* --- 客服視窗 --- */
+        #chat-widget {
+            display: none; position: fixed; bottom: 150px; right: 20px; width: 320px; height: 450px;
+            background: #fff; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+            z-index: 5600; flex-direction: column; overflow: hidden; border: 1px solid #ddd;
+            animation: slideUp 0.3s;
+        }
+        @media (min-width: 768px) { #chat-widget { bottom: 100px; right: 30px; } }
+        
+        .chat-header { background: #2c3e50; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .chat-body { flex: 1; padding: 15px; overflow-y: auto; background: #f4f6f8; display: flex; flex-direction: column; gap: 10px; }
+        .chat-input-area { padding: 10px; background: white; border-top: 1px solid #eee; display: flex; gap: 5px; }
+        
+        .msg { max-width: 80%; padding: 10px; border-radius: 15px; font-size: 0.9rem; line-height: 1.4; }
+        .msg-bot { align-self: flex-start; background: white; border: 1px solid #eee; border-top-left-radius: 2px; }
+        .msg-user { align-self: flex-end; background: #d9fdd3; border-top-right-radius: 2px; }
 
         /* --- 主容器 --- */
         .container { max-width: 1200px; margin: 0 auto; padding: 15px; }
@@ -163,7 +198,9 @@ html_template = """
             }
         }
 
-        /* --- 自訂食譜表單樣式 --- */
+        /* --- 後台與表單 --- */
+        .admin-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .admin-table th, .admin-table td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; }
         .form-group { margin-bottom: 15px; }
         .form-label { display: block; font-weight: bold; margin-bottom: 5px; color: #333; }
         .form-input, .form-select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; }
@@ -171,7 +208,6 @@ html_template = """
         .add-btn-small { background: var(--primary); color: white; border: none; border-radius: 8px; width: 40px; cursor: pointer; font-size: 1.2rem; }
         .tag-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px; background: #f9f9f9; border-radius: 8px; min-height: 50px; }
         .ing-tag { background: white; border: 1px solid #ddd; padding: 5px 12px; border-radius: 20px; font-size: 0.9rem; display: flex; align-items: center; gap: 5px; }
-        .ing-tag span { color: #d9534f; cursor: pointer; font-weight: bold; margin-left: 5px; }
         
         /* --- 食譜內容 --- */
         .step-list, .ing-list { padding-left: 20px; margin: 0; color: #444; line-height: 1.6; }
@@ -192,6 +228,24 @@ html_template = """
     <div id="splash" onclick="this.style.opacity=0; setTimeout(()=>this.style.display='none',600)">
         <img src="images/食際行動家.png" class="splash-logo" onerror="this.parentElement.innerHTML+='<h1 style=\\'color:#d9534f; font-size:3rem; position:absolute; top:40%; left:50%; transform:translate(-50%,-50%);\\'>食際行動家</h1>';this.style.display='none'">
         <div class="click-hint">👆 點擊進入市集</div>
+    </div>
+
+    <button class="backend-btn" onclick="showBackend()">⚙️ 後台</button>
+
+    <button class="chat-fab" onclick="toggleChat()">💬</button>
+
+    <div id="chat-widget">
+        <div class="chat-header">
+            <span style="font-weight:bold;">線上客服</span>
+            <span onclick="toggleChat()" style="cursor:pointer;">✕</span>
+        </div>
+        <div class="chat-body" id="chat-body">
+            <div class="msg msg-bot">您好！請問有什麼需要幫忙的嗎？🥦</div>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" id="chat-input" class="form-input" placeholder="輸入訊息..." onkeypress="if(event.key==='Enter') sendChat()">
+            <button class="add-btn-small" onclick="sendChat()" style="width:60px; font-size:0.9rem;">傳送</button>
+        </div>
     </div>
 
     <div class="top-nav desktop-only">
@@ -220,7 +274,7 @@ html_template = """
             </div>
 
             <div class="category-bar" id="cat-bar">
-                <button class="cat-btn" onclick="filterCat('all', this)">全部</button>
+                <button class="cat-btn active" onclick="filterCat('all', this)">全部</button>
                 <button class="cat-btn" onclick="filterCat('水果', this)">🍎 水果</button>
                 <button class="cat-btn" onclick="filterCat('蔬菜', this)">🥦 蔬菜</button>
                 <button class="cat-btn" onclick="filterCat('菇類', this)">🍄 菇類</button>
@@ -228,12 +282,7 @@ html_template = """
                 <button class="cat-btn" onclick="filterCat('海鮮', this)">🐟 海鮮</button>
             </div>
 
-            <div id="grid-products" class="grid">
-                <div style="grid-column:1/-1; text-align:center; padding:50px; color:#888;">
-                    <div style="font-size:3rem; margin-bottom:10px;">🥦🍎🥩</div>
-                    <div style="font-size:1.2rem;">請點擊上方分類開始選購</div>
-                </div>
-            </div>
+            <div id="grid-products" class="grid"></div>
         </div>
 
         <div id="page-recipe" class="page">
@@ -270,6 +319,20 @@ html_template = """
                         <button class="btn btn-outline" onclick="findRecipe()">📖 相關料理</button>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <div id="page-backend" class="page">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h2>⚙️ 後台管理</h2>
+                <button class="btn-outline" style="width:auto;" onclick="switchPage('market')">返回前台</button>
+            </div>
+            <div style="background:white; padding:20px; border-radius:15px; box-shadow:0 2px 10px rgba(0,0,0,0.05);">
+                <h3>📦 商品管理</h3>
+                <table class="admin-table">
+                    <thead><tr><th>名稱</th><th>價格</th><th>庫存</th><th>操作</th></tr></thead>
+                    <tbody id="admin-list"></tbody>
+                </table>
             </div>
         </div>
 
@@ -335,15 +398,15 @@ html_template = """
     <script>
         function getFutureDate(d) { const date = new Date(); date.setDate(date.getDate()+d); return date.toISOString().split('T')[0]; }
 
-        // --- 資料庫 (更新：肉品簡化 + 圖片修復) ---
+        // --- 資料庫 (生鮮肉品 + 原圖蔬果) ---
         const products = [
-            // 水果 (原圖)
+            // 水果
             { id: "P1", name: "蘋果", price: 139, img: "images/蘋果.jpg", cat: "水果", origin: "美國", storage: "冷藏", date: getFutureDate(6) },
             { id: "P2", name: "香蕉", price: 80, img: "images/香蕉.jpg", cat: "水果", origin: "台灣", storage: "常溫", date: getFutureDate(3) },
             { id: "P7", name: "柳橙", price: 120, img: "images/柳橙.JPG", cat: "水果", origin: "美國", storage: "冷藏", date: getFutureDate(10) },
             { id: "P10", name: "鳳梨", price: 155, img: "images/鳳梨.jpg", cat: "水果", origin: "美國", storage: "冷凍", date: getFutureDate(5) },
 
-            // 蔬菜 (原圖)
+            // 蔬菜
             { id: "P3", name: "高麗菜", price: 160, img: "images/高麗菜.JPG", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(7) },
             { id: "P4", name: "番茄", price: 70, img: "images/番茄.JPG", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(5) },
             { id: "P5", name: "洋蔥", price: 50, img: "images/洋蔥.jpg", cat: "蔬菜", origin: "美國", storage: "常溫", date: getFutureDate(20) },
@@ -351,18 +414,18 @@ html_template = """
             { id: "P8", name: "菠菜", price: 90, img: "images/菠菜.JPG", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(2) },
             { id: "P9", name: "胡蘿蔔", price: 60, img: "images/胡蘿蔔.jpg", cat: "蔬菜", origin: "韓國", storage: "冷藏", date: getFutureDate(8) },
             
-            // 新增食材 (網圖 - 修復彩椒)
+            // 新增食材 (網圖)
             { id: "P11", name: "花椰菜", price: 55, img: "https://images.unsplash.com/photo-1568584711075-3d021a7c3d54?w=400", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(5) },
             { id: "P12", name: "甜玉米", price: 40, img: "https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=400", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(7) },
             { id: "P14", name: "彩椒", price: 45, img: "https://images.unsplash.com/photo-1563565375-f3fdf5ecfae9?w=400", cat: "蔬菜", origin: "荷蘭", storage: "冷藏", date: getFutureDate(12) },
             { id: "P15", name: "馬鈴薯", price: 35, img: "https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400", cat: "蔬菜", origin: "美國", storage: "常溫", date: getFutureDate(30) },
             { id: "P13", name: "鮮香菇", price: 65, img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400", cat: "菇類", origin: "台灣", storage: "冷藏", date: getFutureDate(10) },
 
-            // 肉品 (網圖 - 僅保留豬肉/牛肉)
+            // 肉品 (生鮮網圖)
             { id: "P16", name: "豬肉", price: 220, img: "https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=400", cat: "肉品", origin: "台灣", storage: "冷凍", date: getFutureDate(30) },
             { id: "P17", name: "牛肉", price: 450, img: "https://images.unsplash.com/photo-1613482184648-47399b2df699?w=400", cat: "肉品", origin: "美國", storage: "冷凍", date: getFutureDate(30) },
 
-            // 海鮮 (網圖)
+            // 海鮮
             { id: "P20", name: "鮭魚切片", price: 350, img: "https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?w=400", cat: "海鮮", origin: "挪威", storage: "冷凍", date: getFutureDate(15) }
         ];
 
@@ -390,12 +453,17 @@ html_template = """
         let tempSteps = [];
 
         function init() {
-            // 初始不渲染商品，等待點擊分類
+            renderProducts(products);
             const defaultRecipes = allRecipes.filter(r => !r.hidden);
             renderRecipes(defaultRecipes);
         }
 
         function renderProducts(list) {
+            // 初始空白提示
+            if (!list || list.length === 0) {
+                 document.getElementById('grid-products').innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:50px; color:#888;"><div style="font-size:3rem;">🥦🍎🥩</div><div>請點擊上方分類開始選購</div></div>';
+                 return;
+            }
             document.getElementById('grid-products').innerHTML = list.map(p => `
                 <div class="card" onclick="showDetail('${p.id}')">
                     <img src="${p.img}" class="card-img" onerror="this.src='https://via.placeholder.com/300?text=${p.name}'">
@@ -457,6 +525,10 @@ html_template = """
                 if(searchInput) searchInput.value = '';
                 renderRecipes(allRecipes.filter(r => !r.hidden));
             }
+            if(page === 'market') {
+                // 每次回到市集重置為全部商品
+                filterCat('all', document.querySelector('.cat-btn'));
+            }
             window.scrollTo(0,0);
         }
 
@@ -472,6 +544,8 @@ html_template = """
             document.getElementById('dt-tag').innerText = p.cat;
             switchPage('detail');
         }
+        
+        function showBackend() { switchPage('backend'); renderAdmin(); }
 
         function addToCart() {
             if(!currentPid) return;
@@ -531,6 +605,41 @@ html_template = """
             }, 100);
         }
 
+        // --- Chat & Admin ---
+        function toggleChat() {
+            const w = document.getElementById('chat-widget');
+            w.style.display = (w.style.display === 'flex') ? 'none' : 'flex';
+        }
+        function sendChat() {
+            const input = document.getElementById('chat-input');
+            const msg = input.value.trim();
+            if(!msg) return;
+            
+            const body = document.getElementById('chat-body');
+            body.innerHTML += `<div class="msg msg-user">${msg}</div>`;
+            input.value = '';
+            body.scrollTop = body.scrollHeight;
+            
+            setTimeout(() => {
+                let reply = "感謝您的訊息！我們的客服專員會盡快回覆您。";
+                if(msg.includes("運費")) reply = "全館滿 $500 免運費喔！";
+                if(msg.includes("營業")) reply = "我們 24 小時為您服務！";
+                body.innerHTML += `<div class="msg msg-bot">${reply}</div>`;
+                body.scrollTop = body.scrollHeight;
+            }, 800);
+        }
+        function renderAdmin() {
+            document.getElementById('admin-list').innerHTML = products.map(p => `
+                <tr>
+                    <td>${p.name}</td>
+                    <td>$${p.price}</td>
+                    <td>100</td>
+                    <td><button style="color:red; border:none; background:none; cursor:pointer;" onclick="alert('刪除功能演示')">刪除</button></td>
+                </tr>
+            `).join('');
+        }
+
+        // --- 自訂食譜邏輯 ---
         function openCreateRecipeModal() {
             document.getElementById('new-r-name').value = '';
             document.getElementById('new-r-cal').value = '';
