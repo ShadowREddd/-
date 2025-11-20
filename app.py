@@ -257,7 +257,7 @@ html_template = """
         <div class="top-nav desktop-only">
             <div class="back-home-btn" onclick="location.reload()"><span style="font-size:1.5rem;">⬅</span> 登出</div>
             <div class="desktop-menu">
-                <button id="dt-nav-market" class="active" onclick="switchPage('market')">生鮮市集</button>
+                <button id="dt-nav-market" class="active" onclick="switchPage('market')">食材</button>
                 <button id="dt-nav-recipe" onclick="switchPage('recipe')">食譜牆</button>
                 <button class="cart-btn-desktop" onclick="openModal('cart')">購物車 (<span class="cart-count-num">0</span>)</button>
             </div>
@@ -406,7 +406,7 @@ html_template = """
             { id: "R5", name: "香蕉柳橙冰沙", cal: 180, img: "images/香蕉柳橙冰沙.jpg", steps: ["加冰塊", "打成冰沙"], ingredients: ["香蕉", "柳橙"] },
             { id: "R6", name: "義式烤蔬菜", cal: 200, img: "images/義式烤蔬菜.jpg", steps: ["切塊", "撒上香料烤熟"], ingredients: ["胡蘿蔔", "洋蔥"] },
             {
-                id: "Hidden1", name: "奶油酪梨雞胸肉佐蒜香地瓜葉", cal: 450, img: "https://images.unsplash.com/photo-1606756790138-7c48643e2912?w=400", hidden: true,
+                id: "Hidden1", name: "奶油酪梨雞胸肉佐蒜香地瓜葉", cal: 450, img: "奶油酪梨雞胸肉佐蒜香地瓜葉.jpg", hidden: true,
                 ingredients: ["雞胸肉 (250g)", "酪梨 1 顆", "地瓜葉 1 把", "牛奶/豆漿 100ml", "洋蔥 1/4 顆", "蒜頭 3-4 瓣"],
                 steps: ["雞胸肉切塊，加鹽、黑胡椒、橄欖油醃 10 分鐘。", "熱鍋煎雞胸肉至金黃，盛起備用。", "原鍋炒香洋蔥丁與蒜末，加入酪梨肉壓成泥。", "倒入牛奶煮成濃滑醬汁，加鹽調味。", "放回雞肉煨煮 1-2 分鐘即可。", "另起鍋爆香蒜片，快炒地瓜葉，加鹽調味。"]
             }
@@ -616,7 +616,7 @@ html_template = """
             const hasAvocado = name.includes("酪梨") || tempIngredients.some(i => i.includes("酪梨"));
             const hasChicken = name.includes("雞胸肉") || tempIngredients.some(i => i.includes("雞胸肉"));
             if (hasAvocado && hasChicken) {
-                alert("🥑🍗 恭喜！發現隱藏料理：奶油酪梨雞胸肉佐蒜香地瓜葉！");
+                alert("已新增：奶油酪梨雞胸肉佐蒜香地瓜葉！");
                 const unlocked = { ...allRecipes.find(r => r.id === "Hidden1"), id: "Unlocked_" + Date.now(), hidden: false };
                 allRecipes.unshift(unlocked); closeModal('create'); document.getElementById('recipe-search').value = ''; renderRecipes(allRecipes.filter(r => !r.hidden)); return;
             }
