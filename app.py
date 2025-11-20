@@ -136,8 +136,9 @@ html_template = """
         .cat-btn { white-space: nowrap; padding: 8px 16px; border-radius: 20px; border: 1px solid #ddd; background: white; color: #666; cursor: pointer; }
         .cat-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* 網格 & 卡片 */
+        /* 網格 & 卡片 (核心點擊修正) */
         .grid { display: grid; gap: 15px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+        
         .card { 
             background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
             cursor: pointer; transition: transform 0.2s; display: flex; flex-direction: column;
@@ -157,8 +158,11 @@ html_template = """
         .status-bad { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
 
         /* 卡片按鈕 */
-        .card-actions { display: flex; gap: 5px; margin-top: 8px; }
-        .btn-card-action { flex: 1; padding: 6px; border-radius: 6px; font-size: 0.85rem; cursor: pointer; border: none; font-weight: bold; z-index: 5; transition: 0.2s; }
+        .card-actions { display: flex; gap: 5px; margin-top: 8px; z-index: 10; }
+        .btn-card-action { 
+            flex: 1; padding: 6px; border-radius: 6px; font-size: 0.85rem; 
+            cursor: pointer; border: none; font-weight: bold; transition: 0.2s; z-index: 10;
+        }
         .btn-outline-sm { background: white; border: 1px solid #ddd; color: #555; }
         .btn-outline-sm:hover { background: #f0f0f0; }
         .btn-primary-sm { background: var(--primary); color: white; }
@@ -167,7 +171,7 @@ html_template = """
         .gen-recipe-btn {
             margin-top: 5px; width: 100%; padding: 6px; 
             background: #e3f2fd; border: 1px solid #90caf9; color: #1976d2;
-            border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: bold; z-index: 5;
+            border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: bold; z-index: 10;
         }
         .gen-recipe-btn:hover { background: #bbdefb; }
 
@@ -290,14 +294,16 @@ html_template = """
                     <div class="detail-info">
                         <h1 id="dt-name" style="margin:0; font-size:1.8rem;"></h1>
                         <div style="margin:10px 0;">
-                            <span id="dt-condition-badge"></span> <span id="dt-price" style="color:#d9534f; font-size:1.5rem; font-weight:bold; float:right;"></span>
+                            <span id="dt-condition-badge"></span>
+                            <span id="dt-price" style="color:#d9534f; font-size:1.5rem; font-weight:bold; float:right;"></span>
                         </div>
                         <hr style="border:0; border-top:1px solid #eee; margin:20px 0;">
                         <p style="color:#666; line-height:1.6; font-size:1rem;">
                             📍 產地：<span id="dt-origin"></span><br>
                             ❄️ 保存：<span id="dt-storage"></span><br>
                             📅 到期：<span id="dt-expiry"></span><br>
-                            👀 外觀：<span id="dt-condition-text" style="font-weight:bold;"></span> </p>
+                            👀 外觀：<span id="dt-condition-text" style="font-weight:bold;"></span>
+                        </p>
                         <div style="display:flex; gap:10px; margin-top:20px;">
                             <button class="btn btn-primary" onclick="addToCart()">＋ 加入購物車</button>
                             <button class="btn btn-outline" onclick="quickGenerateRecipeDetail()">⚡ 生成食譜</button>
