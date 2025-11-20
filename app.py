@@ -42,7 +42,7 @@ html_template = """
             .mobile-only { display: none !important; }
         }
 
-        /* --- 登入封面 --- */
+        /* --- 登入封面 (強制滿版) --- */
         #splash { 
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
             background: white; z-index: 99999; 
@@ -51,14 +51,21 @@ html_template = """
             overflow: hidden;
         }
         .splash-logo { 
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            object-fit: cover; object-position: center;
-            animation: breathe 3s infinite; z-index: -1;
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            object-fit: cover;
+            object-position: center;
+            animation: breathe 3s infinite; 
+            z-index: -1;
         }
         @keyframes breathe { 0%, 100% { transform: scale(1); opacity: 0.95; } 50% { transform: scale(1.02); opacity: 1; } }
+        
         .click-hint { 
-            position: absolute; bottom: 80px; color: white; font-size: 1.5rem; font-weight: bold;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.8); animation: blink 2s infinite; z-index: 10;
+            position: absolute; bottom: 80px;
+            color: white; font-size: 1.5rem; font-weight: bold;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+            animation: blink 2s infinite; 
+            z-index: 10;
         }
         @keyframes blink { 50% { opacity: 0.5; } }
 
@@ -77,6 +84,7 @@ html_template = """
             background: white; justify-content: space-between; align-items: center;
             padding: 0 50px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 5000;
         }
+        
         .back-home-btn { 
             font-size: 1.1rem; font-weight: bold; color: #666; cursor: pointer; 
             display: flex; align-items: center; gap: 8px; transition: color 0.2s; 
@@ -92,7 +100,7 @@ html_template = """
         /* --- 主容器 --- */
         .container { max-width: 1200px; margin: 0 auto; padding: 15px; }
 
-        /* --- 橫幅 Banner --- */
+        /* --- 橫幅 Banner (滿版) --- */
         .banner-container {
             width: 100%; height: 180px;
             border-radius: 15px; margin-bottom: 20px;
@@ -331,7 +339,7 @@ html_template = """
     <script>
         function getFutureDate(d) { const date = new Date(); date.setDate(date.getDate()+d); return date.toISOString().split('T')[0]; }
 
-        // --- 資料庫 (蔬菜版) ---
+        // --- 資料庫 (蔬菜 + 生鮮肉品) ---
         const products = [
             // 水果
             { id: "P1", name: "蘋果", price: 139, img: "images/蘋果.jpg", cat: "水果", origin: "美國", storage: "冷藏", date: getFutureDate(6) },
@@ -339,7 +347,7 @@ html_template = """
             { id: "P7", name: "柳橙", price: 120, img: "images/柳橙.JPG", cat: "水果", origin: "美國", storage: "冷藏", date: getFutureDate(10) },
             { id: "P10", name: "鳳梨", price: 155, img: "images/鳳梨.jpg", cat: "水果", origin: "美國", storage: "冷凍", date: getFutureDate(5) },
 
-            // 蔬菜 (包含原本的根莖類，統一歸類為蔬菜)
+            // 蔬菜 (含根莖)
             { id: "P3", name: "高麗菜", price: 160, img: "images/高麗菜.JPG", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(7) },
             { id: "P4", name: "番茄", price: 70, img: "images/番茄.JPG", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(5) },
             { id: "P5", name: "洋蔥", price: 50, img: "images/洋蔥.jpg", cat: "蔬菜", origin: "美國", storage: "常溫", date: getFutureDate(20) },
@@ -351,17 +359,17 @@ html_template = """
             { id: "P14", name: "彩椒", price: 45, img: "https://images.unsplash.com/photo-1563565375-f3fdf5ecfae9?w=400&q=80", cat: "蔬菜", origin: "荷蘭", storage: "冷藏", date: getFutureDate(12) },
             { id: "P15", name: "馬鈴薯", price: 35, img: "https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400&q=80", cat: "蔬菜", origin: "美國", storage: "常溫", date: getFutureDate(30) },
 
-            // 菇類 (新增)
+            // 菇類
             { id: "P13", name: "鮮香菇", price: 65, img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&q=80", cat: "菇類", origin: "台灣", storage: "冷藏", date: getFutureDate(10) },
 
-            // 肉品 (原型食物)
-            { id: "P16", name: "台灣豬五花", price: 220, img: "https://images.unsplash.com/photo-1608755728617-aefab37d2547?w=400&q=80", cat: "肉品", origin: "台灣", storage: "冷凍", date: getFutureDate(30) },
-            { id: "P17", name: "美國牛肋條", price: 450, img: "https://images.unsplash.com/photo-1588168333986-5078d3ae3976?w=400&q=80", cat: "肉品", origin: "美國", storage: "冷凍", date: getFutureDate(30) },
-            { id: "P18", name: "豬里肌", price: 180, img: "https://images.unsplash.com/photo-1627510160208-4188e08d2108?w=400&q=80", cat: "肉品", origin: "台灣", storage: "冷藏", date: getFutureDate(7) },
-            { id: "P19", name: "牛腱心", price: 380, img: "https://images.unsplash.com/photo-1615937657715-bc7b4b7962c1?w=400&q=80", cat: "肉品", origin: "澳洲", storage: "冷凍", date: getFutureDate(30) },
+            // 肉品 (生鮮原型)
+            { id: "P16", name: "台灣豬五花", price: 220, img: "https://images.unsplash.com/photo-1663168769752-d513622f7c32?w=400&q=80", cat: "肉品", origin: "台灣", storage: "冷凍", date: getFutureDate(30) },
+            { id: "P17", name: "美國牛肋條", price: 450, img: "https://images.unsplash.com/photo-1615937691194-97dbd3f3dc29?w=400&q=80", cat: "肉品", origin: "美國", storage: "冷凍", date: getFutureDate(30) },
+            { id: "P18", name: "豬里肌", price: 180, img: "https://images.unsplash.com/photo-1628269588472-14b8a0eac295?w=400&q=80", cat: "肉品", origin: "台灣", storage: "冷藏", date: getFutureDate(7) },
+            { id: "P19", name: "牛腱心", price: 380, img: "https://images.unsplash.com/photo-1551028150-64b9f398f678?w=400&q=80", cat: "肉品", origin: "澳洲", storage: "冷凍", date: getFutureDate(30) },
 
             // 海鮮 & 飲品
-            { id: "P20", name: "鮭魚切片", price: 350, img: "https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?w=400&q=80", cat: "海鮮", origin: "挪威", storage: "冷凍", date: getFutureDate(15) },
+            { id: "P20", name: "鮭魚切片", price: 350, img: "https://images.unsplash.com/photo-1574781330855-d0db8cc6a79c?w=400&q=80", cat: "海鮮", origin: "挪威", storage: "冷凍", date: getFutureDate(15) },
             { id: "P21", name: "鮮乳", price: 90, img: "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&q=80", cat: "飲品", origin: "台灣", storage: "冷藏", date: getFutureDate(10) }
         ];
 
