@@ -53,7 +53,7 @@ html_template = """
         .splash-logo { 
             position: absolute; top: 0; left: 0;
             width: 100%; height: 100%;
-            object-fit: cover; /* 強制填滿螢幕 */
+            object-fit: cover;
             object-position: center;
             animation: breathe 3s infinite; 
             z-index: -1;
@@ -100,14 +100,13 @@ html_template = """
         /* --- 主容器 --- */
         .container { max-width: 1200px; margin: 0 auto; padding: 15px; }
 
-        /* --- 橫幅 Banner (已修改為滿版) --- */
+        /* --- 橫幅 Banner --- */
         .banner-container {
             width: 100%; height: 180px;
             border-radius: 15px; margin-bottom: 20px;
             display: flex; align-items: center; justify-content: center;
             overflow: hidden; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
-        /* 關鍵修改：強制寬高 100% 並使用 cover 填滿 */
         .banner-img { width: 100%; height: 100%; object-fit: cover; }
         @media (min-width: 768px) { .banner-container { height: 300px; } }
 
@@ -245,7 +244,7 @@ html_template = """
                 <h2>食譜牆</h2>
                 <div style="display:flex; gap:10px;">
                      <input type="text" id="recipe-search" placeholder="搜尋食譜..." oninput="filterRecipes()" style="padding:8px; border:1px solid #ddd; border-radius:20px; outline:none;">
-                    <button class="btn-outline" style="width:auto; padding:8px 20px;" onclick="openCreateRecipeModal()">＋ 自訂食譜</button>
+                    <button class="btn-outline" style="width:auto; padding:8px 20px;" onclick="openCreateRecipeModal()">＋ 自訂</button>
                 </div>
             </div>
             <div id="grid-recipes" class="grid"></div>
@@ -324,49 +323,14 @@ html_template = """
                 <h3 style="margin:0;">新增私房食譜</h3>
                 <span onclick="closeModal('create')" style="cursor:pointer; font-size:1.5rem;">✕</span>
             </div>
-            
             <div style="flex:1; overflow-y:auto; padding-right:5px;">
-                <div class="form-group">
-                    <label class="form-label">食譜名稱</label>
-                    <input type="text" id="new-r-name" class="form-input" placeholder="例如：阿嬤的紅燒肉">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">預估卡路里</label>
-                    <input type="number" id="new-r-cal" class="form-input" placeholder="例如：500">
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">選擇食材 (從市集)</label>
-                    <div class="add-row">
-                        <select id="product-select" class="form-select">
-                            <option value="">-- 請選擇食材 --</option>
-                        </select>
-                        <button class="add-btn-small" onclick="addIngredientFromSelect()">＋</button>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">或 手動輸入</label>
-                    <div class="add-row">
-                        <input type="text" id="manual-ing-input" class="form-input" placeholder="例如：鹽、醬油...">
-                        <button class="add-btn-small" onclick="addManualIngredient()">＋</button>
-                    </div>
-                </div>
-
-                <div id="new-ing-list" class="tag-container">
-                    <span style="color:#999; font-size:0.9rem;">尚未加入食材</span>
-                </div>
-
-                <div class="form-group" style="margin-top:15px;">
-                    <label class="form-label">步驟</label>
-                    <div class="add-row">
-                        <input type="text" id="new-step-input" class="form-input" placeholder="輸入步驟...">
-                        <button class="add-btn-small" onclick="addNewStep()">＋</button>
-                    </div>
-                    <div id="new-step-list" style="background:#f9f9f9; padding:10px; border-radius:8px; min-height:50px;"></div>
-                </div>
+                <div class="form-group"><label class="form-label">食譜名稱</label><input type="text" id="new-r-name" class="form-input" placeholder="例如：阿嬤的紅燒肉"></div>
+                <div class="form-group"><label class="form-label">預估卡路里</label><input type="number" id="new-r-cal" class="form-input" placeholder="例如：500"></div>
+                <div class="form-group"><label class="form-label">選擇食材 (從市集)</label><div class="add-row"><select id="product-select" class="form-select"><option value="">-- 請選擇食材 --</option></select><button class="add-btn-small" onclick="addIngredientFromSelect()">＋</button></div></div>
+                <div class="form-group"><label class="form-label">或 手動輸入</label><div class="add-row"><input type="text" id="manual-ing-input" class="form-input" placeholder="例如：鹽、醬油..."><button class="add-btn-small" onclick="addManualIngredient()">＋</button></div></div>
+                <div id="new-ing-list" class="tag-container"><span style="color:#999; font-size:0.9rem;">尚未加入食材</span></div>
+                <div class="form-group" style="margin-top:15px;"><label class="form-label">步驟</label><div class="add-row"><input type="text" id="new-step-input" class="form-input" placeholder="輸入步驟..."><button class="add-btn-small" onclick="addNewStep()">＋</button></div><div id="new-step-list" style="background:#f9f9f9; padding:10px; border-radius:8px; min-height:50px;"></div></div>
             </div>
-
             <button class="btn btn-primary" onclick="saveCustomRecipe()">✨ 完成並發布</button>
         </div>
     </div>
@@ -403,7 +367,7 @@ html_template = """
                 id: "Hidden1", 
                 name: "奶油酪梨雞胸肉佐蒜香地瓜葉", 
                 cal: 450, 
-                img: "images/奶油酪梨雞胸肉佐蒜香地瓜葉.jpg",
+                img: "images/奶油酪梨雞胸肉.jpg",
                 hidden: true,
                 ingredients: ["雞胸肉 (250g)", "酪梨 1 顆", "地瓜葉 1 把", "牛奶/豆漿 100ml", "洋蔥 1/4 顆", "蒜頭 3-4 瓣"],
                 steps: ["雞胸肉切塊，加鹽、黑胡椒、橄欖油醃 10 分鐘。", "熱鍋煎雞胸肉至金黃，盛起備用。", "原鍋炒香洋蔥丁與蒜末，加入酪梨肉壓成泥。", "倒入牛奶煮成濃滑醬汁，加鹽調味。", "放回雞肉煨煮 1-2 分鐘即可。", "另起鍋爆香蒜片，快炒地瓜葉，加鹽調味。"]
@@ -418,7 +382,7 @@ html_template = """
         function init() {
             renderProducts(products);
             
-            // --- 修正重點：初始化時，只顯示沒有 hidden 標記的食譜 ---
+            // 初始化時：顯示所有非 hidden 的食譜
             const defaultRecipes = allRecipes.filter(r => !r.hidden);
             renderRecipes(defaultRecipes);
         }
@@ -444,17 +408,13 @@ html_template = """
         // --- 修正後的篩選邏輯 ---
         function filterRecipes() {
             const searchInput = document.getElementById('recipe-search');
-            // 如果切換頁面時 input 還沒產生，就略過
             const kw = searchInput ? searchInput.value.trim() : "";
             
             const filtered = allRecipes.filter(r => {
-                // 1. 隱藏版食譜：只有輸入「酪梨」才顯示
                 if (r.hidden === true) {
                     return kw.includes("酪梨");
                 }
-                // 2. 一般食譜：如果沒輸入關鍵字，全部顯示
                 if (kw === "") return true;
-                // 3. 一般食譜：關鍵字搜尋
                 return r.name.includes(kw) || (r.ingredients && r.ingredients.some(i => i.includes(kw)));
             });
             renderRecipes(filtered);
@@ -487,11 +447,9 @@ html_template = """
 
             document.getElementById('page-'+page).style.display = 'block';
             
-            // 切換到食譜牆時，重置搜尋並顯示預設食譜
             if(page === 'recipe') {
                 const searchInput = document.getElementById('recipe-search');
                 if(searchInput) searchInput.value = '';
-                // 重新呼叫初始化篩選 (只顯示非隱藏)
                 const defaultRecipes = allRecipes.filter(r => !r.hidden);
                 renderRecipes(defaultRecipes);
             }
@@ -560,7 +518,6 @@ html_template = """
             alert(`正在為您尋找「${p.name}」相關食譜...`);
             switchPage('recipe');
             
-            // 自動填入並搜尋
             setTimeout(() => {
                 const searchInput = document.getElementById('recipe-search');
                 if(searchInput) {
@@ -619,15 +576,40 @@ html_template = """
         function saveCustomRecipe() {
             const name = document.getElementById('new-r-name').value.trim();
             const cal = document.getElementById('new-r-cal').value;
+
+            // 關鍵字偵測：同時包含 "酪梨" 和 "雞胸肉" (無論是在名稱還是食材列表)
+            const hasAvocado = name.includes("酪梨") || tempIngredients.some(i => i.includes("酪梨"));
+            const hasChicken = name.includes("雞胸肉") || tempIngredients.some(i => i.includes("雞胸肉"));
+
+            if (hasAvocado && hasChicken) {
+                alert("🥑🍗 恭喜！您發現了隱藏料理：奶油酪梨雞胸肉佐蒜香地瓜葉！");
+                
+                const hiddenRecipe = allRecipes.find(r => r.id === "Hidden1");
+                const unlockedRecipe = { ...hiddenRecipe, id: "Unlocked_" + Date.now(), hidden: false };
+                
+                allRecipes.unshift(unlockedRecipe);
+                closeModal('create');
+                
+                document.getElementById('recipe-search').value = '';
+                renderRecipes(allRecipes.filter(r => !r.hidden));
+                return;
+            }
+
             if(!name || tempIngredients.length===0 || tempSteps.length===0) { alert("請填寫名稱、食材與步驟！"); return; }
             
-            allRecipes.unshift({id:"C"+Date.now(), name:name, img:"https://via.placeholder.com/300?text="+name, cal:cal||0, steps:[...tempSteps], ingredients:[...tempIngredients]});
+            allRecipes.unshift({
+                id: "C" + Date.now(), 
+                name: name, 
+                img: "https://via.placeholder.com/300?text=" + name, 
+                cal: cal || 0, 
+                steps: [...tempSteps], 
+                ingredients: [...tempIngredients]
+            });
+            
             alert("✨ 私房食譜發布成功！");
             closeModal('create');
             
-            // 強制刷新列表
-            const searchInput = document.getElementById('recipe-search');
-            if(searchInput) searchInput.value = '';
+            document.getElementById('recipe-search').value = '';
             renderRecipes(allRecipes.filter(r => !r.hidden));
         }
 
