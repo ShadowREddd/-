@@ -47,7 +47,8 @@ html_template = """
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
             background: white; z-index: 99999; 
             display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            transition: opacity 0.6s ease-out; overflow: hidden;
+            transition: opacity 0.6s ease-out;
+            overflow: hidden;
         }
         .splash-logo { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -81,22 +82,14 @@ html_template = """
             display: flex; align-items: center; gap: 8px; transition: color 0.2s; 
         }
         .back-home-btn:hover { color: var(--primary); }
-        
+
         .desktop-menu button {
             background: none; border: none; font-size: 1rem; margin-left: 20px; cursor: pointer; color: #666; transition: 0.2s;
         }
         .desktop-menu button:hover, .desktop-menu button.active { color: var(--primary); font-weight: bold; }
         .cart-btn-desktop { background: var(--primary) !important; color: white !important; padding: 8px 20px; border-radius: 20px; }
 
-        /* --- 後台按鈕 (右上角) --- */
-        .backend-btn {
-            position: absolute; right: 15px; top: 15px; z-index: 5001;
-            background: rgba(255,255,255,0.8); border: 1px solid #ccc;
-            padding: 5px 12px; border-radius: 20px; color: #555; cursor: pointer; font-size: 0.9rem;
-        }
-        @media (min-width: 768px) { .backend-btn { top: 20px; right: 50px; } }
-
-        /* --- 客服懸浮按鈕 (右下角) --- */
+        /* --- 客服懸浮按鈕 --- */
         .chat-fab {
             position: fixed; bottom: 80px; right: 20px; z-index: 5500;
             width: 60px; height: 60px; border-radius: 50%; background: #2c3e50;
@@ -141,6 +134,7 @@ html_template = """
         .category-bar {
             display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px;
             scrollbar-width: none;
+            justify-content: flex-start; /* 靠左對齊 */
         }
         .category-bar::-webkit-scrollbar { display: none; }
         .cat-btn {
@@ -230,8 +224,6 @@ html_template = """
         <div class="click-hint">👆 點擊進入市集</div>
     </div>
 
-    <button class="backend-btn" onclick="showBackend()">⚙️ 後台</button>
-
     <button class="chat-fab" onclick="toggleChat()">💬</button>
 
     <div id="chat-widget">
@@ -241,6 +233,7 @@ html_template = """
         </div>
         <div class="chat-body" id="chat-body">
             <div class="msg msg-bot">您好！請問有什麼需要幫忙的嗎？🥦</div>
+            <div class="msg msg-bot" style="font-size:0.8rem; color:#888;">(提示：輸入特定指令可進入後台)</div>
         </div>
         <div class="chat-input-area">
             <input type="text" id="chat-input" class="form-input" placeholder="輸入訊息..." onkeypress="if(event.key==='Enter') sendChat()">
@@ -274,7 +267,6 @@ html_template = """
             </div>
 
             <div class="category-bar" id="cat-bar">
-                <button class="cat-btn active" onclick="filterCat('all', this)">全部</button>
                 <button class="cat-btn" onclick="filterCat('水果', this)">🍎 水果</button>
                 <button class="cat-btn" onclick="filterCat('蔬菜', this)">🥦 蔬菜</button>
                 <button class="cat-btn" onclick="filterCat('菇類', this)">🍄 菇類</button>
@@ -282,7 +274,12 @@ html_template = """
                 <button class="cat-btn" onclick="filterCat('海鮮', this)">🐟 海鮮</button>
             </div>
 
-            <div id="grid-products" class="grid"></div>
+            <div id="grid-products" class="grid">
+                <div style="grid-column:1/-1; text-align:center; padding:50px; color:#888;">
+                    <div style="font-size:3rem; margin-bottom:10px;">🥦🍎🥩</div>
+                    <div style="font-size:1.2rem;">請點擊上方分類開始選購</div>
+                </div>
+            </div>
         </div>
 
         <div id="page-recipe" class="page">
@@ -324,13 +321,13 @@ html_template = """
 
         <div id="page-backend" class="page">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <h2>⚙️ 後台管理</h2>
-                <button class="btn-outline" style="width:auto;" onclick="switchPage('market')">返回前台</button>
+                <h2>⚙️ 後台管理系統</h2>
+                <button class="btn-outline" style="width:auto;" onclick="switchPage('market')">登出後台</button>
             </div>
             <div style="background:white; padding:20px; border-radius:15px; box-shadow:0 2px 10px rgba(0,0,0,0.05);">
-                <h3>📦 商品管理</h3>
+                <h3>📦 庫存管理</h3>
                 <table class="admin-table">
-                    <thead><tr><th>名稱</th><th>價格</th><th>庫存</th><th>操作</th></tr></thead>
+                    <thead><tr><th>商品名稱</th><th>分類</th><th>價格</th><th>操作</th></tr></thead>
                     <tbody id="admin-list"></tbody>
                 </table>
             </div>
@@ -398,7 +395,7 @@ html_template = """
     <script>
         function getFutureDate(d) { const date = new Date(); date.setDate(date.getDate()+d); return date.toISOString().split('T')[0]; }
 
-        // --- 資料庫 (生鮮肉品 + 原圖蔬果) ---
+        // --- 資料庫 ---
         const products = [
             // 水果
             { id: "P1", name: "蘋果", price: 139, img: "images/蘋果.jpg", cat: "水果", origin: "美國", storage: "冷藏", date: getFutureDate(6) },
@@ -413,15 +410,13 @@ html_template = """
             { id: "P6", name: "地瓜", price: 190, img: "images/地瓜.jpg", cat: "蔬菜", origin: "台灣", storage: "常溫", date: getFutureDate(14) },
             { id: "P8", name: "菠菜", price: 90, img: "images/菠菜.JPG", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(2) },
             { id: "P9", name: "胡蘿蔔", price: 60, img: "images/胡蘿蔔.jpg", cat: "蔬菜", origin: "韓國", storage: "冷藏", date: getFutureDate(8) },
-            
-            // 新增食材 (網圖)
             { id: "P11", name: "花椰菜", price: 55, img: "https://images.unsplash.com/photo-1568584711075-3d021a7c3d54?w=400", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(5) },
             { id: "P12", name: "甜玉米", price: 40, img: "https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=400", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(7) },
             { id: "P14", name: "彩椒", price: 45, img: "https://images.unsplash.com/photo-1563565375-f3fdf5ecfae9?w=400", cat: "蔬菜", origin: "荷蘭", storage: "冷藏", date: getFutureDate(12) },
             { id: "P15", name: "馬鈴薯", price: 35, img: "https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400", cat: "蔬菜", origin: "美國", storage: "常溫", date: getFutureDate(30) },
             { id: "P13", name: "鮮香菇", price: 65, img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400", cat: "菇類", origin: "台灣", storage: "冷藏", date: getFutureDate(10) },
 
-            // 肉品 (生鮮網圖)
+            // 肉品 (生鮮肉，無牛奶)
             { id: "P16", name: "豬肉", price: 220, img: "https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=400", cat: "肉品", origin: "台灣", storage: "冷凍", date: getFutureDate(30) },
             { id: "P17", name: "牛肉", price: 450, img: "https://images.unsplash.com/photo-1613482184648-47399b2df699?w=400", cat: "肉品", origin: "美國", storage: "冷凍", date: getFutureDate(30) },
 
@@ -453,9 +448,10 @@ html_template = """
         let tempSteps = [];
 
         function init() {
-            renderProducts(products);
+            // 初始狀態：市集空白，食譜牆顯示一般食譜
             const defaultRecipes = allRecipes.filter(r => !r.hidden);
             renderRecipes(defaultRecipes);
+            // 初始分類不選取
         }
 
         function renderProducts(list) {
@@ -478,7 +474,17 @@ html_template = """
         function filterCat(cat, btn) {
             document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            renderProducts(cat === 'all' ? products : products.filter(p => p.cat === cat));
+            
+            if (cat === 'all') {
+                // 如果想讓"全部"也顯示東西，可以改成 renderProducts(products)
+                // 依照您的需求「不要展示全部」，這裡可以設為顯示所有商品，或者繼續保持空白，
+                // 但通常使用者點了「全部」是期望看到東西的。
+                // 這裡設定為顯示所有商品：
+                 renderProducts(products);
+            } else {
+                const filtered = products.filter(p => p.cat === cat);
+                renderProducts(filtered);
+            }
         }
 
         function filterRecipes() {
@@ -525,11 +531,17 @@ html_template = """
                 if(searchInput) searchInput.value = '';
                 renderRecipes(allRecipes.filter(r => !r.hidden));
             }
+            // 回市集時重置為空白
             if(page === 'market') {
-                // 每次回到市集重置為全部商品
-                filterCat('all', document.querySelector('.cat-btn'));
+                 document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+                 renderProducts([]); // 清空
             }
             window.scrollTo(0,0);
+        }
+        
+        function showBackend() {
+            switchPage('backend');
+            renderAdmin();
         }
 
         function showDetail(pid) {
@@ -544,8 +556,6 @@ html_template = """
             document.getElementById('dt-tag').innerText = p.cat;
             switchPage('detail');
         }
-        
-        function showBackend() { switchPage('backend'); renderAdmin(); }
 
         function addToCart() {
             if(!currentPid) return;
@@ -605,7 +615,7 @@ html_template = """
             }, 100);
         }
 
-        // --- Chat & Admin ---
+        // --- Chat Logic ---
         function toggleChat() {
             const w = document.getElementById('chat-widget');
             w.style.display = (w.style.display === 'flex') ? 'none' : 'flex';
@@ -619,6 +629,18 @@ html_template = """
             body.innerHTML += `<div class="msg msg-user">${msg}</div>`;
             input.value = '';
             body.scrollTop = body.scrollHeight;
+
+            // 後台觸發關鍵字
+            if(msg === '[後台]') {
+                setTimeout(() => {
+                    body.innerHTML += `<div class="msg msg-bot">身分驗證成功，正在為您跳轉後台...</div>`;
+                    setTimeout(() => {
+                        toggleChat();
+                        showBackend();
+                    }, 1000);
+                }, 500);
+                return;
+            }
             
             setTimeout(() => {
                 let reply = "感謝您的訊息！我們的客服專員會盡快回覆您。";
@@ -632,8 +654,8 @@ html_template = """
             document.getElementById('admin-list').innerHTML = products.map(p => `
                 <tr>
                     <td>${p.name}</td>
+                    <td>${p.cat}</td>
                     <td>$${p.price}</td>
-                    <td>100</td>
                     <td><button style="color:red; border:none; background:none; cursor:pointer;" onclick="alert('刪除功能演示')">刪除</button></td>
                 </tr>
             `).join('');
