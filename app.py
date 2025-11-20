@@ -30,25 +30,25 @@ html_template = """
             padding-bottom: 80px; overflow-x: hidden;
         }
 
-        :root { --primary: #d9534f; --text: #333; --bg: #fff; }
+        :root { --primary: #d9534f; --text: #333; --bg: #fff; --good: #28a745; --bad: #dc3545; }
 
         /* RWD 控制 */
         .desktop-only { display: none !important; }
         .mobile-only { display: flex !important; }
 
         @media (min-width: 768px) {
-            body { padding-bottom: 0; } /* 登入前不留白 */
+            body { padding-bottom: 0; }
             .desktop-only { display: flex !important; }
             .mobile-only { display: none !important; }
         }
 
-        /* --- 1. 登入封面 (Splash) --- */
+        /* --- 登入封面 --- */
         #splash { 
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
             background: white; z-index: 99999; 
             display: flex; flex-direction: column; justify-content: center; align-items: center; 
             transition: opacity 0.5s ease-out;
-            overflow: hidden;
+            overflow: hidden; cursor: pointer;
         }
         .splash-logo { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -56,38 +56,23 @@ html_template = """
             animation: breathe 3s infinite; z-index: -1;
         }
         @keyframes breathe { 0%, 100% { transform: scale(1); opacity: 0.95; } 50% { transform: scale(1.02); opacity: 1; } }
-        .click-hint { 
-            position: absolute; bottom: 80px; color: white; font-size: 1.5rem; font-weight: bold;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.8); animation: blink 2s infinite; z-index: 10;
-        }
-        @keyframes blink { 50% { opacity: 0.5; } }
 
-        /* --- 2. 用戶登入頁面 (Login Page) --- */
+        /* --- 登入頁面 --- */
         #login-page {
-            display: none; /* 初始隱藏 */
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: #fff; z-index: 8000;
             flex-direction: column; justify-content: center; align-items: center;
             padding: 20px; animation: fadeIn 0.5s;
         }
-        .login-card {
-            width: 100%; max-width: 400px; text-align: center;
-        }
+        .login-card { width: 100%; max-width: 400px; text-align: center; }
         .login-logo { width: 120px; margin-bottom: 20px; }
         .login-title { font-size: 1.8rem; margin-bottom: 30px; color: #333; }
-        .login-input {
-            width: 100%; padding: 15px; margin-bottom: 15px; border: 1px solid #ddd;
-            border-radius: 10px; font-size: 1rem; background: #f9f9f9;
-        }
-        .login-btn {
-            width: 100%; padding: 15px; background: var(--primary); color: white;
-            border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold;
-            cursor: pointer; box-shadow: 0 4px 15px rgba(217, 83, 79, 0.3);
-        }
+        .login-input { width: 100%; padding: 15px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 10px; background: #f9f9f9; }
+        .login-btn { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
         .login-footer { margin-top: 20px; color: #999; font-size: 0.9rem; }
 
-        /* --- 3. 主程式區域 (Main App) --- */
-        #main-app { display: none; opacity: 0; transition: opacity 0.5s; } /* 初始隱藏 */
+        /* --- 主程式 --- */
+        #main-app { display: none; opacity: 0; transition: opacity 0.5s; }
 
         /* 導覽列 */
         .bottom-nav {
@@ -104,15 +89,8 @@ html_template = """
             background: white; justify-content: space-between; align-items: center;
             padding: 0 50px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 5000;
         }
-        .back-home-btn { 
-            font-size: 1.1rem; font-weight: bold; color: #666; cursor: pointer; 
-            display: flex; align-items: center; gap: 8px; transition: color 0.2s; 
-        }
-        .back-home-btn:hover { color: var(--primary); }
-
-        .desktop-menu button {
-            background: none; border: none; font-size: 1rem; margin-left: 20px; cursor: pointer; color: #666; transition: 0.2s;
-        }
+        .back-home-btn { font-size: 1.1rem; font-weight: bold; color: #666; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        .desktop-menu button { background: none; border: none; font-size: 1rem; margin-left: 20px; cursor: pointer; color: #666; }
         .desktop-menu button:hover, .desktop-menu button.active { color: var(--primary); font-weight: bold; }
         .cart-btn-desktop { background: var(--primary) !important; color: white !important; padding: 8px 20px; border-radius: 20px; }
 
@@ -122,9 +100,7 @@ html_template = """
             width: 60px; height: 60px; border-radius: 50%; background: #2c3e50;
             color: white; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             font-size: 1.8rem; cursor: pointer; display: flex; justify-content: center; align-items: center;
-            transition: transform 0.2s;
         }
-        .chat-fab:hover { transform: scale(1.1); }
         @media (min-width: 768px) { .chat-fab { bottom: 30px; right: 30px; } }
 
         #chat-widget {
@@ -138,56 +114,55 @@ html_template = """
         .chat-header { background: #2c3e50; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
         .chat-body { flex: 1; padding: 15px; overflow-y: auto; background: #f4f6f8; display: flex; flex-direction: column; gap: 10px; }
         .chat-input-area { padding: 10px; background: white; border-top: 1px solid #eee; display: flex; gap: 5px; }
-        
-        .msg { max-width: 80%; padding: 10px; border-radius: 15px; font-size: 0.9rem; line-height: 1.4; }
-        .msg-bot { align-self: flex-start; background: white; border: 1px solid #eee; border-top-left-radius: 2px; }
-        .msg-user { align-self: flex-end; background: #d9fdd3; border-top-right-radius: 2px; }
+        .msg { max-width: 80%; padding: 10px; border-radius: 15px; font-size: 0.9rem; }
+        .msg-bot { align-self: flex-start; background: white; border: 1px solid #eee; }
+        .msg-user { align-self: flex-end; background: #d9fdd3; }
 
         /* 主容器 */
         .container { max-width: 1200px; margin: 0 auto; padding: 15px; }
 
-        /* 橫幅 Banner */
+        /* 橫幅 */
         .banner-container {
-            width: 100%; height: 180px;
-            border-radius: 15px; margin-bottom: 20px;
-            display: flex; align-items: center; justify-content: center;
-            overflow: hidden; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            width: 100%; height: 180px; border-radius: 15px; margin-bottom: 20px;
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
+            position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
         .banner-img { width: 100%; height: 100%; object-fit: cover; }
         @media (min-width: 768px) { .banner-container { height: 300px; } }
 
-        /* 分類滑動列 */
-        .category-bar {
-            display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px;
-            scrollbar-width: none;
-        }
+        /* 分類列 */
+        .category-bar { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; scrollbar-width: none; }
         .category-bar::-webkit-scrollbar { display: none; }
-        .cat-btn {
-            white-space: nowrap; padding: 8px 16px; border-radius: 20px;
-            border: 1px solid #ddd; background: white; color: #666;
-            font-size: 0.9rem; cursor: pointer; transition: all 0.2s;
-        }
+        .cat-btn { white-space: nowrap; padding: 8px 16px; border-radius: 20px; border: 1px solid #ddd; background: white; color: #666; cursor: pointer; }
         .cat-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* 網格 */
-        .grid { 
-            display: grid; gap: 15px;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
-        }
-        .card { 
-            background: white; border-radius: 12px; overflow: hidden; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.2s; 
-        }
+        /* 網格 & 卡片 */
+        .grid { display: grid; gap: 15px; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+        .card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.2s; display: flex; flex-direction: column;}
         .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
         .card-img { width: 100%; height: 160px; object-fit: cover; }
-        .card-body { padding: 12px; }
+        .card-body { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; }
         .card-title { font-weight: bold; margin-bottom: 5px; color: #333; }
-        .price { color: var(--primary); font-weight: bold; font-size: 1.1rem; }
+        .price { color: var(--primary); font-weight: bold; font-size: 1.1rem; margin-top: auto; }
+        
+        /* 狀態標籤 (新功能) */
+        .status-badge {
+            display: inline-block; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; margin-bottom: 5px;
+        }
+        .status-good { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .status-bad { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+        /* 生成食譜按鈕 (新功能) */
+        .gen-recipe-btn {
+            margin-top: 8px; width: 100%; padding: 6px; 
+            background: #fff; border: 1px solid #17a2b8; color: #17a2b8;
+            border-radius: 6px; font-size: 0.85rem; cursor: pointer; transition: 0.2s;
+        }
+        .gen-recipe-btn:hover { background: #17a2b8; color: white; }
 
         /* 詳情頁 */
         .page { display: none; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
         .detail-wrapper { display: flex; flex-direction: column; background: white; border-radius: 0; }
         @media (min-width: 768px) {
             .detail-wrapper { flex-direction: row; border-radius: 20px; padding: 40px; gap: 40px; margin-top: 20px; }
@@ -203,18 +178,11 @@ html_template = """
 
         /* Modal */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 6000; }
-        .modal-content { 
-            position: absolute; bottom: 0; left: 0; width: 100%; max-height: 85vh; 
-            background: white; border-radius: 20px 20px 0 0; padding: 20px; 
-            display: flex; flex-direction: column; animation: slideUp 0.3s;
-        }
+        .modal-content { position: absolute; bottom: 0; left: 0; width: 100%; max-height: 85vh; background: white; border-radius: 20px 20px 0 0; padding: 20px; display: flex; flex-direction: column; animation: slideUp 0.3s; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         @media (min-width: 768px) {
             .modal { align-items: center; justify-content: center; }
-            .modal-content { 
-                position: relative; width: 500px; border-radius: 15px; bottom: auto; left: auto; 
-                box-shadow: 0 10px 30px rgba(0,0,0,0.2); animation: fadeIn 0.3s;
-            }
+            .modal-content { position: relative; width: 500px; border-radius: 15px; bottom: auto; left: auto; animation: fadeIn 0.3s; }
         }
 
         /* Admin & Form */
@@ -228,12 +196,10 @@ html_template = """
         .tag-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px; background: #f9f9f9; border-radius: 8px; min-height: 50px; }
         .ing-tag { background: white; border: 1px solid #ddd; padding: 5px 12px; border-radius: 20px; font-size: 0.9rem; display: flex; align-items: center; gap: 5px; }
         .ing-tag span { color: #d9534f; cursor: pointer; font-weight: bold; margin-left: 5px; }
-        
         .step-list, .ing-list { padding-left: 20px; margin: 0; color: #444; line-height: 1.6; }
         .ing-list { list-style-type: disc; margin-bottom: 15px; }
         .step-list li, .ing-list li { margin-bottom: 5px; }
         h4 { margin: 15px 0 8px 0; color: var(--primary); border-bottom: 1px solid #eee; padding-bottom: 5px; }
-
         .btn { width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: bold; font-size: 1rem; margin-top: 10px; cursor: pointer; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-outline { background: white; border: 1px solid #ddd; color: #555; }
@@ -246,10 +212,9 @@ html_template = """
 
     <div id="splash" onclick="goToLogin()">
         <img src="images/食際行動家.png" class="splash-logo">
-        <div class="click-hint">👆 點擊開始</div>
     </div>
 
-    <div id="login-page" style="display:flex;">
+    <div id="login-page" style="display:none;">
         <div class="login-card">
             <img src="images/食際行動家.png" class="login-logo">
             <div class="login-title">歡迎回來</div>
@@ -261,7 +226,6 @@ html_template = """
     </div>
 
     <div id="main-app">
-
         <button class="chat-fab" onclick="toggleChat()">💬</button>
 
         <div id="chat-widget">
@@ -271,7 +235,7 @@ html_template = """
             </div>
             <div class="chat-body" id="chat-body">
                 <div class="msg msg-bot">您好！請問有什麼需要幫忙的嗎？🥦</div>
-                </div>
+            </div>
             <div class="chat-input-area">
                 <input type="text" id="chat-input" class="form-input" placeholder="輸入訊息..." onkeypress="if(event.key==='Enter') sendChat()">
                 <button class="add-btn-small" onclick="sendChat()" style="width:60px; font-size:0.9rem;">傳送</button>
@@ -279,9 +243,7 @@ html_template = """
         </div>
 
         <div class="top-nav desktop-only">
-            <div class="back-home-btn" onclick="location.reload()">
-                <span style="font-size:1.5rem;">⬅</span> 登出
-            </div>
+            <div class="back-home-btn" onclick="location.reload()"><span style="font-size:1.5rem;">⬅</span> 登出</div>
             <div class="desktop-menu">
                 <button id="dt-nav-market" class="active" onclick="switchPage('market')">生鮮市集</button>
                 <button id="dt-nav-recipe" onclick="switchPage('recipe')">食譜牆</button>
@@ -290,19 +252,11 @@ html_template = """
         </div>
 
         <div class="container">
-            
             <div id="page-market" class="page" style="display:block;">
-                
                 <div class="mobile-top-bar mobile-only">
-                    <div class="back-home-btn" onclick="location.reload()">
-                        <span style="font-size:1.3rem;">⬅</span> 登出
-                    </div>
+                    <div class="back-home-btn" onclick="location.reload()"><span style="font-size:1.3rem;">⬅</span> 登出</div>
                 </div>
-
-                <div class="banner-container">
-                    <img src="images/食際行動家.png" class="banner-img">
-                </div>
-
+                <div class="banner-container"><img src="images/食際行動家.png" class="banner-img"></div>
                 <div class="category-bar" id="cat-bar">
                     <button class="cat-btn" onclick="filterCat('水果', this)">🍎 水果</button>
                     <button class="cat-btn" onclick="filterCat('蔬菜', this)">🥦 蔬菜</button>
@@ -310,12 +264,8 @@ html_template = """
                     <button class="cat-btn" onclick="filterCat('肉品', this)">🥩 肉品</button>
                     <button class="cat-btn" onclick="filterCat('海鮮', this)">🐟 海鮮</button>
                 </div>
-
                 <div id="grid-products" class="grid">
-                    <div style="grid-column:1/-1; text-align:center; padding:50px; color:#888;">
-                        <div style="font-size:3rem; margin-bottom:10px;">🥦🍎🥩</div>
-                        <div style="font-size:1.2rem;">請點擊上方分類開始選購</div>
-                    </div>
+                    <div style="grid-column:1/-1; text-align:center; padding:50px; color:#888;"><div style="font-size:3rem; margin-bottom:10px;">🥦🍎🥩</div><div style="font-size:1.2rem;">請點擊上方分類開始選購</div></div>
                 </div>
             </div>
 
@@ -333,24 +283,17 @@ html_template = """
             <div id="page-detail" class="page">
                 <button class="back-btn" onclick="switchPage('market')">←</button>
                 <div class="detail-wrapper">
-                    <div class="detail-hero">
-                        <img id="dt-img" src="">
-                    </div>
+                    <div class="detail-hero"><img id="dt-img" src=""></div>
                     <div class="detail-info">
                         <h1 id="dt-name" style="margin:0; font-size:1.8rem;"></h1>
                         <div style="margin:10px 0;">
-                            <span id="dt-price" style="color:#d9534f; font-size:1.5rem; font-weight:bold;"></span>
-                            <span id="dt-tag" class="tag" style="float:right; margin-top:5px;"></span>
+                            <span id="dt-condition-badge"></span> <span id="dt-price" style="color:#d9534f; font-size:1.5rem; font-weight:bold; float:right;"></span>
                         </div>
                         <hr style="border:0; border-top:1px solid #eee; margin:20px 0;">
-                        <p style="color:#666; line-height:1.6; font-size:1rem;">
-                            📍 產地：<span id="dt-origin"></span><br>
-                            ❄️ 保存：<span id="dt-storage"></span><br>
-                            📅 到期：<span id="dt-expiry"></span>
-                        </p>
+                        <p style="color:#666; line-height:1.6; font-size:1rem;">📍 產地：<span id="dt-origin"></span><br>❄️ 保存：<span id="dt-storage"></span><br>📅 到期：<span id="dt-expiry"></span></p>
                         <div style="display:flex; gap:10px; margin-top:20px;">
                             <button class="btn btn-primary" onclick="addToCart()">＋ 加入購物車</button>
-                            <button class="btn btn-outline" onclick="findRecipe()">📖 相關料理</button>
+                            <button class="btn btn-outline" onclick="quickGenerateRecipeDetail()">⚡ 生成食譜</button>
                         </div>
                     </div>
                 </div>
@@ -364,37 +307,27 @@ html_template = """
                 <div style="background:white; padding:20px; border-radius:15px; box-shadow:0 2px 10px rgba(0,0,0,0.05);">
                     <h3>📦 庫存管理</h3>
                     <table class="admin-table">
-                        <thead><tr><th>商品名稱</th><th>分類</th><th>價格</th><th>操作</th></tr></thead>
+                        <thead><tr><th>名稱</th><th>狀態</th><th>價格</th><th>操作</th></tr></thead>
                         <tbody id="admin-list"></tbody>
                     </table>
                 </div>
             </div>
-
         </div>
 
         <div class="bottom-nav mobile-only">
-            <button class="nav-item active" id="mb-nav-market" onclick="switchPage('market')">
-                <span class="nav-icon">🥦</span>市集
-            </button>
-            <button class="nav-item" id="mb-nav-recipe" onclick="switchPage('recipe')">
-                <span class="nav-icon">👨‍🍳</span>食譜
-            </button>
-            <button class="nav-item" onclick="openModal('cart')">
-                <span class="nav-icon">🛒<span class="cart-count-num" style="font-size:0.8rem; color:#d9534f; vertical-align:top;">0</span></span>購物車
-            </button>
+            <button class="nav-item active" id="mb-nav-market" onclick="switchPage('market')"><span class="nav-icon">🥦</span>市集</button>
+            <button class="nav-item" id="mb-nav-recipe" onclick="switchPage('recipe')"><span class="nav-icon">👨‍🍳</span>食譜</button>
+            <button class="nav-item" onclick="openModal('cart')"><span class="nav-icon">🛒<span class="cart-count-num" style="font-size:0.8rem; color:#d9534f; vertical-align:top;">0</span></span>購物車</button>
         </div>
 
-    </div> <div id="modal-cart" class="modal" onclick="if(event.target===this) closeModal('cart')">
+    </div>
+
+    <div id="modal-cart" class="modal" onclick="if(event.target===this) closeModal('cart')">
         <div class="modal-content">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h3 style="margin:0;">我的購物車</h3>
-                <span onclick="closeModal('cart')" style="cursor:pointer; font-size:1.5rem;">✕</span>
-            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;"><h3 style="margin:0;">我的購物車</h3><span onclick="closeModal('cart')" style="cursor:pointer; font-size:1.5rem;">✕</span></div>
             <div id="cart-list" style="flex:1; overflow-y:auto; min-height:150px;"></div>
             <div style="border-top:1px solid #eee; padding-top:15px; margin-top:10px;">
-                <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:1.2rem;">
-                    <span>總計</span><span id="cart-total">$0</span>
-                </div>
+                <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:1.2rem;"><span>總計</span><span id="cart-total">$0</span></div>
                 <button class="btn btn-primary" onclick="alert('結帳成功！'); cart=[]; updateCartUI(); closeModal('cart')">前往結帳</button>
             </div>
         </div>
@@ -402,10 +335,7 @@ html_template = """
 
     <div id="modal-step" class="modal" onclick="if(event.target===this) closeModal('step')">
         <div class="modal-content">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h3 style="margin:0;" id="step-title">料理步驟</h3>
-                <span onclick="closeModal('step')" style="cursor:pointer; font-size:1.5rem;">✕</span>
-            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;"><h3 style="margin:0;" id="step-title">料理步驟</h3><span onclick="closeModal('step')" style="cursor:pointer; font-size:1.5rem;">✕</span></div>
             <div id="step-body" style="flex:1; overflow-y:auto; line-height:1.8;"></div>
             <button class="btn btn-outline" onclick="closeModal('step')">關閉</button>
         </div>
@@ -413,10 +343,7 @@ html_template = """
 
     <div id="modal-create" class="modal" onclick="if(event.target===this) closeModal('create')">
         <div class="modal-content">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h3 style="margin:0;">新增私房食譜</h3>
-                <span onclick="closeModal('create')" style="cursor:pointer; font-size:1.5rem;">✕</span>
-            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;"><h3 style="margin:0;">新增私房食譜</h3><span onclick="closeModal('create')" style="cursor:pointer; font-size:1.5rem;">✕</span></div>
             <div style="flex:1; overflow-y:auto; padding-right:5px;">
                 <div class="form-group"><label class="form-label">食譜名稱</label><input type="text" id="new-r-name" class="form-input" placeholder="例如：阿嬤的紅燒肉"></div>
                 <div class="form-group"><label class="form-label">預估卡路里</label><input type="number" id="new-r-cal" class="form-input" placeholder="例如：500"></div>
@@ -432,33 +359,29 @@ html_template = """
     <script>
         function getFutureDate(d) { const date = new Date(); date.setDate(date.getDate()+d); return date.toISOString().split('T')[0]; }
 
-        // --- 資料庫 ---
+        // --- 資料庫 (含外觀狀態) ---
         const products = [
-            // 水果
-            { id: "P1", name: "蘋果", price: 139, img: "images/蘋果.jpg", cat: "水果", origin: "美國", storage: "冷藏", date: getFutureDate(6) },
-            { id: "P2", name: "香蕉", price: 80, img: "images/香蕉.jpg", cat: "水果", origin: "台灣", storage: "常溫", date: getFutureDate(3) },
-            { id: "P7", name: "柳橙", price: 120, img: "images/柳橙.JPG", cat: "水果", origin: "美國", storage: "冷藏", date: getFutureDate(10) },
-            { id: "P10", name: "鳳梨", price: 155, img: "images/鳳梨.jpg", cat: "水果", origin: "美國", storage: "冷凍", date: getFutureDate(5) },
+            { id: "P1", name: "蘋果", price: 139, img: "images/蘋果.jpg", cat: "水果", origin: "美國", storage: "冷藏", date: getFutureDate(6), condition: "良好" },
+            { id: "P2", name: "香蕉", price: 80, img: "images/香蕉.jpg", cat: "水果", origin: "台灣", storage: "常溫", date: getFutureDate(3), condition: "破損" },
+            { id: "P7", name: "柳橙", price: 120, img: "images/柳橙.JPG", cat: "水果", origin: "美國", storage: "冷藏", date: getFutureDate(10), condition: "良好" },
+            { id: "P10", name: "鳳梨", price: 155, img: "images/鳳梨.jpg", cat: "水果", origin: "美國", storage: "冷凍", date: getFutureDate(5), condition: "良好" },
 
-            // 蔬菜
-            { id: "P3", name: "高麗菜", price: 160, img: "images/高麗菜.JPG", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(7) },
-            { id: "P4", name: "番茄", price: 70, img: "images/番茄.JPG", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(5) },
-            { id: "P5", name: "洋蔥", price: 50, img: "images/洋蔥.jpg", cat: "蔬菜", origin: "美國", storage: "常溫", date: getFutureDate(20) },
-            { id: "P6", name: "地瓜", price: 190, img: "images/地瓜.jpg", cat: "蔬菜", origin: "台灣", storage: "常溫", date: getFutureDate(14) },
-            { id: "P8", name: "菠菜", price: 90, img: "images/菠菜.JPG", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(2) },
-            { id: "P9", name: "胡蘿蔔", price: 60, img: "images/胡蘿蔔.jpg", cat: "蔬菜", origin: "韓國", storage: "冷藏", date: getFutureDate(8) },
-            { id: "P11", name: "花椰菜", price: 55, img: "https://images.unsplash.com/photo-1568584711075-3d021a7c3d54?w=400", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(5) },
-            { id: "P12", name: "甜玉米", price: 40, img: "https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=400", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(7) },
-            { id: "P14", name: "彩椒", price: 45, img: "https://images.unsplash.com/photo-1563565375-f3fdf5ecfae9?w=400", cat: "蔬菜", origin: "荷蘭", storage: "冷藏", date: getFutureDate(12) },
-            { id: "P15", name: "馬鈴薯", price: 35, img: "https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400", cat: "蔬菜", origin: "美國", storage: "常溫", date: getFutureDate(30) },
-            { id: "P13", name: "鮮香菇", price: 65, img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400", cat: "菇類", origin: "台灣", storage: "冷藏", date: getFutureDate(10) },
+            { id: "P3", name: "高麗菜", price: 160, img: "images/高麗菜.JPG", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(7), condition: "良好" },
+            { id: "P4", name: "番茄", price: 70, img: "images/番茄.JPG", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(5), condition: "破損" },
+            { id: "P5", name: "洋蔥", price: 50, img: "images/洋蔥.jpg", cat: "蔬菜", origin: "美國", storage: "常溫", date: getFutureDate(20), condition: "良好" },
+            { id: "P6", name: "地瓜", price: 190, img: "images/地瓜.jpg", cat: "蔬菜", origin: "台灣", storage: "常溫", date: getFutureDate(14), condition: "良好" },
+            { id: "P8", name: "菠菜", price: 90, img: "images/菠菜.JPG", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(2), condition: "破損" },
+            { id: "P9", name: "胡蘿蔔", price: 60, img: "images/胡蘿蔔.jpg", cat: "蔬菜", origin: "韓國", storage: "冷藏", date: getFutureDate(8), condition: "良好" },
+            { id: "P11", name: "花椰菜", price: 55, img: "https://images.unsplash.com/photo-1568584711075-3d021a7c3d54?w=400", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(5), condition: "良好" },
+            { id: "P12", name: "甜玉米", price: 40, img: "https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=400", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(7), condition: "良好" },
+            { id: "P14", name: "彩椒", price: 45, img: "https://images.unsplash.com/photo-1563565375-f3fdf5ecfae9?w=400", cat: "蔬菜", origin: "荷蘭", storage: "冷藏", date: getFutureDate(12), condition: "良好" },
+            { id: "P15", name: "馬鈴薯", price: 35, img: "https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400", cat: "蔬菜", origin: "美國", storage: "常溫", date: getFutureDate(30), condition: "破損" },
+            
+            { id: "P13", name: "鮮香菇", price: 65, img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400", cat: "菇類", origin: "台灣", storage: "冷藏", date: getFutureDate(10), condition: "良好" },
 
-            // 肉品 (網圖 - 僅保留豬肉/牛肉)
-            { id: "P16", name: "豬肉", price: 220, img: "https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=400", cat: "肉品", origin: "台灣", storage: "冷凍", date: getFutureDate(30) },
-            { id: "P17", name: "牛肉", price: 450, img: "https://images.unsplash.com/photo-1613482184648-47399b2df699?w=400", cat: "肉品", origin: "美國", storage: "冷凍", date: getFutureDate(30) },
-
-            // 海鮮 (網圖)
-            { id: "P20", name: "鮭魚切片", price: 350, img: "https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?w=400", cat: "海鮮", origin: "挪威", storage: "冷凍", date: getFutureDate(15) }
+            { id: "P16", name: "豬肉", price: 220, img: "https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=400", cat: "肉品", origin: "台灣", storage: "冷凍", date: getFutureDate(30), condition: "良好" },
+            { id: "P17", name: "牛肉", price: 450, img: "https://images.unsplash.com/photo-1613482184648-47399b2df699?w=400", cat: "肉品", origin: "美國", storage: "冷凍", date: getFutureDate(30), condition: "良好" },
+            { id: "P20", name: "鮭魚切片", price: 350, img: "https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?w=400", cat: "海鮮", origin: "挪威", storage: "冷凍", date: getFutureDate(15), condition: "良好" }
         ];
 
         const allRecipes = [
@@ -469,13 +392,8 @@ html_template = """
             { id: "R5", name: "香蕉柳橙冰沙", cal: 180, img: "images/香蕉柳橙冰沙.jpg", steps: ["加冰塊", "打成冰沙"], ingredients: ["香蕉", "柳橙"] },
             { id: "R6", name: "義式烤蔬菜", cal: 200, img: "images/義式烤蔬菜.jpg", steps: ["切塊", "撒上香料烤熟"], ingredients: ["胡蘿蔔", "洋蔥"] },
             {
-                id: "Hidden1", 
-                name: "奶油酪梨雞胸肉佐蒜香地瓜葉", 
-                cal: 450, 
-                img: "https://images.unsplash.com/photo-1606756790138-7c48643e2912?w=400", 
-                hidden: true,
-                ingredients: ["雞胸肉 (250g)", "酪梨 1 顆", "地瓜葉 1 把", "牛奶/豆漿 100ml", "洋蔥 1/4 顆", "蒜頭 3-4 瓣"],
-                steps: ["雞胸肉切塊，加鹽、黑胡椒、橄欖油醃 10 分鐘。", "熱鍋煎雞胸肉至金黃，盛起備用。", "原鍋炒香洋蔥丁與蒜末，加入酪梨肉壓成泥。", "倒入牛奶煮成濃滑醬汁，加鹽調味。", "放回雞肉煨煮 1-2 分鐘即可。", "另起鍋爆香蒜片，快炒地瓜葉，加鹽調味。"]
+                id: "Hidden1", name: "奶油酪梨雞胸肉佐蒜香地瓜葉", cal: 450, img: "https://images.unsplash.com/photo-1606756790138-7c48643e2912?w=400", hidden: true,
+                ingredients: ["雞胸肉", "酪梨", "地瓜葉", "牛奶"], steps: ["雞胸肉煎至金黃", "酪梨壓泥加牛奶煮醬", "混合雞肉煨煮", "清炒地瓜葉"]
             }
         ];
 
@@ -485,88 +403,77 @@ html_template = """
         let tempSteps = [];
 
         function init() {
-            // 初始不渲染商品，等待點擊分類
             const defaultRecipes = allRecipes.filter(r => !r.hidden);
             renderRecipes(defaultRecipes);
         }
 
-        // --- 流程控制 ---
         function goToLogin() {
-            const splash = document.getElementById('splash');
-            const login = document.getElementById('login-page');
-            
-            splash.style.opacity = 0;
-            setTimeout(() => {
-                splash.style.display = 'none';
-                login.style.display = 'flex'; // 顯示登入頁
-            }, 500);
+            const s = document.getElementById('splash');
+            const l = document.getElementById('login-page');
+            s.style.opacity=0; setTimeout(() => { s.style.display='none'; l.style.display='flex'; }, 500);
         }
-
         function performLogin() {
-            // 模擬登入成功
-            const login = document.getElementById('login-page');
-            const app = document.getElementById('main-app');
-            
-            login.style.opacity = 0;
-            setTimeout(() => {
-                login.style.display = 'none';
-                app.style.display = 'block';
-                setTimeout(() => { app.style.opacity = 1; }, 50);
-                
-                // 調整 body padding 適應主程式
-                if (window.innerWidth < 768) {
-                    document.body.style.paddingBottom = '80px';
-                } else {
-                    document.body.style.paddingTop = '70px';
-                }
-            }, 500);
+            const l = document.getElementById('login-page');
+            const a = document.getElementById('main-app');
+            l.style.opacity=0; setTimeout(() => { l.style.display='none'; a.style.display='block'; setTimeout(()=>a.style.opacity=1,50); if(window.innerWidth<768)document.body.style.paddingBottom='80px'; else document.body.style.paddingTop='70px'; }, 500);
         }
 
         function renderProducts(list) {
-            if (!list || list.length === 0) {
-                 document.getElementById('grid-products').innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:50px; color:#888;"><div style="font-size:3rem;">🥦🍎🥩</div><div>請點擊上方分類開始選購</div></div>';
-                 return;
-            }
-            document.getElementById('grid-products').innerHTML = list.map(p => `
-                <div class="card" onclick="showDetail('${p.id}')">
-                    <img src="${p.img}" class="card-img" onerror="this.src='https://via.placeholder.com/300?text=${p.name}'">
+            if(!list || list.length===0) { document.getElementById('grid-products').innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:50px; color:#888;"><div style="font-size:3rem;">🥦🍎🥩</div><div>請點擊上方分類開始選購</div></div>'; return; }
+            document.getElementById('grid-products').innerHTML = list.map(p => {
+                let badgeClass = p.condition === '良好' ? 'status-good' : 'status-bad';
+                let badgeText = p.condition === '良好' ? '✅ 外觀良好' : '⚠️ 外觀破損';
+                return `
+                <div class="card">
+                    <img src="${p.img}" class="card-img" onclick="showDetail('${p.id}')">
                     <div class="card-body">
-                        <div class="card-title">${p.name}</div>
+                        <div class="card-title" onclick="showDetail('${p.id}')">${p.name}</div>
+                        <div><span class="status-badge ${badgeClass}">${badgeText}</span></div>
                         <div class="price">$${p.price}</div>
+                        <button class="gen-recipe-btn" onclick="quickGenerateRecipe('${p.name}')">⚡ 生成食譜</button>
                     </div>
-                </div>
-            `).join('');
+                </div>`;
+            }).join('');
+        }
+
+        function quickGenerateRecipe(name) {
+            const newR = {
+                id: "Auto" + Date.now(),
+                name: "特製" + name + "料理",
+                cal: 300,
+                img: "https://via.placeholder.com/300?text=" + name,
+                ingredients: [name, "鹽", "油"],
+                steps: ["將" + name + "洗淨切好", "大火快炒", "調味後起鍋"]
+            };
+            allRecipes.unshift(newR);
+            alert(`✨ 已為您生成「${name}」的專屬食譜！`);
+            switchPage('recipe');
+        }
+        
+        function quickGenerateRecipeDetail() {
+            const p = products.find(x => x.id === currentPid);
+            quickGenerateRecipe(p.name);
         }
 
         function filterCat(cat, btn) {
             document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            
-            if (cat === 'all') {
-                 renderProducts(products);
-            } else {
-                const filtered = products.filter(p => p.cat === cat);
-                renderProducts(filtered);
-            }
+            if(cat==='all') renderProducts(products);
+            else renderProducts(products.filter(p => p.cat === cat));
         }
 
         function filterRecipes() {
-            const searchInput = document.getElementById('recipe-search');
-            const kw = searchInput ? searchInput.value.trim() : "";
-            
+            const kw = document.getElementById('recipe-search').value.trim();
             const filtered = allRecipes.filter(r => {
-                if (r.hidden === true) { return kw.includes("酪梨"); }
-                if (kw === "") return true;
+                if (r.hidden) return kw.includes("酪梨");
+                if (!kw) return true;
                 return r.name.includes(kw) || (r.ingredients && r.ingredients.some(i => i.includes(kw)));
             });
             renderRecipes(filtered);
         }
 
         function renderRecipes(list) {
-            if (!list || list.length === 0) {
-                document.getElementById('grid-recipes').innerHTML = '<div style="text-align:center; color:#999; grid-column:1/-1; padding:20px;">找不到相關食譜... 試試輸入「酪梨」？</div>';
-                return;
-            }
+            if(!list || list.length===0) { document.getElementById('grid-recipes').innerHTML = '<div style="text-align:center; color:#999; grid-column:1/-1; padding:20px;">找不到食譜... 試試「酪梨」？</div>'; return; }
             document.getElementById('grid-recipes').innerHTML = list.map(r => `
                 <div class="card" onclick="showStep('${r.id}')">
                     <img src="${r.img}" class="card-img" onerror="this.src='https://via.placeholder.com/300?text=${r.name}'">
@@ -575,35 +482,19 @@ html_template = """
                         <div style="color:#666; font-size:0.9rem;">🔥 ${r.cal} kcal</div>
                         <button class="btn btn-outline" style="padding:5px; margin-top:5px; font-size:0.8rem;">查看做法</button>
                     </div>
-                </div>
-            `).join('');
+                </div>`).join('');
         }
 
         function switchPage(page) {
             document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.querySelectorAll('.desktop-menu button').forEach(n => n.classList.remove('active'));
-            
             if(document.getElementById('mb-nav-'+page)) document.getElementById('mb-nav-'+page).classList.add('active');
             if(document.getElementById('dt-nav-'+page)) document.getElementById('dt-nav-'+page).classList.add('active');
-
             document.getElementById('page-'+page).style.display = 'block';
-            
-            if(page === 'recipe') {
-                const searchInput = document.getElementById('recipe-search');
-                if(searchInput) searchInput.value = '';
-                renderRecipes(allRecipes.filter(r => !r.hidden));
-            }
-            if(page === 'market') {
-                 document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-                 renderProducts([]); 
-            }
+            if(page==='recipe') { document.getElementById('recipe-search').value=''; renderRecipes(allRecipes.filter(r=>!r.hidden)); }
+            if(page==='market') { document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active')); renderProducts([]); }
             window.scrollTo(0,0);
-        }
-        
-        function showBackend() {
-            switchPage('backend');
-            renderAdmin();
         }
 
         function showDetail(pid) {
@@ -616,6 +507,12 @@ html_template = """
             document.getElementById('dt-storage').innerText = p.storage;
             document.getElementById('dt-expiry').innerText = p.date;
             document.getElementById('dt-tag').innerText = p.cat;
+            
+            // 狀態標籤
+            const badge = document.getElementById('dt-condition-badge');
+            badge.className = p.condition === '良好' ? 'status-badge status-good' : 'status-badge status-bad';
+            badge.innerText = p.condition === '良好' ? '✅ 外觀良好' : '⚠️ 外觀破損';
+
             switchPage('detail');
         }
 
@@ -627,191 +524,72 @@ html_template = """
             updateCartUI();
             alert('✅ 已加入購物車');
         }
-
         function updateCartUI() {
             const count = cart.reduce((sum, i) => sum + i.qty, 0);
             const total = cart.reduce((sum, i) => sum + i.price*i.qty, 0);
             document.querySelectorAll('.cart-count-num').forEach(el => el.innerText = count);
             document.getElementById('cart-total').innerText = '$' + total;
-            document.getElementById('cart-list').innerHTML = cart.length ? cart.map(i => `
-                <div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #f5f5f5;">
-                    <span>${i.name} x ${i.qty}</span><span>$${i.price*i.qty}</span>
-                </div>`).join('') : '<p style="text-align:center; color:#999;">購物車是空的</p>';
+            document.getElementById('cart-list').innerHTML = cart.length ? cart.map(i => `<div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #f5f5f5;"><span>${i.name} x ${i.qty}</span><span>$${i.price*i.qty}</span></div>`).join('') : '<p style="text-align:center; color:#999;">購物車是空的</p>';
         }
 
         function showStep(rid) {
             const r = allRecipes.find(x => x.id === rid);
             document.getElementById('step-title').innerText = r.name;
-            
-            let html = '<h4>🍽 食材</h4><ul class="ing-list">';
-            if (r.ingredients && r.ingredients.length > 0) {
-                html += r.ingredients.map(i => `<li>${i}</li>`).join('');
-            } else {
-                html += '<li>無詳細食材資料</li>';
-            }
-            html += '</ul>';
-            
-            html += '<h4>👩‍🍳 做法</h4><ol class="step-list">';
-            if (r.steps && r.steps.length > 0) {
-                html += r.steps.map(s => `<li>${s}</li>`).join('');
-            } else {
-                html += '<li>無詳細步驟</li>';
-            }
-            html += '</ol>';
-
+            let html = '<h4>🍽 食材</h4><ul class="ing-list">' + (r.ingredients?r.ingredients.map(i=>`<li>${i}</li>`).join(''):'<li>無資料</li>') + '</ul>';
+            html += '<h4>👩‍🍳 做法</h4><ol class="step-list">' + (r.steps?r.steps.map(s=>`<li>${s}</li>`).join(''):'<li>無資料</li>') + '</ol>';
             document.getElementById('step-body').innerHTML = html;
             openModal('step');
         }
         
         function findRecipe() {
             const p = products.find(x => x.id === currentPid);
-            alert(`正在為您尋找「${p.name}」相關食譜...`);
+            alert(`正在搜尋「${p.name}」食譜...`);
             switchPage('recipe');
-            
             setTimeout(() => {
                 const searchInput = document.getElementById('recipe-search');
-                if(searchInput) {
-                    searchInput.value = p.name;
-                    filterRecipes();
-                }
+                if(searchInput) { searchInput.value = p.name; filterRecipes(); }
             }, 100);
         }
 
-        // --- Chat Logic ---
-        function toggleChat() {
-            const w = document.getElementById('chat-widget');
-            w.style.display = (w.style.display === 'flex') ? 'none' : 'flex';
-        }
+        function toggleChat() { const w = document.getElementById('chat-widget'); w.style.display = (w.style.display === 'flex') ? 'none' : 'flex'; }
         function sendChat() {
-            const input = document.getElementById('chat-input');
-            const msg = input.value.trim();
-            if(!msg) return;
-            
-            const body = document.getElementById('chat-body');
-            body.innerHTML += `<div class="msg msg-user">${msg}</div>`;
-            input.value = '';
-            body.scrollTop = body.scrollHeight;
-
-            // 後台觸發關鍵字 (含中括號)
-            if(msg === '[後台]') {
-                setTimeout(() => {
-                    body.innerHTML += `<div class="msg msg-bot">身分驗證成功，正在為您跳轉後台...</div>`;
-                    setTimeout(() => {
-                        toggleChat();
-                        showBackend();
-                    }, 1000);
-                }, 500);
-                return;
-            }
-            
-            setTimeout(() => {
-                let reply = "感謝您的訊息！我們的客服專員會盡快回覆您。";
-                if(msg.includes("運費")) reply = "全館滿 $500 免運費喔！";
-                if(msg.includes("營業")) reply = "我們 24 小時為您服務！";
-                body.innerHTML += `<div class="msg msg-bot">${reply}</div>`;
-                body.scrollTop = body.scrollHeight;
-            }, 800);
+            const input = document.getElementById('chat-input'); const msg = input.value.trim(); if(!msg) return;
+            const body = document.getElementById('chat-body'); body.innerHTML += `<div class="msg msg-user">${msg}</div>`; input.value = ''; body.scrollTop = body.scrollHeight;
+            if(msg === '[後台]') { setTimeout(() => { body.innerHTML += `<div class="msg msg-bot">驗證成功，跳轉後台...</div>`; setTimeout(() => { toggleChat(); showBackend(); }, 1000); }, 500); return; }
+            setTimeout(() => { body.innerHTML += `<div class="msg msg-bot">收到！我們將盡快回覆。</div>`; body.scrollTop = body.scrollHeight; }, 800);
         }
-        function renderAdmin() {
-            document.getElementById('admin-list').innerHTML = products.map(p => `
-                <tr>
-                    <td>${p.name}</td>
-                    <td>${p.cat}</td>
-                    <td>$${p.price}</td>
-                    <td><button style="color:red; border:none; background:none; cursor:pointer;" onclick="alert('刪除功能演示')">刪除</button></td>
-                </tr>
-            `).join('');
-        }
+        function showBackend() { switchPage('backend'); renderAdmin(); }
+        function renderAdmin() { document.getElementById('admin-list').innerHTML = products.map(p => `<tr><td>${p.name}</td><td>${p.condition}</td><td>$${p.price}</td><td><button style="color:red;border:none;background:none;cursor:pointer;" onclick="alert('刪除')">刪除</button></td></tr>`).join(''); }
 
-        // --- 自訂食譜邏輯 ---
         function openCreateRecipeModal() {
-            document.getElementById('new-r-name').value = '';
-            document.getElementById('new-r-cal').value = '';
-            tempIngredients = [];
-            tempSteps = [];
-            updateCustomPreview();
-
-            const select = document.getElementById('product-select');
-            select.innerHTML = '<option value="">-- 請選擇食材 --</option>' + 
-                products.map(p => `<option value="${p.name}">${p.name}</option>`).join('');
-            
+            document.getElementById('new-r-name').value = ''; document.getElementById('new-r-cal').value = '';
+            tempIngredients = []; tempSteps = []; updateCustomPreview();
+            document.getElementById('product-select').innerHTML = '<option value="">-- 請選擇食材 --</option>' + products.map(p => `<option value="${p.name}">${p.name}</option>`).join('');
             openModal('create');
         }
-
-        function addIngredientFromSelect() {
-            const val = document.getElementById('product-select').value;
-            if(val) addIngToList(val);
-        }
-        function addManualIngredient() {
-            const val = document.getElementById('manual-ing-input').value.trim();
-            if(val) { addIngToList(val); document.getElementById('manual-ing-input').value = ''; }
-        }
-        function addIngToList(val) {
-            if (!tempIngredients.includes(val)) {
-                tempIngredients.push(val);
-                updateCustomPreview();
-            }
-        }
-        function addNewStep() {
-            const val = document.getElementById('new-step-input').value.trim();
-            if(val) { tempSteps.push(val); document.getElementById('new-step-input').value=''; updateCustomPreview(); }
-        }
-
+        function addIngredientFromSelect() { const v = document.getElementById('product-select').value; if(v && !tempIngredients.includes(v)) { tempIngredients.push(v); updateCustomPreview(); } }
+        function addManualIngredient() { const v = document.getElementById('manual-ing-input').value.trim(); if(v) { tempIngredients.push(v); document.getElementById('manual-ing-input').value = ''; updateCustomPreview(); } }
+        function addNewStep() { const v = document.getElementById('new-step-input').value.trim(); if(v) { tempSteps.push(v); document.getElementById('new-step-input').value=''; updateCustomPreview(); } }
         function updateCustomPreview() {
-            const ingContainer = document.getElementById('new-ing-list');
-            ingContainer.innerHTML = tempIngredients.length ? tempIngredients.map((ing, i) => 
-                `<div class="ing-tag">${ing} <span onclick="tempIngredients.splice(${i},1);updateCustomPreview()">✕</span></div>`
-            ).join('') : '<span style="color:#999; font-size:0.9rem;">尚未加入食材</span>';
-
-            const stepList = document.getElementById('new-step-list');
-            stepList.innerHTML = tempSteps.length ? tempSteps.map((s, i) => 
-                `<div style="border-bottom:1px dashed #ddd; padding:5px 0; display:flex; justify-content:space-between;"><span>${i+1}. ${s}</span><span onclick="tempSteps.splice(${i},1);updateCustomPreview()" style="color:red;cursor:pointer;">✕</span></div>`
-            ).join('') : '無步驟';
+            document.getElementById('new-ing-list').innerHTML = tempIngredients.length ? tempIngredients.map((ing, i) => `<div class="ing-tag">${ing} <span onclick="tempIngredients.splice(${i},1);updateCustomPreview()">✕</span></div>`).join('') : '尚未加入';
+            document.getElementById('new-step-list').innerHTML = tempSteps.length ? tempSteps.map((s, i) => `<div style="border-bottom:1px dashed #ddd; padding:5px 0; display:flex; justify-content:space-between;"><span>${i+1}. ${s}</span><span onclick="tempSteps.splice(${i},1);updateCustomPreview()" style="color:red;cursor:pointer;">✕</span></div>`).join('') : '無步驟';
         }
-
         function saveCustomRecipe() {
             const name = document.getElementById('new-r-name').value.trim();
             const cal = document.getElementById('new-r-cal').value;
-
             const hasAvocado = name.includes("酪梨") || tempIngredients.some(i => i.includes("酪梨"));
             const hasChicken = name.includes("雞胸肉") || tempIngredients.some(i => i.includes("雞胸肉"));
-
             if (hasAvocado && hasChicken) {
-                alert("🥑🍗 恭喜！您發現了隱藏料理：奶油酪梨雞胸肉佐蒜香地瓜葉！");
-                
-                const hiddenRecipe = allRecipes.find(r => r.id === "Hidden1");
-                const unlockedRecipe = { ...hiddenRecipe, id: "Unlocked_" + Date.now(), hidden: false };
-                
-                allRecipes.unshift(unlockedRecipe);
-                closeModal('create');
-                
-                document.getElementById('recipe-search').value = '';
-                renderRecipes(allRecipes.filter(r => !r.hidden));
-                return;
+                alert("🥑🍗 恭喜！發現隱藏料理：奶油酪梨雞胸肉佐蒜香地瓜葉！");
+                const unlocked = { ...allRecipes.find(r => r.id === "Hidden1"), id: "Unlocked_" + Date.now(), hidden: false };
+                allRecipes.unshift(unlocked); closeModal('create'); document.getElementById('recipe-search').value = ''; renderRecipes(allRecipes.filter(r => !r.hidden)); return;
             }
-
-            if(!name || tempIngredients.length===0 || tempSteps.length===0) { alert("請填寫名稱、食材與步驟！"); return; }
-            
-            allRecipes.unshift({
-                id: "C" + Date.now(), 
-                name: name, 
-                img: "https://via.placeholder.com/300?text=" + name, 
-                cal: cal || 0, 
-                steps: [...tempSteps], 
-                ingredients: [...tempIngredients]
-            });
-            
-            alert("✨ 私房食譜發布成功！");
-            closeModal('create');
-            
-            document.getElementById('recipe-search').value = '';
-            renderRecipes(allRecipes.filter(r => !r.hidden));
+            if(!name || tempIngredients.length===0 || tempSteps.length===0) { alert("請填寫完整！"); return; }
+            allRecipes.unshift({id: "C"+Date.now(), name: name, img: "https://via.placeholder.com/300?text="+name, cal: cal||0, steps: [...tempSteps], ingredients: [...tempIngredients]});
+            alert("✨ 發布成功！"); closeModal('create'); document.getElementById('recipe-search').value = ''; renderRecipes(allRecipes.filter(r => !r.hidden));
         }
 
-        function openModal(id) { 
-            const m = document.getElementById('modal-'+id);
-            m.style.display = (window.innerWidth >= 768) ? 'flex' : 'block';
-        }
+        function openModal(id) { const m = document.getElementById('modal-'+id); m.style.display = (window.innerWidth >= 768) ? 'flex' : 'block'; }
         function closeModal(id) { document.getElementById('modal-'+id).style.display = 'none'; }
 
         window.onload = init;
