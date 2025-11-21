@@ -107,47 +107,48 @@ html_template = """
         .cat-btn { white-space: nowrap; padding: 8px 16px; border-radius: 20px; border: 1px solid #ddd; background: white; color: #666; cursor: pointer; }
         .cat-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* 網格 & 卡片 (結構重寫：上下分離) */
+        /* 網格 & 卡片 */
         .grid { display: grid; gap: 15px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
         
         .card { 
-            background: white; border-radius: 12px; overflow: hidden; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; flex-direction: column;
+            background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+            cursor: pointer; transition: transform 0.2s; display: flex; flex-direction: column;
+            position: relative;
         }
+        .card:active { transform: scale(0.98); background-color: #f9f9f9; }
         .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        
+        .card-click-area { cursor: pointer; flex-grow: 1; }
 
-        /* 上半部：點擊區 (圖片+資訊) */
-        .card-top-click {
-            cursor: pointer; /* 手指游標 */
-            flex-grow: 1;
-        }
-        .card-top-click:active { opacity: 0.8; } /* 點擊回饋 */
+        .card-img { width: 100%; height: 150px; object-fit: cover; pointer-events: none; }
+        .card-body { padding: 10px; display: flex; flex-direction: column; pointer-events: none; }
         
-        .card-img { width: 100%; height: 150px; object-fit: cover; }
-        .card-body { padding: 10px; }
-        
+        .card-interactive-area { pointer-events: auto; margin-top: auto; }
+
         .card-title { font-weight: bold; margin-bottom: 5px; color: #333; }
-        .price { color: var(--primary); font-weight: bold; font-size: 1.1rem; margin-top: 5px; display:block; }
+        .price { color: var(--primary); font-weight: bold; font-size: 1.1rem; margin-top: auto; }
         
         .status-badge { display: inline-block; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; margin-bottom: 5px; }
         .status-good { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .status-bad { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
 
-        /* 下半部：按鈕區 (獨立) */
-        .card-bottom-btns {
-            padding: 10px; padding-top: 0;
-            background: white;
+        /* 卡片按鈕 */
+        .card-actions { display: flex; gap: 5px; margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee; z-index: 10; }
+        .btn-card-action { 
+            flex: 1; padding: 8px; border-radius: 6px; font-size: 0.85rem; 
+            cursor: pointer; border: none; font-weight: bold; transition: 0.2s; z-index: 10;
         }
-        .action-row { display: flex; gap: 5px; margin-bottom: 8px; }
-        
-        .btn-s { flex: 1; padding: 8px; border-radius: 6px; font-size: 0.85rem; cursor: pointer; border: none; font-weight: bold; }
-        .btn-outline-s { background: white; border: 1px solid #ddd; color: #555; }
-        .btn-outline-s:hover { background: #f0f0f0; }
-        .btn-primary-s { background: var(--primary); color: white; }
-        .btn-primary-s:hover { opacity: 0.9; }
-        
-        .btn-gen { width: 100%; padding: 8px; background: #e3f2fd; border: 1px solid #90caf9; color: #1976d2; border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: bold; }
-        .btn-gen:hover { background: #bbdefb; }
+        .btn-outline-sm { background: white; border: 1px solid #ddd; color: #555; }
+        .btn-outline-sm:hover { background: #f0f0f0; }
+        .btn-primary-sm { background: var(--primary); color: white; }
+        .btn-primary-sm:hover { background: #c9302c; }
+
+        .gen-recipe-btn {
+            margin-top: 5px; width: 100%; padding: 8px; 
+            background: #e3f2fd; border: 1px solid #90caf9; color: #1976d2;
+            border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: bold; z-index: 10;
+        }
+        .gen-recipe-btn:hover { background: #bbdefb; }
 
         /* 詳情頁 */
         .page { display: none; animation: fadeIn 0.3s; }
@@ -175,20 +176,9 @@ html_template = """
             .modal-content { position: relative; width: 500px; border-radius: 15px; bottom: auto; left: auto; animation: fadeIn 0.3s; }
         }
 
-        /* Chat & Admin & Form */
-        .chat-fab { position: fixed; bottom: 80px; right: 20px; z-index: 5500; width: 60px; height: 60px; border-radius: 50%; background: #2c3e50; color: white; border: none; font-size: 1.8rem; cursor: pointer; }
-        @media (min-width: 768px) { .chat-fab { bottom: 30px; right: 30px; } }
-        #chat-widget { display: none; position: fixed; bottom: 150px; right: 20px; width: 320px; height: 450px; background: #fff; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.2); z-index: 5600; flex-direction: column; }
-        @media (min-width: 768px) { #chat-widget { bottom: 100px; right: 30px; } }
-        .chat-header { background: #2c3e50; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
-        .chat-body { flex: 1; padding: 15px; overflow-y: auto; background: #f4f6f8; display: flex; flex-direction: column; gap: 10px; }
-        .chat-input-area { padding: 10px; background: white; border-top: 1px solid #eee; display: flex; gap: 5px; }
-        .msg { max-width: 80%; padding: 10px; border-radius: 15px; font-size: 0.9rem; }
-        .msg-bot { align-self: flex-start; background: white; border: 1px solid #eee; }
-        .msg-user { align-self: flex-end; background: #d9fdd3; }
+        /* Admin & Form */
         .admin-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
         .admin-table th, .admin-table td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; }
-        
         .form-group { margin-bottom: 15px; }
         .form-label { display: block; font-weight: bold; margin-bottom: 5px; color: #333; }
         .form-input, .form-select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; }
@@ -217,6 +207,18 @@ html_template = """
             display: flex; align-items: center; justify-content: center; gap: 10px;
         }
         .ai-magic-btn:hover { filter: brightness(1.1); transform:translateY(-2px); transition:0.2s; }
+
+        /* Chat & Admin */
+        .chat-fab { position: fixed; bottom: 80px; right: 20px; z-index: 5500; width: 60px; height: 60px; border-radius: 50%; background: #2c3e50; color: white; border: none; font-size: 1.8rem; cursor: pointer; }
+        @media (min-width: 768px) { .chat-fab { bottom: 30px; right: 30px; } }
+        #chat-widget { display: none; position: fixed; bottom: 150px; right: 20px; width: 320px; height: 450px; background: #fff; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.2); z-index: 5600; flex-direction: column; }
+        @media (min-width: 768px) { #chat-widget { bottom: 100px; right: 30px; } }
+        .chat-header { background: #2c3e50; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .chat-body { flex: 1; padding: 15px; overflow-y: auto; background: #f4f6f8; display: flex; flex-direction: column; gap: 10px; }
+        .chat-input-area { padding: 10px; background: white; border-top: 1px solid #eee; display: flex; gap: 5px; }
+        .msg { max-width: 80%; padding: 10px; border-radius: 15px; font-size: 0.9rem; }
+        .msg-bot { align-self: flex-start; background: white; border: 1px solid #eee; }
+        .msg-user { align-self: flex-end; background: #d9fdd3; }
 
     </style>
 </head>
@@ -434,10 +436,10 @@ html_template = """
                 let badgeClass = p.condition === '良好' ? 'status-good' : 'status-bad';
                 let badgeText = p.condition === '良好' ? '✅ 外觀良好' : '⚠️ 外觀破損';
                 
-                // 結構修正：分開點擊區域
+                // 核心修復：onclick 綁定在最外層 div，實現全卡片點擊
                 return `
                 <div class="card">
-                    <div class="card-top-click" onclick="showDetail('${p.id}')">
+                    <div class="card-click-area" onclick="showDetail('${p.id}')">
                         <img src="${p.img}" class="card-img">
                         <div class="card-body">
                             <div class="card-title">${p.name}</div>
@@ -446,12 +448,12 @@ html_template = """
                         </div>
                     </div>
                     
-                    <div class="card-bottom-btns">
-                        <div class="action-row">
-                             <button class="btn-s btn-outline-s" onclick="showDetail('${p.id}')">📄 詳細</button>
-                             <button class="btn-s btn-primary-s" onclick="addToCart('${p.id}')">🛒 加入</button>
+                    <div class="card-body" style="padding-top:0; pointer-events:auto;">
+                        <div class="card-actions">
+                             <button class="btn-card-action btn-outline-sm" onclick="event.stopPropagation(); showDetail('${p.id}')">📄 詳細</button>
+                             <button class="btn-card-action btn-primary-sm" onclick="event.stopPropagation(); addToCart('${p.id}')">🛒 加入</button>
                         </div>
-                        <button class="btn-gen" onclick="quickGenerateRecipe('${p.name}')">➕ 加入食譜</button>
+                        <button class="gen-recipe-btn" onclick="event.stopPropagation(); quickGenerateRecipe('${p.name}')">➕ 加入食譜</button>
                     </div>
                 </div>`;
             }).join('');
@@ -640,8 +642,34 @@ html_template = """
             document.getElementById('new-step-list').innerHTML = tempSteps.length ? tempSteps.map((s, i) => `<div style="border-bottom:1px dashed #ddd; padding:5px 0; display:flex; justify-content:space-between;"><span>${i+1}. ${s}</span><span onclick="tempSteps.splice(${i},1);updateCustomPreview()" style="color:red;cursor:pointer;">✕</span></div>`).join('') : '無步驟';
         }
 
-        // --- 智慧 AI 食譜生成 (連續隨機版) ---
+        // --- 智慧 AI 食譜生成 (連續隨機 + 隱藏菜單判斷) ---
         function autoGenerateRichRecipe() {
+            // 1. 先檢查隱藏觸發 (酪梨 + 雞胸肉)
+            const hasAvocado = tempIngredients.some(i => i.includes("酪梨"));
+            const hasChicken = tempIngredients.some(i => i.includes("雞胸肉") || i.includes("雞肉"));
+
+            if (hasAvocado && hasChicken) {
+                document.getElementById('new-r-name').value = "奶油酪梨雞胸肉佐蒜香地瓜葉";
+                document.getElementById('new-r-cal').value = 450;
+                tempSteps = [
+                    "雞胸肉切塊，加鹽、黑胡椒、橄欖油醃 10 分鐘。",
+                    "熱鍋煎雞胸肉至金黃，盛起備用。",
+                    "原鍋炒香洋蔥丁與蒜末，加入酪梨肉壓成泥。",
+                    "倒入牛奶煮成濃滑醬汁，加鹽調味。",
+                    "放回雞肉煨煮 1-2 分鐘即可。",
+                    "另起鍋爆香蒜片，快炒地瓜葉，加鹽調味。"
+                ];
+                
+                if(!tempIngredients.includes("牛奶")) tempIngredients.push("牛奶");
+                if(!tempIngredients.includes("洋蔥")) tempIngredients.push("洋蔥");
+                if(!tempIngredients.includes("蒜頭")) tempIngredients.push("蒜頭");
+                
+                updateCustomPreview();
+                alert("🥑 恭喜！AI 偵測到關鍵食材，已為您生成隱藏料理！");
+                return;
+            }
+
+            // 2. 正常 AI 隨機生成
             if (tempIngredients.length === 0) {
                 alert("⚠️ 請先選擇至少一種食材，AI 才能幫您想食譜！");
                 return;
@@ -709,16 +737,37 @@ html_template = """
         function saveCustomRecipe() {
             const name = document.getElementById('new-r-name').value.trim();
             const cal = document.getElementById('new-r-cal').value;
+            
+            // 檢查是否觸發隱藏菜單 (名稱或食材符合)
             const hasAvocado = name.includes("酪梨") || tempIngredients.some(i => i.includes("酪梨"));
             const hasChicken = name.includes("雞胸肉") || tempIngredients.some(i => i.includes("雞胸肉"));
+
             if (hasAvocado && hasChicken) {
                 alert("🥑🍗 恭喜！發現隱藏料理：奶油酪梨雞胸肉佐蒜香地瓜葉！");
                 const unlocked = { ...allRecipes.find(r => r.id === "Hidden1"), id: "Unlocked_" + Date.now(), hidden: false };
-                allRecipes.unshift(unlocked); closeModal('create'); document.getElementById('recipe-search').value = ''; renderRecipes(allRecipes.filter(r => !r.hidden)); return;
+                allRecipes.unshift(unlocked); 
+                
+                closeModal('create'); 
+                document.getElementById('recipe-search').value = ''; 
+                renderRecipes(allRecipes.filter(r => !r.hidden)); 
+                return;
             }
+
             if(!name || tempIngredients.length===0 || tempSteps.length===0) { alert("請填寫完整！"); return; }
-            allRecipes.unshift({id: "C"+Date.now(), name: name, img: "https://via.placeholder.com/300?text="+name, cal: cal||0, steps: [...tempSteps], ingredients: [...tempIngredients]});
-            alert("✨ 發布成功！"); closeModal('create'); document.getElementById('recipe-search').value = ''; renderRecipes(allRecipes.filter(r => !r.hidden));
+            
+            allRecipes.unshift({
+                id: "C"+Date.now(), 
+                name: name, 
+                img: "https://via.placeholder.com/300?text="+name, 
+                cal: cal||0, 
+                steps: [...tempSteps], 
+                ingredients: [...tempIngredients]
+            });
+            
+            alert("✨ 發布成功！"); 
+            closeModal('create'); 
+            document.getElementById('recipe-search').value = ''; 
+            renderRecipes(allRecipes.filter(r => !r.hidden));
         }
 
         function openModal(id) { const m = document.getElementById('modal-'+id); m.style.display = (window.innerWidth >= 768) ? 'flex' : 'block'; }
@@ -728,7 +777,3 @@ html_template = """
     </script>
 </body>
 </html>
-"""
-
-final_html = html_template.replace("images/", BASE_URL)
-components.html(final_html, height=1200, scrolling=True)
