@@ -14,7 +14,6 @@ BASE_URL = f"https://raw.githubusercontent.com/{GITHUB_USER}/{REPO_NAME}/{BRANCH
 
 st.set_page_config(page_title="食際行動家", layout="wide", initial_sidebar_state="collapsed")
 
-# ↓↓↓ 注意：這裡開始是超長字串，一定要有結尾的 """ 才能運作
 html_template = """
 <!DOCTYPE html>
 <html lang="zh-TW">
@@ -164,7 +163,7 @@ html_template = """
         .status-good { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .status-bad { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
 
-        /* 卡片按鈕 (獨立層級) */
+        /* 卡片按鈕 */
         .card-actions { display: flex; gap: 5px; margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee; z-index: 10; }
         .btn-card-action { 
             flex: 1; padding: 8px; border-radius: 6px; font-size: 0.85rem; 
@@ -459,8 +458,8 @@ html_template = """
                 
                 // *** 核心修復：onclick 綁定在最外層 div，實現全卡片點擊 ***
                 return `
-                <div class="card" onclick="showDetail('${p.id}')">
-                    <div class="card-click-area">
+                <div class="card">
+                    <div class="card-click-area" onclick="showDetail('${p.id}')">
                         <img src="${p.img}" class="card-img">
                         <div class="card-body">
                             <div class="card-title">${p.name}</div>
