@@ -32,14 +32,43 @@ html_template = """
 
         :root { --primary: #d9534f; --text: #333; --bg: #fff; }
 
-        /* RWD 控制 */
+        /* --- RWD 控制與優化 --- */
         .desktop-only { display: none !important; }
         .mobile-only { display: flex !important; }
 
+        /* 📱 手機版專屬優化 */
+        @media (max-width: 768px) {
+            /* 縮小容器邊距，讓畫面更寬 */
+            .container { padding: 10px !important; width: 100% !important; }
+            
+            /* 強制雙欄顯示，間距縮小 */
+            .grid { 
+                grid-template-columns: repeat(2, 1fr) !important; 
+                gap: 10px !important; 
+            }
+            
+            /* 圖片高度調整 */
+            .card-img { height: 130px !important; }
+            
+            /* 橫幅高度調整 */
+            .banner-container { height: 160px !important; }
+            
+            /* 字體微調 */
+            .card-title { font-size: 0.95rem !important; }
+            .price { font-size: 1rem !important; }
+            
+            /* 分類按鈕縮小一點 */
+            .cat-btn { padding: 6px 12px !important; font-size: 0.85rem !important; }
+        }
+
+        /* 💻 電腦版樣式 */
         @media (min-width: 768px) {
             body { padding-bottom: 0; padding-top: 70px; }
             .desktop-only { display: flex !important; }
             .mobile-only { display: none !important; }
+            
+            /* 電腦版網格較寬 */
+            .grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
         }
 
         /* --- 1. 登入封面 --- */
@@ -47,7 +76,8 @@ html_template = """
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
             background: white; z-index: 99999; 
             display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            transition: opacity 0.5s ease-out; overflow: hidden; cursor: pointer;
+            transition: opacity 0.5s ease-out;
+            overflow: hidden; cursor: pointer;
         }
         .splash-logo { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -137,17 +167,17 @@ html_template = """
 
         /* 網格 & 卡片 */
         .grid { display: grid; gap: 15px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
-        
-        /* 卡片樣式 - 確保可點擊 */
         .card { 
             background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
             cursor: pointer; transition: transform 0.2s; display: flex; flex-direction: column;
-            position: relative; user-select: none; /* 防止長按選取文字 */
+            position: relative;
         }
         .card:active { transform: scale(0.98); }
         .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
         
-        .card-img { width: 100%; height: 150px; object-fit: cover; pointer-events: none; /* 讓點擊穿透到 card */ }
+        .card-click-area { cursor: pointer; flex-grow: 1; }
+
+        .card-img { width: 100%; height: 160px; object-fit: cover; }
         .card-body { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; }
         .card-title { font-weight: bold; margin-bottom: 5px; color: #333; }
         .price { color: var(--primary); font-weight: bold; font-size: 1.1rem; margin-top: auto; }
@@ -157,11 +187,11 @@ html_template = """
         .status-good { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .status-bad { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
 
-        /* 卡片按鈕 - 使用 z-index 提高層級，並阻擋冒泡 */
-        .card-actions { display: flex; gap: 5px; margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee; z-index: 10; position: relative; }
+        /* 卡片按鈕 */
+        .card-actions { display: flex; gap: 5px; margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee; z-index: 10; }
         .btn-card-action { 
             flex: 1; padding: 8px; border-radius: 6px; font-size: 0.85rem; 
-            cursor: pointer; border: none; font-weight: bold; transition: 0.2s; 
+            cursor: pointer; border: none; font-weight: bold; transition: 0.2s; z-index: 10;
         }
         .btn-outline-sm { background: white; border: 1px solid #ddd; color: #555; }
         .btn-outline-sm:hover { background: #f0f0f0; }
@@ -171,8 +201,7 @@ html_template = """
         .gen-recipe-btn {
             margin-top: 5px; width: 100%; padding: 8px; 
             background: #e3f2fd; border: 1px solid #90caf9; color: #1976d2;
-            border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: bold; 
-            z-index: 10; position: relative;
+            border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: bold; z-index: 10;
         }
         .gen-recipe-btn:hover { background: #bbdefb; }
 
@@ -225,6 +254,7 @@ html_template = """
         .qty-btn { width: 28px; height: 28px; border-radius: 50%; border: 1px solid #ddd; background: white; font-weight: bold; cursor: pointer; display:flex; align-items:center; justify-content:center;}
         .del-btn { color: #d9534f; background: none; border: none; cursor: pointer; font-size: 1.2rem; margin-left: 5px; }
         
+        /* 自訂食譜 AI 按鈕 */
         .ai-magic-btn {
             width: 100%; padding: 12px; margin-bottom: 15px;
             background: linear-gradient(45deg, #17a2b8, #2c3e50); 
@@ -450,15 +480,19 @@ html_template = """
                 let badgeClass = p.condition === '良好' ? 'status-good' : 'status-bad';
                 let badgeText = p.condition === '良好' ? '✅ 外觀良好' : '⚠️ 外觀破損';
                 
-                // 這裡修改為將 onclick 綁定在最外層，並在按鈕處阻止冒泡
+                // *** 核心修復：onclick 綁定在最外層 div，實現全卡片點擊 ***
                 return `
-                <div class="card" onclick="showDetail('${p.id}')">
-                    <img src="${p.img}" class="card-img">
-                    <div class="card-body">
-                        <div class="card-title">${p.name}</div>
-                        <div><span class="status-badge ${badgeClass}">${badgeText}</span></div>
-                        <div class="price">$${p.price}</div>
-                        
+                <div class="card">
+                    <div class="card-click-area" onclick="showDetail('${p.id}')">
+                        <img src="${p.img}" class="card-img">
+                        <div class="card-body">
+                            <div class="card-title">${p.name}</div>
+                            <div><span class="status-badge ${badgeClass}">${badgeText}</span></div>
+                            <div class="price">$${p.price}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body" style="padding-top:0;">
                         <div class="card-actions">
                              <button class="btn-card-action btn-outline-sm" onclick="event.stopPropagation(); showDetail('${p.id}')">📄 詳細</button>
                              <button class="btn-card-action btn-primary-sm" onclick="event.stopPropagation(); addToCart('${p.id}')">🛒 加入</button>
