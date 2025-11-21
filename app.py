@@ -14,6 +14,7 @@ BASE_URL = f"https://raw.githubusercontent.com/{GITHUB_USER}/{REPO_NAME}/{BRANCH
 
 st.set_page_config(page_title="食際行動家", layout="wide", initial_sidebar_state="collapsed")
 
+# ↓↓↓ 注意：這裡開始是超長字串，一定要有結尾的 """ 才能運作
 html_template = """
 <!DOCTYPE html>
 <html lang="zh-TW">
@@ -47,7 +48,8 @@ html_template = """
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
             background: white; z-index: 99999; 
             display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            transition: opacity 0.5s ease-out; overflow: hidden; cursor: pointer;
+            transition: opacity 0.5s ease-out;
+            overflow: hidden; cursor: pointer;
         }
         .splash-logo { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -137,18 +139,24 @@ html_template = """
 
         /* 網格 & 卡片 */
         .grid { display: grid; gap: 15px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+        
+        /* 卡片樣式 (整張可點擊) */
         .card { 
             background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
             cursor: pointer; transition: transform 0.2s; display: flex; flex-direction: column;
             position: relative;
         }
-        .card:active { transform: scale(0.98); }
+        .card:active { transform: scale(0.98); background-color: #f9f9f9; }
         .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
         
         .card-click-area { cursor: pointer; flex-grow: 1; }
 
-        .card-img { width: 100%; height: 150px; object-fit: cover; }
-        .card-body { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; }
+        .card-img { width: 100%; height: 150px; object-fit: cover; pointer-events: none; }
+        .card-body { padding: 10px; display: flex; flex-direction: column; pointer-events: none; }
+        
+        /* 讓按鈕區域恢復可點擊 */
+        .card-interactive-area { pointer-events: auto; margin-top: auto; }
+
         .card-title { font-weight: bold; margin-bottom: 5px; color: #333; }
         .price { color: var(--primary); font-weight: bold; font-size: 1.1rem; margin-top: auto; }
         
@@ -156,9 +164,10 @@ html_template = """
         .status-good { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .status-bad { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
 
+        /* 卡片按鈕 (獨立層級) */
         .card-actions { display: flex; gap: 5px; margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee; z-index: 10; }
         .btn-card-action { 
-            flex: 1; padding: 6px; border-radius: 6px; font-size: 0.85rem; 
+            flex: 1; padding: 8px; border-radius: 6px; font-size: 0.85rem; 
             cursor: pointer; border: none; font-weight: bold; transition: 0.2s; z-index: 10;
         }
         .btn-outline-sm { background: white; border: 1px solid #ddd; color: #555; }
@@ -167,7 +176,7 @@ html_template = """
         .btn-primary-sm:hover { background: #c9302c; }
 
         .gen-recipe-btn {
-            margin-top: 5px; width: 100%; padding: 6px; 
+            margin-top: 5px; width: 100%; padding: 8px; 
             background: #e3f2fd; border: 1px solid #90caf9; color: #1976d2;
             border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: bold; z-index: 10;
         }
@@ -450,8 +459,8 @@ html_template = """
                 
                 // *** 核心修復：onclick 綁定在最外層 div，實現全卡片點擊 ***
                 return `
-                <div class="card">
-                    <div class="card-click-area" onclick="showDetail('${p.id}')">
+                <div class="card" onclick="showDetail('${p.id}')">
+                    <div class="card-click-area">
                         <img src="${p.img}" class="card-img">
                         <div class="card-body">
                             <div class="card-title">${p.name}</div>
@@ -654,7 +663,7 @@ html_template = """
             document.getElementById('new-step-list').innerHTML = tempSteps.length ? tempSteps.map((s, i) => `<div style="border-bottom:1px dashed #ddd; padding:5px 0; display:flex; justify-content:space-between;"><span>${i+1}. ${s}</span><span onclick="tempSteps.splice(${i},1);updateCustomPreview()" style="color:red;cursor:pointer;">✕</span></div>`).join('') : '無步驟';
         }
 
-        // --- 智慧 AI 食譜生成 (連續隨機版 - 自動填入隱藏食譜) ---
+        // --- 智慧 AI 食譜生成 (連續隨機版) ---
         function autoGenerateRichRecipe() {
             if (tempIngredients.length === 0) {
                 alert("⚠️ 請先選擇至少一種食材，AI 才能幫您想食譜！");
