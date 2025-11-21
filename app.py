@@ -2,7 +2,7 @@ import streamlit as st
 import streamlit.components.v1 as components
 
 # ==========================================
-# 👇 您的 GitHub 資訊 (請確保 REPO_NAME 正確，圖片才能顯示)
+# 👇 您的 GitHub 資訊
 # ==========================================
 GITHUB_USER = "ShadowREddd"   
 REPO_NAME = "-"     
@@ -48,10 +48,11 @@ html_template = """
             transition: opacity 0.5s ease-out; overflow: hidden; cursor: pointer;
         }
         .splash-logo { 
-            width: 200px; height: 200px; object-fit: contain; 
-            animation: breathe 3s infinite; z-index: 10;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover; object-position: center;
+            animation: breathe 3s infinite; z-index: -1;
         }
-        @keyframes breathe { 0%, 100% { transform: scale(1); opacity: 0.95; } 50% { transform: scale(1.05); opacity: 1; } }
+        @keyframes breathe { 0%, 100% { transform: scale(1); opacity: 0.95; } 50% { transform: scale(1.02); opacity: 1; } }
 
         /* --- 2. 登入頁面 --- */
         #login-page {
@@ -61,7 +62,7 @@ html_template = """
             padding: 20px; animation: fadeIn 0.5s;
         }
         .login-card { width: 100%; max-width: 400px; text-align: center; }
-        .login-logo { width: 100px; margin-bottom: 20px; }
+        .login-logo { width: 120px; margin-bottom: 20px; }
         .login-title { font-size: 1.8rem; margin-bottom: 30px; color: #333; }
         .login-input { width: 100%; padding: 15px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 10px; font-size: 1rem; background: #f9f9f9; }
         .login-btn { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
@@ -100,7 +101,7 @@ html_template = """
         .banner-img { width: 100%; height: 100%; object-fit: cover; }
         @media (min-width: 768px) { .banner-container { height: 300px; } }
 
-        /* 分類 */
+        /* 分類列 */
         .category-bar { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; scrollbar-width: none; }
         .category-bar::-webkit-scrollbar { display: none; }
         .cat-btn { white-space: nowrap; padding: 8px 16px; border-radius: 20px; border: 1px solid #ddd; background: white; color: #666; cursor: pointer; }
@@ -120,25 +121,25 @@ html_template = """
         .card-click-area { cursor: pointer; flex-grow: 1; }
 
         .card-img { width: 100%; height: 150px; object-fit: cover; pointer-events: none; }
-        .card-body { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; pointer-events: none; }
+        .card-body { padding: 10px; display: flex; flex-direction: column; pointer-events: none; }
         
-        /* 讓按鈕區域恢復可點擊 */
         .card-interactive-area { pointer-events: auto; margin-top: auto; }
 
         .card-title { font-weight: bold; margin-bottom: 5px; color: #333; }
         .price { color: var(--primary); font-weight: bold; font-size: 1.1rem; margin-top: auto; }
         
-        /* 資訊列表 */
+        /* 狀態標籤 */
+        .status-badge { display: inline-block; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; margin-bottom: 5px; }
+        .status-good { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .status-bad { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+        /* 直接顯示資訊 */
         .card-info-list {
             font-size: 0.85rem; color: #666; margin: 8px 0; line-height: 1.5;
             border-top: 1px dashed #eee; padding-top: 8px;
         }
 
-        .status-badge { display: inline-block; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; margin-bottom: 5px; vertical-align: middle; }
-        .status-good { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .status-bad { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-
-        /* 按鈕群組 */
+        /* 卡片按鈕 */
         .card-bottom-actions { padding: 10px; padding-top: 0; background: white; display: flex; flex-direction: column; gap: 8px; pointer-events: auto; }
         
         .btn-add-cart {
@@ -216,6 +217,7 @@ html_template = """
         .qty-btn { width: 30px; height: 30px; border-radius: 50%; border: 1px solid #ddd; background: white; font-weight: bold; cursor: pointer; display:flex; align-items:center; justify-content:center;}
         .del-btn { color: #d9534f; background: none; border: none; cursor: pointer; font-size: 0.9rem; margin-left: 5px; font-weight: bold; }
         
+        /* 自訂食譜 AI 按鈕 */
         .ai-magic-btn {
             width: 100%; padding: 12px; margin-bottom: 15px;
             background: linear-gradient(45deg, #17a2b8, #2c3e50); 
@@ -310,7 +312,7 @@ html_template = """
                         </p>
                         <div style="display:flex; gap:10px; margin-top:30px;">
                             <button class="btn btn-primary" onclick="addToCart()">[加入購物車]</button>
-                            <button class="btn btn-outline" onclick="quickGenerateRecipeDetail()">[加入食譜]</button>
+                            <button class="btn btn-outline" onclick="quickGenerateRecipeDetail()">[推薦做法]</button>
                         </div>
                     </div>
                 </div>
@@ -370,7 +372,7 @@ html_template = """
                 <div class="form-group" style="margin-top:15px;"><label class="form-label">步驟</label><div class="add-row"><input type="text" id="new-step-input" class="form-input" placeholder="輸入步驟..."><button class="add-btn-small" onclick="addNewStep()">加入</button></div><div id="new-step-list" style="background:#f9f9f9; padding:10px; border-radius:8px; min-height:50px;"></div></div>
             </div>
             <div style="margin-top:10px; border-top:1px solid #eee; padding-top:10px;">
-                <button class="ai-magic-btn" onclick="autoGenerateRichRecipe()">[推薦做法]</button>
+                <button class="ai-magic-btn" onclick="autoGenerateRichRecipe()">[AI 自動生成食譜]</button>
                 <button class="btn btn-primary" onclick="saveCustomRecipe()">[發布食譜]</button>
             </div>
         </div>
@@ -379,7 +381,6 @@ html_template = """
     <script>
         function getFutureDate(d) { const date = new Date(); date.setDate(date.getDate()+d); return date.toISOString().split('T')[0]; }
 
-        // --- 資料庫 (已改回本地路徑) ---
         const products = [
             { id: "P1", name: "蘋果", price: 139, img: "images/蘋果.jpg", cat: "水果", origin: "美國", storage: "冷藏", date: getFutureDate(6), condition: "良好" },
             { id: "P2", name: "香蕉", price: 80, img: "images/香蕉.jpg", cat: "水果", origin: "台灣", storage: "常溫", date: getFutureDate(3), condition: "破損" },
@@ -391,14 +392,14 @@ html_template = """
             { id: "P6", name: "地瓜", price: 190, img: "images/地瓜.jpg", cat: "蔬菜", origin: "台灣", storage: "常溫", date: getFutureDate(14), condition: "良好" },
             { id: "P8", name: "菠菜", price: 90, img: "images/菠菜.JPG", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(2), condition: "破損" },
             { id: "P9", name: "胡蘿蔔", price: 60, img: "images/胡蘿蔔.jpg", cat: "蔬菜", origin: "韓國", storage: "冷藏", date: getFutureDate(8), condition: "良好" },
-            { id: "P11", name: "花椰菜", price: 55, img: "images/花椰菜.jpg", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(5), condition: "良好" },
-            { id: "P12", name: "甜玉米", price: 40, img: "images/甜玉米.jpg", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(7), condition: "良好" },
-            { id: "P14", name: "彩椒", price: 45, img: "images/彩椒.jpg", cat: "蔬菜", origin: "荷蘭", storage: "冷藏", date: getFutureDate(12), condition: "良好" },
-            { id: "P15", name: "馬鈴薯", price: 35, img: "images/馬鈴薯.jpg", cat: "蔬菜", origin: "美國", storage: "常溫", date: getFutureDate(30), condition: "破損" },
-            { id: "P13", name: "鮮香菇", price: 65, img: "images/鮮香菇.jpg", cat: "菇類", origin: "台灣", storage: "冷藏", date: getFutureDate(10), condition: "良好" },
-            { id: "P16", name: "豬肉", price: 220, img: "images/豬肉.jpg", cat: "肉品", origin: "台灣", storage: "冷凍", date: getFutureDate(30), condition: "良好" },
-            { id: "P17", name: "牛肉", price: 450, img: "images/牛肉.jpg", cat: "肉品", origin: "美國", storage: "冷凍", date: getFutureDate(30), condition: "良好" },
-            { id: "P20", name: "鮭魚切片", price: 350, img: "images/鮭魚切片.jpg", cat: "海鮮", origin: "挪威", storage: "冷凍", date: getFutureDate(15) }
+            { id: "P11", name: "花椰菜", price: 55, img: "https://images.unsplash.com/photo-1568584711075-3d021a7c3d54?w=400", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(5), condition: "良好" },
+            { id: "P12", name: "甜玉米", price: 40, img: "https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=400", cat: "蔬菜", origin: "台灣", storage: "冷藏", date: getFutureDate(7), condition: "良好" },
+            { id: "P14", name: "彩椒", price: 45, img: "https://images.unsplash.com/photo-1563565375-f3fdf5ecfae9?w=400", cat: "蔬菜", origin: "荷蘭", storage: "冷藏", date: getFutureDate(12), condition: "良好" },
+            { id: "P15", name: "馬鈴薯", price: 35, img: "https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400", cat: "蔬菜", origin: "美國", storage: "常溫", date: getFutureDate(30), condition: "破損" },
+            { id: "P13", name: "鮮香菇", price: 65, img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400", cat: "菇類", origin: "台灣", storage: "冷藏", date: getFutureDate(10), condition: "良好" },
+            { id: "P16", name: "豬肉", price: 220, img: "https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=400", cat: "肉品", origin: "台灣", storage: "冷凍", date: getFutureDate(30), condition: "良好" },
+            { id: "P17", name: "牛肉", price: 450, img: "https://images.unsplash.com/photo-1613482184648-47399b2df699?w=400", cat: "肉品", origin: "美國", storage: "冷凍", date: getFutureDate(30), condition: "良好" },
+            { id: "P20", name: "鮭魚切片", price: 350, img: "https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?w=400", cat: "海鮮", origin: "挪威", storage: "冷凍", date: getFutureDate(15) }
         ];
 
         const allRecipes = [
@@ -409,7 +410,7 @@ html_template = """
             { id: "R5", name: "香蕉柳橙冰沙", cal: 180, img: "images/香蕉柳橙冰沙.jpg", steps: ["加冰塊", "打成冰沙"], ingredients: ["香蕉", "柳橙"] },
             { id: "R6", name: "義式烤蔬菜", cal: 200, img: "images/義式烤蔬菜.jpg", steps: ["切塊", "撒上香料烤熟"], ingredients: ["胡蘿蔔", "洋蔥"] },
             {
-                id: "Hidden1", name: "奶油酪梨雞胸肉佐蒜香地瓜葉", cal: 450, img: "images/奶油酪梨雞胸肉佐蒜香地瓜葉.jpg", hidden: true,
+                id: "Hidden1", name: "奶油酪梨雞胸肉佐蒜香地瓜葉", cal: 450, img: "https://images.unsplash.com/photo-1606756790138-7c48643e2912?w=400", hidden: true,
                 ingredients: ["雞胸肉 (250g)", "酪梨 1 顆", "地瓜葉 1 把", "牛奶/豆漿 100ml", "洋蔥 1/4 顆", "蒜頭 3-4 瓣"],
                 steps: ["雞胸肉切塊，加鹽、黑胡椒、橄欖油醃 10 分鐘。", "熱鍋煎雞胸肉至金黃，盛起備用。", "原鍋炒香洋蔥丁與蒜末，加入酪梨肉壓成泥。", "倒入牛奶煮成濃滑醬汁，加鹽調味。", "放回雞肉煨煮 1-2 分鐘即可。", "另起鍋爆香蒜片，快炒地瓜葉，加鹽調味。"]
             }
@@ -463,7 +464,7 @@ html_template = """
                     
                     <div class="card-bottom-actions">
                         <button class="btn-add-cart" onclick="event.stopPropagation(); addToCart('${p.id}')">[加入購物車]</button>
-                        <button class="btn-gen-recipe" onclick="event.stopPropagation(); quickGenerateRecipe('${p.name}')">[加入食譜]</button>
+                        <button class="btn-gen-recipe" onclick="event.stopPropagation(); quickGenerateRecipe('${p.name}')">[推薦做法]</button>
                     </div>
                 </div>`;
             }).join('');
@@ -474,7 +475,7 @@ html_template = """
                 id: "Auto" + Date.now(),
                 name: "特製" + name + "料理",
                 cal: 300,
-                img: "https://via.placeholder.com/300?text=" + name, // 預設圖
+                img: "https://via.placeholder.com/300?text=" + name,
                 ingredients: [name, "鹽", "油"],
                 steps: ["將" + name + "洗淨切好", "大火快炒", "調味後起鍋"]
             };
@@ -681,7 +682,7 @@ html_template = """
                 if(!tempIngredients.includes("蒜頭")) tempIngredients.push("蒜頭");
                 
                 updateCustomPreview();
-                // 移除 Emoji
+                // 移除彈窗提示
                 return;
             }
 
@@ -757,7 +758,7 @@ html_template = """
             const hasChicken = name.includes("雞胸肉") || tempIngredients.some(i => i.includes("雞胸肉"));
             
             if (hasAvocado && hasChicken) {
-                // 移除 Emoji
+                // 移除 alert，直接解鎖
                 const unlocked = { ...allRecipes.find(r => r.id === "Hidden1"), id: "Unlocked_" + Date.now(), hidden: false };
                 allRecipes.unshift(unlocked); 
                 
@@ -793,10 +794,5 @@ html_template = """
 </html>
 """
 
-# ==========================================
-# 👇 關鍵：將 images/ 替換為 GitHub 網址
-# ==========================================
-final_html = html_template.replace("images/", BASE_URL)
-
 # 將 HTML 內容渲染到 Streamlit
-components.html(final_html, height=1200, scrolling=True)
+components.html(html_template, height=1200, scrolling=True)
