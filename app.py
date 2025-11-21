@@ -107,50 +107,47 @@ html_template = """
         .cat-btn { white-space: nowrap; padding: 8px 16px; border-radius: 20px; border: 1px solid #ddd; background: white; color: #666; cursor: pointer; }
         .cat-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* 網格 & 卡片 (點擊問題修復區) */
+        /* 網格 & 卡片 (結構重寫：上下分離) */
         .grid { display: grid; gap: 15px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
         
         .card { 
             background: white; border-radius: 12px; overflow: hidden; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
-            cursor: pointer; /* 讓整張卡片可點 */
-            transition: transform 0.2s; display: flex; flex-direction: column;
-            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; flex-direction: column;
         }
-        .card:active { transform: scale(0.98); background-color: #f9f9f9; }
         .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+
+        /* 上半部：點擊區 (圖片+資訊) */
+        .card-top-click {
+            cursor: pointer; /* 手指游標 */
+            flex-grow: 1;
+        }
+        .card-top-click:active { opacity: 0.8; } /* 點擊回饋 */
         
-        /* 移除 pointer-events 設定，回歸自然點擊流 */
         .card-img { width: 100%; height: 150px; object-fit: cover; }
-        .card-body { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; }
+        .card-body { padding: 10px; }
         
         .card-title { font-weight: bold; margin-bottom: 5px; color: #333; }
-        .price { color: var(--primary); font-weight: bold; font-size: 1.1rem; margin-top: auto; }
+        .price { color: var(--primary); font-weight: bold; font-size: 1.1rem; margin-top: 5px; display:block; }
         
         .status-badge { display: inline-block; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; margin-bottom: 5px; }
         .status-good { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .status-bad { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
 
-        /* 按鈕區 */
-        .card-actions { display: flex; gap: 5px; margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee; }
+        /* 下半部：按鈕區 (獨立) */
+        .card-bottom-btns {
+            padding: 10px; padding-top: 0;
+            background: white;
+        }
+        .action-row { display: flex; gap: 5px; margin-bottom: 8px; }
         
-        .btn-card-action { 
-            flex: 1; padding: 8px; border-radius: 6px; font-size: 0.85rem; 
-            cursor: pointer; border: none; font-weight: bold; transition: 0.2s;
-            position: relative; z-index: 2; /* 確保按鈕在最上層 */
-        }
-        .btn-outline-sm { background: white; border: 1px solid #ddd; color: #555; }
-        .btn-outline-sm:active { background: #f0f0f0; }
-        .btn-primary-sm { background: var(--primary); color: white; }
-        .btn-primary-sm:active { opacity: 0.8; }
-
-        .gen-recipe-btn {
-            margin-top: 5px; width: 100%; padding: 8px; 
-            background: #e3f2fd; border: 1px solid #90caf9; color: #1976d2;
-            border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: bold;
-            position: relative; z-index: 2;
-        }
-        .gen-recipe-btn:hover { background: #bbdefb; }
+        .btn-s { flex: 1; padding: 8px; border-radius: 6px; font-size: 0.85rem; cursor: pointer; border: none; font-weight: bold; }
+        .btn-outline-s { background: white; border: 1px solid #ddd; color: #555; }
+        .btn-outline-s:hover { background: #f0f0f0; }
+        .btn-primary-s { background: var(--primary); color: white; }
+        .btn-primary-s:hover { opacity: 0.9; }
+        
+        .btn-gen { width: 100%; padding: 8px; background: #e3f2fd; border: 1px solid #90caf9; color: #1976d2; border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: bold; }
+        .btn-gen:hover { background: #bbdefb; }
 
         /* 詳情頁 */
         .page { display: none; animation: fadeIn 0.3s; }
@@ -178,9 +175,20 @@ html_template = """
             .modal-content { position: relative; width: 500px; border-radius: 15px; bottom: auto; left: auto; animation: fadeIn 0.3s; }
         }
 
-        /* Admin & Form */
+        /* Chat & Admin & Form */
+        .chat-fab { position: fixed; bottom: 80px; right: 20px; z-index: 5500; width: 60px; height: 60px; border-radius: 50%; background: #2c3e50; color: white; border: none; font-size: 1.8rem; cursor: pointer; }
+        @media (min-width: 768px) { .chat-fab { bottom: 30px; right: 30px; } }
+        #chat-widget { display: none; position: fixed; bottom: 150px; right: 20px; width: 320px; height: 450px; background: #fff; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.2); z-index: 5600; flex-direction: column; }
+        @media (min-width: 768px) { #chat-widget { bottom: 100px; right: 30px; } }
+        .chat-header { background: #2c3e50; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .chat-body { flex: 1; padding: 15px; overflow-y: auto; background: #f4f6f8; display: flex; flex-direction: column; gap: 10px; }
+        .chat-input-area { padding: 10px; background: white; border-top: 1px solid #eee; display: flex; gap: 5px; }
+        .msg { max-width: 80%; padding: 10px; border-radius: 15px; font-size: 0.9rem; }
+        .msg-bot { align-self: flex-start; background: white; border: 1px solid #eee; }
+        .msg-user { align-self: flex-end; background: #d9fdd3; }
         .admin-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
         .admin-table th, .admin-table td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; }
+        
         .form-group { margin-bottom: 15px; }
         .form-label { display: block; font-weight: bold; margin-bottom: 5px; color: #333; }
         .form-input, .form-select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; }
@@ -201,7 +209,6 @@ html_template = """
         .qty-btn { width: 28px; height: 28px; border-radius: 50%; border: 1px solid #ddd; background: white; font-weight: bold; cursor: pointer; display:flex; align-items:center; justify-content:center;}
         .del-btn { color: #d9534f; background: none; border: none; cursor: pointer; font-size: 1.2rem; margin-left: 5px; }
         
-        /* AI 按鈕 */
         .ai-magic-btn {
             width: 100%; padding: 12px; margin-bottom: 15px;
             background: linear-gradient(45deg, #17a2b8, #2c3e50); 
@@ -210,18 +217,6 @@ html_template = """
             display: flex; align-items: center; justify-content: center; gap: 10px;
         }
         .ai-magic-btn:hover { filter: brightness(1.1); transform:translateY(-2px); transition:0.2s; }
-
-        /* Chat */
-        .chat-fab { position: fixed; bottom: 80px; right: 20px; z-index: 5500; width: 60px; height: 60px; border-radius: 50%; background: #2c3e50; color: white; border: none; font-size: 1.8rem; cursor: pointer; }
-        @media (min-width: 768px) { .chat-fab { bottom: 30px; right: 30px; } }
-        #chat-widget { display: none; position: fixed; bottom: 150px; right: 20px; width: 320px; height: 450px; background: #fff; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.2); z-index: 5600; flex-direction: column; }
-        @media (min-width: 768px) { #chat-widget { bottom: 100px; right: 30px; } }
-        .chat-header { background: #2c3e50; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
-        .chat-body { flex: 1; padding: 15px; overflow-y: auto; background: #f4f6f8; display: flex; flex-direction: column; gap: 10px; }
-        .chat-input-area { padding: 10px; background: white; border-top: 1px solid #eee; display: flex; gap: 5px; }
-        .msg { max-width: 80%; padding: 10px; border-radius: 15px; font-size: 0.9rem; }
-        .msg-bot { align-self: flex-start; background: white; border: 1px solid #eee; }
-        .msg-user { align-self: flex-end; background: #d9fdd3; }
 
     </style>
 </head>
@@ -439,20 +434,24 @@ html_template = """
                 let badgeClass = p.condition === '良好' ? 'status-good' : 'status-bad';
                 let badgeText = p.condition === '良好' ? '✅ 外觀良好' : '⚠️ 外觀破損';
                 
-                // onclick 綁定在最外層 div (無複雜圖層遮擋)
+                // 結構修正：分開點擊區域
                 return `
-                <div class="card" onclick="showDetail('${p.id}')">
-                    <img src="${p.img}" class="card-img">
-                    <div class="card-body">
-                        <div class="card-title">${p.name}</div>
-                        <div><span class="status-badge ${badgeClass}">${badgeText}</span></div>
-                        <div class="price">$${p.price}</div>
-                        
-                        <div class="card-actions">
-                             <button class="btn-card-action btn-outline-sm" onclick="event.stopPropagation(); showDetail('${p.id}')">📄 詳細</button>
-                             <button class="btn-card-action btn-primary-sm" onclick="event.stopPropagation(); addToCart('${p.id}')">🛒 加入</button>
+                <div class="card">
+                    <div class="card-top-click" onclick="showDetail('${p.id}')">
+                        <img src="${p.img}" class="card-img">
+                        <div class="card-body">
+                            <div class="card-title">${p.name}</div>
+                            <div><span class="status-badge ${badgeClass}">${badgeText}</span></div>
+                            <div class="price">$${p.price}</div>
                         </div>
-                        <button class="gen-recipe-btn" onclick="event.stopPropagation(); quickGenerateRecipe('${p.name}')">➕ 加入食譜</button>
+                    </div>
+                    
+                    <div class="card-bottom-btns">
+                        <div class="action-row">
+                             <button class="btn-s btn-outline-s" onclick="showDetail('${p.id}')">📄 詳細</button>
+                             <button class="btn-s btn-primary-s" onclick="addToCart('${p.id}')">🛒 加入</button>
+                        </div>
+                        <button class="btn-gen" onclick="quickGenerateRecipe('${p.name}')">➕ 加入食譜</button>
                     </div>
                 </div>`;
             }).join('');
@@ -537,7 +536,6 @@ html_template = """
             conditionText.innerText = p.condition === '良好' ? '✅ 外觀良好，適合送禮或直接食用' : '⚠️ 外觀有輕微破損，建議盡快食用或加工';
             conditionText.style.color = p.condition === '良好' ? '#28a745' : '#dc3545';
             conditionText.className = p.condition === '良好' ? 'detail-status-tag status-good' : 'detail-status-tag status-bad';
-            document.getElementById('dt-condition-badge').innerHTML = `<span class="status-badge ${p.condition === '良好' ? 'status-good' : 'status-bad'}">${p.condition === '良好' ? '✅ 外觀良好' : '⚠️ 外觀破損'}</span>`;
 
             switchPage('detail');
         }
@@ -642,7 +640,7 @@ html_template = """
             document.getElementById('new-step-list').innerHTML = tempSteps.length ? tempSteps.map((s, i) => `<div style="border-bottom:1px dashed #ddd; padding:5px 0; display:flex; justify-content:space-between;"><span>${i+1}. ${s}</span><span onclick="tempSteps.splice(${i},1);updateCustomPreview()" style="color:red;cursor:pointer;">✕</span></div>`).join('') : '無步驟';
         }
 
-        // --- 智慧 AI 食譜生成 (連續隨機 + 隱藏菜單判斷) ---
+        // --- 智慧 AI 食譜生成 (連續隨機版) ---
         function autoGenerateRichRecipe() {
             if (tempIngredients.length === 0) {
                 alert("⚠️ 請先選擇至少一種食材，AI 才能幫您想食譜！");
@@ -730,3 +728,7 @@ html_template = """
     </script>
 </body>
 </html>
+"""
+
+final_html = html_template.replace("images/", BASE_URL)
+components.html(final_html, height=1200, scrolling=True)
