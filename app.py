@@ -31,7 +31,7 @@ html_template = f"""
         }}
         :root {{ --primary: #d9534f; --text: #333; --bg: #fff; }}
 
-        /* RWD */
+        /* RWD - 手機版優化保留 */
         .desktop-only {{ display: none !important; }}
         .mobile-only {{ display: flex !important; }}
         @media (min-width: 768px) {{
@@ -52,29 +52,30 @@ html_template = f"""
             .btn-card-action, .gen-recipe-btn {{ padding: 6px 2px !important; font-size: 0.8rem !important; }}
         }}
 
-        /* --- 1. 登入封面 (全新升級) --- */
+        /* --- 1. 登入封面 (修正為 Logo 填滿) --- */
         #splash {{ 
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
-            /* 加入全螢幕美食背景圖，提升質感 */
-            background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=1080&fit=crop') no-repeat center center/cover;
+            background: white; /* 背景色，在圖片載入前顯示 */
             z-index: 99999; 
-            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            /* 不需要 flex 置中，因為圖片會填滿 */
+            display: block; 
             transition: opacity 0.5s ease-out; overflow: hidden; cursor: pointer;
         }}
-        /* Logo 樣式優化 */
-        .splash-logo-container {{
-            background: rgba(255, 255, 255, 0.85); /* 半透明白色背景 */
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            backdrop-filter: blur(5px); /* 毛玻璃效果 */
-            animation: breathe 3s infinite;
-        }}
+        
+        /* 移除舊的 .splash-logo-container */
+
         .splash-logo {{ 
-            width: 180px; height: auto; object-fit: contain; 
+            width: 100%; height: 100%; /* 寬高佔滿父容器 */
+            object-fit: cover; /* 關鍵屬性：保持比例填滿，多餘裁切 */
+            object-position: center; /* 重點對齊中央 */
             display: block;
+            animation: subtle-zoom 5s infinite alternate; /* 改用更適合全螢幕的緩慢縮放 */
         }}
-        @keyframes breathe {{ 0%, 100% {{ transform: scale(1); }} 50% {{ transform: scale(1.03); }} }}
+        /* 新的動畫：緩慢縮放 */
+        @keyframes subtle-zoom {{ 
+            0% {{ transform: scale(1); }} 
+            100% {{ transform: scale(1.05); }} 
+        }}
 
         /* --- 2. 登入頁面 --- */
         #login-page {{
@@ -90,7 +91,7 @@ html_template = f"""
         .login-btn {{ width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }}
         .login-footer {{ margin-top: 20px; color: #999; font-size: 0.9rem; }}
 
-        /* --- 3. 主程式 --- */
+        /* --- 3. 主程式 (保持不變) --- */
         #main-app {{ display: none; opacity: 0; transition: opacity 0.5s; }}
 
         /* 導覽列 */
@@ -218,9 +219,7 @@ html_template = f"""
 <body>
 
     <div id="splash" onclick="goToLogin()">
-        <div class="splash-logo-container">
-            <img src="images/食際行動家.png" class="splash-logo" onerror="this.onerror=null;this.src='https://via.placeholder.com/200x200?text=Logo';">
-        </div>
+        <img src="images/食際行動家.png" class="splash-logo" onerror="this.onerror=null;this.src='https://via.placeholder.com/400x800?text=Logo+Placeholder';">
     </div>
 
     <div id="login-page" style="display:none;">
