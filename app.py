@@ -10,13 +10,10 @@ BRANCH_NAME = "main"
 
 # 指向根目錄
 BASE_URL = f"https://raw.githubusercontent.com/{GITHUB_USER}/{REPO_NAME}/{BRANCH_NAME}/"
-# 備用網圖 (Unsplash) - 避免破圖
-FALLBACK_IMG = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400"
 # ==========================================
 
 st.set_page_config(page_title="食際行動家", layout="wide", initial_sidebar_state="collapsed")
 
-# ↓↓↓ 請注意：這裡使用 f""" 開頭，直到最後面的 """ 結束，中間全部都是網頁代碼 ↓↓↓
 html_template = f"""
 <!DOCTYPE html>
 <html lang="zh-TW">
@@ -25,6 +22,7 @@ html_template = f"""
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>食際行動家</title>
     <style>
+        /* --- 基礎設定 --- */
         * {{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }}
         body {{ 
             font-family: "Microsoft JhengHei", -apple-system, BlinkMacSystemFont, sans-serif;
@@ -33,6 +31,7 @@ html_template = f"""
         }}
         :root {{ --primary: #d9534f; --text: #333; --bg: #fff; }}
 
+        /* RWD */
         .desktop-only {{ display: none !important; }}
         .mobile-only {{ display: flex !important; }}
         @media (min-width: 768px) {{
@@ -53,15 +52,31 @@ html_template = f"""
             .btn-card-action, .gen-recipe-btn {{ padding: 6px 2px !important; font-size: 0.8rem !important; }}
         }}
 
+        /* --- 1. 登入封面 (全新升級) --- */
         #splash {{ 
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
-            background: white; z-index: 99999; 
+            /* 加入全螢幕美食背景圖，提升質感 */
+            background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=1080&fit=crop') no-repeat center center/cover;
+            z-index: 99999; 
             display: flex; flex-direction: column; justify-content: center; align-items: center; 
             transition: opacity 0.5s ease-out; overflow: hidden; cursor: pointer;
         }}
-        .splash-logo {{ width: 200px; height: 200px; object-fit: contain; animation: breathe 3s infinite; z-index: 10; }}
-        @keyframes breathe {{ 0%, 100% {{ transform: scale(1); opacity: 0.95; }} 50% {{ transform: scale(1.05); opacity: 1; }} }}
+        /* Logo 樣式優化 */
+        .splash-logo-container {{
+            background: rgba(255, 255, 255, 0.85); /* 半透明白色背景 */
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(5px); /* 毛玻璃效果 */
+            animation: breathe 3s infinite;
+        }}
+        .splash-logo {{ 
+            width: 180px; height: auto; object-fit: contain; 
+            display: block;
+        }}
+        @keyframes breathe {{ 0%, 100% {{ transform: scale(1); }} 50% {{ transform: scale(1.03); }} }}
 
+        /* --- 2. 登入頁面 --- */
         #login-page {{
             display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: #fff; z-index: 8000;
@@ -75,37 +90,58 @@ html_template = f"""
         .login-btn {{ width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }}
         .login-footer {{ margin-top: 20px; color: #999; font-size: 0.9rem; }}
 
+        /* --- 3. 主程式 --- */
         #main-app {{ display: none; opacity: 0; transition: opacity 0.5s; }}
 
-        .bottom-nav {{ position: fixed; bottom: 0; left: 0; width: 100%; height: 65px; background: white; justify-content: space-around; align-items: center; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 5000; border-top: 1px solid #eee; }}
+        /* 導覽列 */
+        .bottom-nav {{
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 65px;
+            background: white; justify-content: space-around; align-items: center;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 5000; border-top: 1px solid #eee;
+        }}
         .nav-item {{ flex: 1; text-align: center; color: #999; font-size: 0.75rem; background:none; border:none; cursor: pointer; }}
         .nav-item.active {{ color: var(--primary); font-weight: bold; }}
         .nav-icon {{ font-size: 1.4rem; display: block; margin-bottom: 2px; }}
 
-        .top-nav {{ position: fixed; top: 0; left: 0; width: 100%; height: 70px; background: white; justify-content: space-between; align-items: center; padding: 0 50px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 5000; }}
+        .top-nav {{
+            position: fixed; top: 0; left: 0; width: 100%; height: 70px;
+            background: white; justify-content: space-between; align-items: center;
+            padding: 0 50px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 5000;
+        }}
         .back-home-btn {{ font-size: 1.1rem; font-weight: bold; color: #666; cursor: pointer; display: flex; align-items: center; gap: 8px; }}
         .desktop-menu button {{ background: none; border: none; font-size: 1rem; margin-left: 20px; cursor: pointer; color: #666; }}
         .desktop-menu button:hover, .desktop-menu button.active {{ color: var(--primary); font-weight: bold; }}
         .cart-btn-desktop {{ background: var(--primary) !important; color: white !important; padding: 8px 20px; border-radius: 20px; }}
 
+        /* 容器與橫幅 */
         .container {{ max-width: 1200px; margin: 0 auto; padding: 15px; }}
-        .banner-container {{ width: 100%; height: 180px; border-radius: 15px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }}
+        .banner-container {{
+            width: 100%; height: 180px; border-radius: 15px; margin-bottom: 20px;
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
+            position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }}
         .banner-img {{ width: 100%; height: 100%; object-fit: cover; }}
-        
+
+        /* 分類 */
         .category-bar {{ display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; scrollbar-width: none; }}
         .category-bar::-webkit-scrollbar {{ display: none; }}
         .cat-btn {{ white-space: nowrap; padding: 8px 16px; border-radius: 20px; border: 1px solid #ddd; background: white; color: #666; cursor: pointer; }}
         .cat-btn.active {{ background: var(--primary); color: white; border-color: var(--primary); }}
 
+        /* 網格 & 卡片 */
         .grid {{ display: grid; gap: 15px; }}
         
-        .card {{ background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.2s; display: flex; flex-direction: column; position: relative; }}
+        .card {{ 
+            background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+            cursor: pointer; transition: transform 0.2s; display: flex; flex-direction: column;
+            position: relative;
+        }}
         .card:active {{ transform: scale(0.98); background-color: #f9f9f9; }}
         .card:hover {{ transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }}
         
-        .card-click-area {{ cursor: pointer; flex-grow: 1; }}
+        .card-top-click {{ cursor: pointer; flex-grow: 1; display: flex; flex-direction: column; }}
         .card-img {{ width: 100%; height: 150px; object-fit: cover; pointer-events: none; }}
-        .card-body {{ padding: 10px; display: flex; flex-direction: column; pointer-events: none; }}
+        .card-body {{ padding: 10px; flex-grow: 1; display: flex; flex-direction: column; pointer-events: none; }}
         
         .card-title {{ font-weight: bold; margin-bottom: 5px; color: #333; }}
         .price {{ color: var(--primary); font-weight: bold; font-size: 1.1rem; margin-top: auto; }}
@@ -120,21 +156,24 @@ html_template = f"""
         .btn-add-cart {{ width: 100%; padding: 8px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9rem; }}
         .btn-gen-recipe {{ width: 100%; padding: 8px; background: #e3f2fd; border: 1px solid #90caf9; color: #1976d2; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9rem; }}
 
+        /* 詳情頁 */
         .page {{ display: none; animation: fadeIn 0.3s; }}
         @keyframes fadeIn {{ from {{ opacity: 0; }} to {{ opacity: 1; }} }}
         .detail-wrapper {{ display: flex; flex-direction: column; background: white; border-radius: 0; }}
         @media (min-width: 768px) {{ .detail-wrapper {{ flex-direction: row; border-radius: 20px; padding: 40px; gap: 40px; margin-top: 20px; }} .detail-hero {{ flex: 1; }} .detail-info {{ flex: 1; }} }}
         .detail-hero img {{ width: 100%; height: 300px; object-fit: cover; }}
         .detail-info {{ padding: 20px; background: white; border-radius: 20px 20px 0 0; margin-top: -20px; position: relative; }}
-        .back-btn {{ position: absolute; top: 20px; left: 20px; padding: 8px 15px; border-radius: 20px; background: rgba(255,255,255,0.9); border:none; z-index: 10; font-size:0.9rem; cursor:pointer; font-weight: bold; }}
+        .back-btn {{ position: absolute; top: 20px; left: 20px; padding: 8px 15px; border-radius: 20px; background: rgba(255,255,255,0.9); border:none; z-index: 10; font-size:0.9rem; cursor:pointer; font-weight: bold; display:flex; align-items:center; }}
         .detail-status-tag {{ display: inline-block; padding: 5px 10px; border-radius: 4px; font-size: 0.9rem; font-weight: bold; }}
 
+        /* Modals */
         .modal {{ display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 6000; }}
         .modal-content {{ position: absolute; bottom: 0; left: 0; width: 100%; max-height: 85vh; background: white; border-radius: 20px 20px 0 0; padding: 20px; display: flex; flex-direction: column; animation: slideUp 0.3s; }}
         @media (min-width: 768px) {{ .modal {{ align-items: center; justify-content: center; }} .modal-content {{ position: relative; width: 500px; border-radius: 15px; bottom: auto; }} }}
         @keyframes slideUp {{ from {{ transform: translateY(100%); }} to {{ transform: translateY(0); }} }}
         .close-modal-btn {{ cursor:pointer; font-size:1rem; font-weight: bold; color: #999; }}
 
+        /* Chat & Admin & Form */
         .chat-fab {{ position: fixed; bottom: 80px; right: 20px; z-index: 5500; padding: 12px 20px; border-radius: 30px; background: #2c3e50; color: white; border: none; font-size: 1rem; cursor: pointer; font-weight: bold; }}
         #chat-widget {{ display: none; position: fixed; bottom: 150px; right: 20px; width: 320px; height: 450px; background: #fff; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.2); z-index: 5600; flex-direction: column; }}
         .chat-header {{ background: #2c3e50; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }}
@@ -179,12 +218,14 @@ html_template = f"""
 <body>
 
     <div id="splash" onclick="goToLogin()">
-        <img src="images/食際行動家.png" class="splash-logo" onerror="this.onerror=null;this.src='{FALLBACK_IMG}';">
+        <div class="splash-logo-container">
+            <img src="images/食際行動家.png" class="splash-logo" onerror="this.onerror=null;this.src='https://via.placeholder.com/200x200?text=Logo';">
+        </div>
     </div>
 
     <div id="login-page" style="display:none;">
         <div class="login-card">
-            <img src="images/食際行動家.png" class="login-logo" onerror="this.onerror=null;this.src='{FALLBACK_IMG}';">
+            <img src="images/食際行動家.png" class="login-logo" onerror="this.onerror=null;this.src='https://via.placeholder.com/100x100?text=Logo';">
             <div class="login-title">歡迎回來</div>
             <input type="text" class="login-input" placeholder="使用者帳號">
             <input type="password" class="login-input" placeholder="密碼">
@@ -216,7 +257,7 @@ html_template = f"""
                 <div class="mobile-top-bar mobile-only">
                     <div class="back-home-btn" onclick="location.reload()">[返回/登出]</div>
                 </div>
-                <div class="banner-container"><img src="images/食際行動家.png" class="banner-img" onerror="this.onerror=null;this.src='{FALLBACK_IMG}';"></div>
+                <div class="banner-container"><img src="images/食際行動家.png" class="banner-img" onerror="handleImgError(this, 'banner')"></div>
                 <div class="category-bar" id="cat-bar">
                     <button class="cat-btn" onclick="filterCat('水果', this)">[水果]</button>
                     <button class="cat-btn" onclick="filterCat('蔬菜', this)">[蔬菜]</button>
@@ -241,7 +282,7 @@ html_template = f"""
             <div id="page-detail" class="page">
                 <button class="back-btn" onclick="switchPage('market')">[返回列表]</button>
                 <div class="detail-wrapper">
-                    <div class="detail-hero"><img id="dt-img" src="" onerror="this.onerror=null;this.src='{FALLBACK_IMG}';"></div>
+                    <div class="detail-hero"><img id="dt-img" src="" onerror="handleImgError(this, document.getElementById('dt-name').innerText)"></div>
                     <div class="detail-info">
                         <h1 id="dt-name" style="margin:0; font-size:1.8rem;"></h1>
                         <div style="margin:10px 0;">
@@ -326,6 +367,65 @@ html_template = f"""
     <script>
         function getFutureDate(d) {{ const date = new Date(); date.setDate(date.getDate()+d); return date.toISOString().split('T')[0]; }}
 
+        // ==========================================
+        // 👇 核心功能：智慧網圖對照表 (當本地圖片缺漏時，自動使用這些高品質網圖)
+        // ==========================================
+        const fallbackImages = {{
+            // 水果
+            "蘋果": "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=400",
+            "香蕉": "https://images.unsplash.com/photo-1571771896612-61871f015852?w=400",
+            "柳橙": "https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?w=400",
+            "鳳梨": "https://images.unsplash.com/photo-1550258987-190a2d41a8ba?w=400",
+            // 蔬菜
+            "高麗菜": "https://images.unsplash.com/photo-1623341214825-9f4f963727da?w=400",
+            "番茄": "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400",
+            "洋蔥": "https://images.unsplash.com/photo-1618512496248-a07fe83aa829?w=400",
+            "地瓜": "https://images.unsplash.com/photo-1596097635121-14b63b7a0c19?w=400",
+            "菠菜": "https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400",
+            "胡蘿蔔": "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=400",
+            "花椰菜": "https://images.unsplash.com/photo-1568584711075-3d021a7c3d54?w=400",
+            "甜玉米": "https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=400",
+            "彩椒": "https://images.unsplash.com/photo-1563565375-f3fdf5ecfae9?w=400",
+            "馬鈴薯": "https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400",
+            // 菇類、肉品、海鮮
+            "鮮香菇": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400",
+            "豬肉": "https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=400",
+            "牛肉": "https://images.unsplash.com/photo-1613482184648-47399b2df699?w=400",
+            "鮭魚切片": "https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?w=400",
+            "雞胸肉": "https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=400",
+            "酪梨": "https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?w=400",
+            // 食譜成品
+            "綜合蔬果沙拉": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400",
+            "番茄炒高麗菜": "https://images.unsplash.com/photo-1604908177621-8df805a94205?w=400",
+            "蜂蜜烤地瓜": "https://images.unsplash.com/photo-1596097635121-14b63b7a0c19?w=400",
+            "鳳梨蘋果汁": "https://images.unsplash.com/photo-1622597467836-165240775807?w=400",
+            "香蕉柳橙冰沙": "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400",
+            "義式烤蔬菜": "https://images.unsplash.com/photo-1565895405139-e188df996e0b?w=400",
+            "奶油酪梨雞胸肉佐蒜香地瓜葉": "https://images.unsplash.com/photo-1606756790138-7c48643e2912?w=400",
+            // 預設萬用圖 (這張幾乎不會用到，但以防萬一)
+            "default": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400",
+            "banner": "https://images.unsplash.com/photo-1542838132-92c53300491e?w=1200&h=400&fit=crop"
+        }};
+
+        // 智慧圖片錯誤處理函數
+        function handleImgError(imgElement, itemName) {{
+            imgElement.onerror = null; // 防止無限循環
+            // 嘗試從對照表中找到對應的網圖，如果找不到，就用預設圖
+            let fallbackUrl = fallbackImages[itemName];
+            if (!fallbackUrl) {{
+                // 如果名稱太長或找不到，嘗試模糊比對 (例如: "特製蘋果料理" -> 找 "蘋果" 的圖)
+                for (const key in fallbackImages) {{
+                    if (itemName.includes(key) && key !== "default" && key !== "banner") {{
+                        fallbackUrl = fallbackImages[key];
+                        break;
+                    }}
+                }}
+            }}
+            imgElement.src = fallbackUrl || fallbackImages["default"];
+        }}
+        // ==========================================
+
+
         const products = [
             {{ id: "P1", name: "蘋果", price: 139, img: "images/蘋果.jpg", cat: "水果", origin: "美國", storage: "冷藏", date: getFutureDate(6), condition: "良好" }},
             {{ id: "P2", name: "香蕉", price: 80, img: "images/香蕉.jpg", cat: "水果", origin: "台灣", storage: "常溫", date: getFutureDate(3), condition: "破損" }},
@@ -392,7 +492,7 @@ html_template = f"""
                 return `
                 <div class="card">
                     <div class="card-top-click" onclick="showDetail('${{p.id}}')">
-                        <img src="${{p.img}}" class="card-img" onerror="this.onerror=null;this.src='{FALLBACK_IMG}';">
+                        <img src="${{p.img}}" class="card-img" onerror="handleImgError(this, '${{p.name}}')">
                         <div class="card-body">
                             <div class="card-title">${{p.name}}</div>
                             <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -454,7 +554,7 @@ html_template = f"""
             if(!list || list.length===0) {{ document.getElementById('grid-recipes').innerHTML = '<div style="text-align:center; color:#999; grid-column:1/-1; padding:20px;">找不到食譜... 試試「酪梨」？</div>'; return; }}
             document.getElementById('grid-recipes').innerHTML = list.map(r => `
                 <div class="card" onclick="showStep('${{r.id}}')">
-                    <img src="${{r.img}}" class="card-img" onerror="this.onerror=null;this.src='{FALLBACK_IMG}';">
+                    <img src="${{r.img}}" class="card-img" onerror="handleImgError(this, '${{r.name}}')">
                     <div class="card-body">
                         <div class="card-title">${{r.name}}</div>
                         <div style="color:#666; font-size:0.9rem;">[熱量]: ${{r.cal}} kcal</div>
@@ -700,7 +800,7 @@ html_template = f"""
             allRecipes.unshift({{
                 id: "C"+Date.now(), 
                 name: name, 
-                img: "https://via.placeholder.com/300?text="+name, 
+                img: "images/" + name + ".jpg", 
                 cal: cal||0, 
                 steps: [...tempSteps], 
                 ingredients: [...tempIngredients]
