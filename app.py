@@ -14,7 +14,6 @@ BASE_URL = f"https://raw.githubusercontent.com/{GITHUB_USER}/{REPO_NAME}/{BRANCH
 
 st.set_page_config(page_title="食際行動家", layout="wide", initial_sidebar_state="collapsed")
 
-# ↓↓↓ 這裡開始是 HTML 字串，請務必複製到最後面的 """ ↓↓↓
 html_template = """
 <!DOCTYPE html>
 <html lang="zh-TW">
@@ -112,40 +111,48 @@ html_template = """
         .grid { display: grid; gap: 15px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
         
         .card { 
-            background: white; border-radius: 12px; overflow: hidden; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
-            display: flex; flex-direction: column;
+            background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+            cursor: pointer; transition: transform 0.2s; display: flex; flex-direction: column;
             position: relative;
         }
+        .card:active { transform: scale(0.98); background-color: #f9f9f9; }
         .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-
-        .card-img { width: 100%; height: 150px; object-fit: cover; }
-        .card-body { padding: 12px; flex-grow: 1; display: flex; flex-direction: column; }
         
-        .card-title { font-weight: bold; margin-bottom: 5px; color: #333; font-size: 1.1rem; }
-        .price { color: var(--primary); font-weight: bold; font-size: 1.2rem; margin-left: auto; }
-        
-        /* 直接顯示資訊區 */
-        .card-details {
-            font-size: 0.85rem; color: #666; line-height: 1.6;
-            border-top: 1px dashed #eee; margin: 8px 0; padding-top: 8px;
-        }
+        .card-click-area { cursor: pointer; flex-grow: 1; }
 
-        .status-badge { display: inline-block; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; vertical-align: middle; margin-left: 5px;}
+        .card-img { width: 100%; height: 150px; object-fit: cover; pointer-events: none; }
+        .card-body { padding: 10px; display: flex; flex-direction: column; pointer-events: none; }
+        
+        .card-interactive-area { pointer-events: auto; margin-top: auto; }
+
+        .card-title { font-weight: bold; margin-bottom: 5px; color: #333; }
+        .price { color: var(--primary); font-weight: bold; font-size: 1.1rem; margin-top: auto; }
+        
+        /* 狀態標籤 */
+        .status-badge { display: inline-block; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; margin-bottom: 5px; }
         .status-good { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .status-bad { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
 
-        /* 按鈕 */
+        /* 直接顯示資訊 */
+        .card-info-list {
+            font-size: 0.85rem; color: #666; margin: 8px 0; line-height: 1.5;
+            border-top: 1px dashed #eee; padding-top: 8px;
+        }
+
+        /* 卡片按鈕 */
+        .card-bottom-actions { padding: 10px; padding-top: 0; background: white; display: flex; flex-direction: column; gap: 8px; pointer-events: auto; }
+        
         .btn-add-cart {
-            width: 100%; padding: 10px; background: var(--primary); color: white; 
-            border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.9rem;
-            margin-bottom: 5px;
+            width: 100%; padding: 8px; background: var(--primary); color: white; 
+            border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9rem;
+            transition: opacity 0.2s;
         }
         .btn-add-cart:active { opacity: 0.8; }
 
         .btn-gen-recipe {
             width: 100%; padding: 8px; background: #e3f2fd; border: 1px solid #90caf9; 
-            color: #1976d2; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.9rem;
+            color: #1976d2; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9rem;
+            transition: background 0.2s;
         }
         .btn-gen-recipe:active { background: #bbdefb; }
 
@@ -174,9 +181,10 @@ html_template = """
             .modal { align-items: center; justify-content: center; }
             .modal-content { position: relative; width: 500px; border-radius: 15px; bottom: auto; left: auto; animation: fadeIn 0.3s; }
         }
+        .close-modal-btn { cursor:pointer; font-size:1rem; font-weight: bold; color: #999; }
 
         /* Chat & Admin & Form */
-        .chat-fab { position: fixed; bottom: 80px; right: 20px; z-index: 5500; width: 60px; height: 60px; border-radius: 50%; background: #2c3e50; color: white; border: none; font-size: 1.8rem; cursor: pointer; }
+        .chat-fab { position: fixed; bottom: 80px; right: 20px; z-index: 5500; width: auto; height: auto; padding: 12px 20px; border-radius: 30px; background: #2c3e50; color: white; border: none; font-size: 1rem; cursor: pointer; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
         @media (min-width: 768px) { .chat-fab { bottom: 30px; right: 30px; } }
         #chat-widget { display: none; position: fixed; bottom: 150px; right: 20px; width: 320px; height: 450px; background: #fff; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.2); z-index: 5600; flex-direction: column; }
         @media (min-width: 768px) { #chat-widget { bottom: 100px; right: 30px; } }
@@ -193,21 +201,21 @@ html_template = """
         .form-label { display: block; font-weight: bold; margin-bottom: 5px; color: #333; }
         .form-input, .form-select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; }
         .add-row { display: flex; gap: 10px; margin-bottom: 10px; }
-        .add-btn-small { background: var(--primary); color: white; border: none; border-radius: 8px; width: 40px; cursor: pointer; font-size: 1.2rem; }
+        .add-btn-small { background: var(--primary); color: white; border: none; border-radius: 8px; width: auto; padding: 0 15px; cursor: pointer; font-size: 0.9rem; font-weight: bold;}
         .tag-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px; background: #f9f9f9; border-radius: 8px; min-height: 50px; }
         .ing-tag { background: white; border: 1px solid #ddd; padding: 5px 12px; border-radius: 20px; font-size: 0.9rem; display: flex; align-items: center; gap: 5px; }
-        .ing-tag span { color: #d9534f; cursor: pointer; font-weight: bold; margin-left: 5px; }
+        .ing-tag span { color: #d9534f; cursor: pointer; font-weight: bold; margin-left: 5px; font-size: 0.8rem; }
         .step-list, .ing-list { padding-left: 20px; margin: 0; color: #444; line-height: 1.6; }
         .ing-list { list-style-type: disc; margin-bottom: 15px; }
         .step-list li, .ing-list li { margin-bottom: 5px; }
-        h4 { margin: 15px 0 8px 0; color: var(--primary); border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        h4 { margin: 15px 0 8px 0; color: var(--primary); border-bottom: 1px solid #eee; padding-bottom: 5px; font-size: 1.1rem; }
         .btn { width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: bold; font-size: 1rem; margin-top: 10px; cursor: pointer; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-outline { background: white; border: 1px solid #ddd; color: #555; }
         .tag { background: #eee; padding: 4px 10px; border-radius: 15px; font-size: 0.85rem; color: #666; }
         .mobile-top-bar { display: flex; align-items: center; padding: 10px 5px; margin-bottom: 10px; }
-        .qty-btn { width: 28px; height: 28px; border-radius: 50%; border: 1px solid #ddd; background: white; font-weight: bold; cursor: pointer; display:flex; align-items:center; justify-content:center;}
-        .del-btn { color: #d9534f; background: none; border: none; cursor: pointer; font-size: 1.2rem; margin-left: 5px; }
+        .qty-btn { width: 30px; height: 30px; border-radius: 50%; border: 1px solid #ddd; background: white; font-weight: bold; cursor: pointer; display:flex; align-items:center; justify-content:center;}
+        .del-btn { color: #d9534f; background: none; border: none; cursor: pointer; font-size: 0.9rem; margin-left: 5px; font-weight: bold; }
         
         /* 自訂食譜 AI 按鈕 */
         .ai-magic-btn {
@@ -239,16 +247,16 @@ html_template = """
     </div>
 
     <div id="main-app">
-        <button class="chat-fab" onclick="toggleChat()">💬</button>
+        <button class="chat-fab" onclick="toggleChat()">[客服]</button>
 
         <div id="chat-widget">
-            <div class="chat-header"><span style="font-weight:bold;">線上客服</span><span onclick="toggleChat()" style="cursor:pointer;">✕</span></div>
-            <div class="chat-body" id="chat-body"><div class="msg msg-bot">您好！請問有什麼需要幫忙的嗎？🥦</div></div>
-            <div class="chat-input-area"><input type="text" id="chat-input" class="form-input" placeholder="輸入訊息..." onkeypress="if(event.key==='Enter') sendChat()"><button class="add-btn-small" onclick="sendChat()" style="width:60px; font-size:0.9rem;">傳送</button></div>
+            <div class="chat-header"><span style="font-weight:bold;">線上客服</span><span onclick="toggleChat()" class="close-modal-btn" style="color:white;">[關閉]</span></div>
+            <div class="chat-body" id="chat-body"><div class="msg msg-bot">您好！請問有什麼需要幫忙的嗎？</div></div>
+            <div class="chat-input-area"><input type="text" id="chat-input" class="form-input" placeholder="輸入訊息..." onkeypress="if(event.key==='Enter') sendChat()"><button class="add-btn-small" onclick="sendChat()" style="font-size:0.9rem;">傳送</button></div>
         </div>
 
         <div class="top-nav desktop-only">
-            <div class="back-home-btn" onclick="location.reload()"><span style="font-size:1.5rem;">⬅</span> 登出</div>
+            <div class="back-home-btn" onclick="location.reload()">[返回/登出]</div>
             <div class="desktop-menu">
                 <button id="dt-nav-market" class="active" onclick="switchPage('market')">首頁</button>
                 <button id="dt-nav-recipe" onclick="switchPage('recipe')">食譜</button>
@@ -259,18 +267,18 @@ html_template = """
         <div class="container">
             <div id="page-market" class="page" style="display:block;">
                 <div class="mobile-top-bar mobile-only">
-                    <div class="back-home-btn" onclick="location.reload()"><span style="font-size:1.3rem;">⬅</span> 登出</div>
+                    <div class="back-home-btn" onclick="location.reload()">[返回/登出]</div>
                 </div>
                 <div class="banner-container"><img src="images/食際行動家.png" class="banner-img"></div>
                 <div class="category-bar" id="cat-bar">
-                    <button class="cat-btn" onclick="filterCat('水果', this)">🍎 水果</button>
-                    <button class="cat-btn" onclick="filterCat('蔬菜', this)">🥦 蔬菜</button>
-                    <button class="cat-btn" onclick="filterCat('菇類', this)">🍄 菇類</button>
-                    <button class="cat-btn" onclick="filterCat('肉品', this)">🥩 肉品</button>
-                    <button class="cat-btn" onclick="filterCat('海鮮', this)">🐟 海鮮</button>
+                    <button class="cat-btn" onclick="filterCat('水果', this)">[水果]</button>
+                    <button class="cat-btn" onclick="filterCat('蔬菜', this)">[蔬菜]</button>
+                    <button class="cat-btn" onclick="filterCat('菇類', this)">[菇類]</button>
+                    <button class="cat-btn" onclick="filterCat('肉品', this)">[肉品]</button>
+                    <button class="cat-btn" onclick="filterCat('海鮮', this)">[海鮮]</button>
                 </div>
                 <div id="grid-products" class="grid">
-                    <div style="grid-column:1/-1; text-align:center; padding:50px; color:#888;"><div style="font-size:3rem; margin-bottom:10px;">🥦🍎🥩</div><div style="font-size:1.2rem;">請點擊上方分類開始選購</div></div>
+                    <div style="grid-column:1/-1; text-align:center; padding:50px; color:#888;"><div style="font-size:1.5rem; margin-bottom:10px; font-weight:bold;">[請選擇分類]</div><div style="font-size:1rem;">點擊上方分類開始選購</div></div>
                 </div>
             </div>
 
@@ -279,14 +287,14 @@ html_template = """
                     <h2>食譜牆</h2>
                     <div style="display:flex; gap:10px;">
                         <input type="text" id="recipe-search" placeholder="搜尋食譜..." oninput="filterRecipes()" style="padding:8px; border:1px solid #ddd; border-radius:20px; outline:none;">
-                        <button class="btn-outline" style="width:auto; padding:8px 20px;" onclick="openCreateRecipeModal()">＋ 自訂</button>
+                        <button class="btn-outline" style="width:auto; padding:8px 20px; font-size:0.9rem;" onclick="openCreateRecipeModal()">[自訂食譜]</button>
                     </div>
                 </div>
                 <div id="grid-recipes" class="grid"></div>
             </div>
 
             <div id="page-detail" class="page">
-                <button class="back-btn" onclick="switchPage('market')">←</button>
+                <button class="back-btn" onclick="switchPage('market')">[返回列表]</button>
                 <div class="detail-wrapper">
                     <div class="detail-hero"><img id="dt-img" src=""></div>
                     <div class="detail-info">
@@ -296,15 +304,15 @@ html_template = """
                             <span id="dt-price" style="color:#d9534f; font-size:1.5rem; font-weight:bold; float:right;"></span>
                         </div>
                         <hr style="border:0; border-top:1px solid #eee; margin:20px 0;">
-                        <p style="color:#666; line-height:1.8; font-size:1.1rem;">
-                            📍 <strong>產地：</strong><span id="dt-origin"></span><br>
-                            ❄️ <strong>保存：</strong><span id="dt-storage"></span><br>
-                            📅 <strong>到期：</strong><span id="dt-expiry"></span><br>
-                            👀 <strong>外觀：</strong><span id="dt-condition-text" class="detail-status-tag"></span>
+                        <p style="color:#666; line-height:1.8; font-size:1rem;">
+                            <strong>[產地]:</strong> <span id="dt-origin"></span><br>
+                            <strong>[保存]:</strong> <span id="dt-storage"></span><br>
+                            <strong>[到期]:</strong> <span id="dt-expiry"></span><br>
+                            <strong>[外觀]:</strong> <span id="dt-condition-text" class="detail-status-tag"></span>
                         </p>
                         <div style="display:flex; gap:10px; margin-top:30px;">
-                            <button class="btn btn-primary" onclick="addToCart()">＋ 加入購物車</button>
-                            <button class="btn btn-outline" onclick="quickGenerateRecipeDetail()">⚡ 推薦做法</button>
+                            <button class="btn btn-primary" onclick="addToCart()">[加入購物車]</button>
+                            <button class="btn btn-outline" onclick="quickGenerateRecipeDetail()">[推薦做法]</button>
                         </div>
                     </div>
                 </div>
@@ -312,11 +320,11 @@ html_template = """
 
             <div id="page-backend" class="page">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                    <h2>⚙️ 後台管理系統</h2>
+                    <h2>後台管理系統</h2>
                     <button class="btn-outline" style="width:auto;" onclick="switchPage('market')">返回前台</button>
                 </div>
                 <div style="background:white; padding:20px; border-radius:15px; box-shadow:0 2px 10px rgba(0,0,0,0.05);">
-                    <h3>📦 庫存管理</h3>
+                    <h3>庫存管理</h3>
                     <table class="admin-table">
                         <thead><tr><th>名稱</th><th>狀態</th><th>價格</th><th>操作</th></tr></thead>
                         <tbody id="admin-list"></tbody>
@@ -326,16 +334,16 @@ html_template = """
         </div>
 
         <div class="bottom-nav mobile-only">
-            <button class="nav-item active" id="mb-nav-market" onclick="switchPage('market')"><span class="nav-icon">🥦</span>首頁</button>
-            <button class="nav-item" id="mb-nav-recipe" onclick="switchPage('recipe')"><span class="nav-icon">👨‍🍳</span>食譜</button>
-            <button class="nav-item" onclick="openModal('cart')"><span class="nav-icon">🛒<span class="cart-count-num" style="font-size:0.8rem; color:#d9534f; vertical-align:top;">0</span></span>購物車</button>
+            <button class="nav-item active" id="mb-nav-market" onclick="switchPage('market')">首頁</button>
+            <button class="nav-item" id="mb-nav-recipe" onclick="switchPage('recipe')">食譜</button>
+            <button class="nav-item" onclick="openModal('cart')">購物車(<span class="cart-count-num">0</span>)</button>
         </div>
 
     </div>
 
     <div id="modal-cart" class="modal" onclick="if(event.target===this) closeModal('cart')">
         <div class="modal-content">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;"><h3 style="margin:0;">我的購物車</h3><span onclick="closeModal('cart')" style="cursor:pointer; font-size:1.5rem;">✕</span></div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;"><h3 style="margin:0;">我的購物車</h3><span onclick="closeModal('cart')" class="close-modal-btn">[關閉]</span></div>
             <div id="cart-list" style="flex:1; overflow-y:auto; min-height:150px;"></div>
             <div style="border-top:1px solid #eee; padding-top:15px; margin-top:10px;">
                 <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:1.2rem;"><span>總計</span><span id="cart-total">$0</span></div>
@@ -346,26 +354,26 @@ html_template = """
 
     <div id="modal-step" class="modal" onclick="if(event.target===this) closeModal('step')">
         <div class="modal-content">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;"><h3 style="margin:0;" id="step-title">料理步驟</h3><span onclick="closeModal('step')" style="cursor:pointer; font-size:1.5rem;">✕</span></div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;"><h3 style="margin:0;" id="step-title">料理步驟</h3><span onclick="closeModal('step')" class="close-modal-btn">[關閉]</span></div>
             <div id="step-body" style="flex:1; overflow-y:auto; line-height:1.8;"></div>
-            <button class="btn btn-outline" onclick="closeModal('step')">關閉</button>
+            <button class="btn btn-outline" onclick="closeModal('step')">關閉視窗</button>
         </div>
     </div>
 
     <div id="modal-create" class="modal" onclick="if(event.target===this) closeModal('create')">
         <div class="modal-content">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;"><h3 style="margin:0;">新增私房食譜</h3><span onclick="closeModal('create')" style="cursor:pointer; font-size:1.5rem;">✕</span></div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;"><h3 style="margin:0;">新增私房食譜</h3><span onclick="closeModal('create')" class="close-modal-btn">[關閉]</span></div>
             <div style="flex:1; overflow-y:auto; padding-right:5px;">
                 <div class="form-group"><label class="form-label">食譜名稱</label><input type="text" id="new-r-name" class="form-input" placeholder="例如：阿嬤的紅燒肉"></div>
                 <div class="form-group"><label class="form-label">預估卡路里</label><input type="number" id="new-r-cal" class="form-input" placeholder="例如：500"></div>
-                <div class="form-group"><label class="form-label">選擇食材 (從市集)</label><div class="add-row"><select id="product-select" class="form-select"><option value="">-- 請選擇食材 --</option></select><button class="add-btn-small" onclick="addIngredientFromSelect()">＋</button></div></div>
-                <div class="form-group"><label class="form-label">或 手動輸入</label><div class="add-row"><input type="text" id="manual-ing-input" class="form-input" placeholder="例如：鹽、醬油..."><button class="add-btn-small" onclick="addManualIngredient()">＋</button></div></div>
+                <div class="form-group"><label class="form-label">選擇食材 (從市集)</label><div class="add-row"><select id="product-select" class="form-select"><option value="">-- 請選擇食材 --</option></select><button class="add-btn-small" onclick="addIngredientFromSelect()">加入</button></div></div>
+                <div class="form-group"><label class="form-label">或 手動輸入</label><div class="add-row"><input type="text" id="manual-ing-input" class="form-input" placeholder="例如：鹽、醬油..."><button class="add-btn-small" onclick="addManualIngredient()">加入</button></div></div>
                 <div id="new-ing-list" class="tag-container"><span style="color:#999; font-size:0.9rem;">尚未加入食材</span></div>
-                <div class="form-group" style="margin-top:15px;"><label class="form-label">步驟</label><div class="add-row"><input type="text" id="new-step-input" class="form-input" placeholder="輸入步驟..."><button class="add-btn-small" onclick="addNewStep()">＋</button></div><div id="new-step-list" style="background:#f9f9f9; padding:10px; border-radius:8px; min-height:50px;"></div></div>
+                <div class="form-group" style="margin-top:15px;"><label class="form-label">步驟</label><div class="add-row"><input type="text" id="new-step-input" class="form-input" placeholder="輸入步驟..."><button class="add-btn-small" onclick="addNewStep()">加入</button></div><div id="new-step-list" style="background:#f9f9f9; padding:10px; border-radius:8px; min-height:50px;"></div></div>
             </div>
             <div style="margin-top:10px; border-top:1px solid #eee; padding-top:10px;">
-                <button class="ai-magic-btn" onclick="autoGenerateRichRecipe()">🎲 推薦做法</button>
-                <button class="btn btn-primary" onclick="saveCustomRecipe()">✨ 發布食譜</button>
+                <button class="ai-magic-btn" onclick="autoGenerateRichRecipe()">[AI 自動生成食譜]</button>
+                <button class="btn btn-primary" onclick="saveCustomRecipe()">[發布食譜]</button>
             </div>
         </div>
     </div>
@@ -430,15 +438,16 @@ html_template = """
         }
 
         function renderProducts(list) {
-            if(!list || list.length===0) { document.getElementById('grid-products').innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:50px; color:#888;"><div style="font-size:3rem;">🥦🍎🥩</div><div>請點擊上方分類開始選購</div></div>'; return; }
+            if(!list || list.length===0) { document.getElementById('grid-products').innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:50px; color:#888;"><div style="font-size:1.5rem; margin-bottom:10px; font-weight:bold;">[請選擇分類]</div><div style="font-size:1rem;">點擊上方分類開始選購</div></div>'; return; }
             document.getElementById('grid-products').innerHTML = list.map(p => {
+                // 將 Emoji 改為文字
                 let badgeClass = p.condition === '良好' ? 'status-good' : 'status-bad';
-                let badgeText = p.condition === '良好' ? '✅ 外觀良好' : '⚠️ 外觀破損';
+                let badgeText = p.condition === '良好' ? '[狀態: 良好]' : '[狀態: 破損]';
                 
-                // *** 卡片：直接顯示資訊 + 移除詳細按鈕 ***
+                // *** 核心修復：onclick 綁定在最外層 div，按鈕區阻止冒泡 ***
                 return `
                 <div class="card">
-                    <div onclick="showDetail('${p.id}')">
+                    <div class="card-top-click" onclick="showDetail('${p.id}')">
                         <img src="${p.img}" class="card-img">
                         <div class="card-body">
                             <div class="card-title">${p.name}</div>
@@ -447,15 +456,15 @@ html_template = """
                                 <div class="price">$${p.price}</div>
                             </div>
                             <div class="card-info-list">
-                                📍 ${p.origin} | ❄️ ${p.storage}<br>
-                                📅 ${p.date}
+                                [產地]: ${p.origin} | [保存]: ${p.storage}<br>
+                                [到期]: ${p.date}
                             </div>
                         </div>
                     </div>
                     
                     <div class="card-bottom-actions">
-                        <button class="btn-add-cart" onclick="event.stopPropagation(); addToCart('${p.id}')">🛒 加入購物車</button>
-                        <button class="btn-gen-recipe" onclick="event.stopPropagation(); quickGenerateRecipe('${p.name}')">➕ 加入食譜</button>
+                        <button class="btn-add-cart" onclick="event.stopPropagation(); addToCart('${p.id}')">[加入購物車]</button>
+                        <button class="btn-gen-recipe" onclick="event.stopPropagation(); quickGenerateRecipe('${p.name}')">[推薦做法]</button>
                     </div>
                 </div>`;
             }).join('');
@@ -504,7 +513,7 @@ html_template = """
                     <img src="${r.img}" class="card-img" onerror="this.src='https://via.placeholder.com/300?text=${r.name}'">
                     <div class="card-body">
                         <div class="card-title">${r.name}</div>
-                        <div style="color:#666; font-size:0.9rem;">🔥 ${r.cal} kcal</div>
+                        <div style="color:#666; font-size:0.9rem;">[熱量]: ${r.cal} kcal</div>
                         <button class="btn-outline-sm btn-card-action" style="margin-top:10px;">查看做法</button>
                     </div>
                 </div>`).join('');
@@ -537,10 +546,11 @@ html_template = """
             document.getElementById('dt-tag').innerText = p.cat;
             
             const conditionText = document.getElementById('dt-condition-text');
-            conditionText.innerText = p.condition === '良好' ? '✅ 外觀良好' : '⚠️ 外觀有破損';
+            // 將 Emoji 改為文字
+            conditionText.innerText = p.condition === '良好' ? '[狀態: 良好]' : '[狀態: 破損]';
             conditionText.style.color = p.condition === '良好' ? '#28a745' : '#dc3545';
             conditionText.className = p.condition === '良好' ? 'detail-status-tag status-good' : 'detail-status-tag status-bad';
-            document.getElementById('dt-condition-badge').innerHTML = `<span class="status-badge ${p.condition === '良好' ? 'status-good' : 'status-bad'}">${p.condition === '良好' ? '✅ 外觀良好' : '⚠️ 外觀破損'}</span>`;
+            document.getElementById('dt-condition-badge').innerHTML = `<span class="status-badge ${p.condition === '良好' ? 'status-good' : 'status-bad'}">${p.condition === '良好' ? '[狀態: 良好]' : '[狀態: 破損]'}</span>`;
 
             switchPage('detail');
         }
@@ -552,7 +562,8 @@ html_template = """
             const item = cart.find(x => x.id === targetId);
             if(item) item.qty++; else cart.push({id:p.id, name:p.name, price:p.price, qty:1});
             updateCartUI();
-            alert('✅ 已加入購物車');
+            // 將 Emoji 改為文字
+            alert('[已加入購物車]');
         }
         
         function changeQty(id, delta) {
@@ -595,7 +606,7 @@ html_template = """
                             <button class="qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
                             <span style="font-weight:bold; min-width:20px; text-align:center;">${item.qty}</span>
                             <button class="qty-btn" onclick="changeQty('${item.id}', 1)">+</button>
-                            <button class="del-btn" onclick="removeFromCart('${item.id}')">🗑️</button>
+                            <button class="del-btn" onclick="removeFromCart('${item.id}')">[刪除]</button>
                         </div>
                     </div>
                 `).join('');
@@ -605,8 +616,9 @@ html_template = """
         function showStep(rid) {
             const r = allRecipes.find(x => x.id === rid);
             document.getElementById('step-title').innerText = r.name;
-            let html = '<h4>🍽 食材</h4><ul class="ing-list">' + (r.ingredients?r.ingredients.map(i=>`<li>${i}</li>`).join(''):'<li>無資料</li>') + '</ul>';
-            html += '<h4>👩‍🍳 做法</h4><ol class="step-list">' + (r.steps?r.steps.map(s=>`<li>${s}</li>`).join(''):'<li>無資料</li>') + '</ol>';
+            // 將 Emoji 改為文字標題
+            let html = '<h4>[食材清單]</h4><ul class="ing-list">' + (r.ingredients?r.ingredients.map(i=>`<li>${i}</li>`).join(''):'<li>無資料</li>') + '</ul>';
+            html += '<h4>[料理步驟]</h4><ol class="step-list">' + (r.steps?r.steps.map(s=>`<li>${s}</li>`).join(''):'<li>無資料</li>') + '</ol>';
             document.getElementById('step-body').innerHTML = html;
             openModal('step');
         }
@@ -626,6 +638,7 @@ html_template = """
             const input = document.getElementById('chat-input'); const msg = input.value.trim(); if(!msg) return;
             const body = document.getElementById('chat-body'); body.innerHTML += `<div class="msg msg-user">${msg}</div>`; input.value = ''; body.scrollTop = body.scrollHeight;
             if(msg === '[後台]') { setTimeout(() => { body.innerHTML += `<div class="msg msg-bot">驗證成功，跳轉後台...</div>`; setTimeout(() => { toggleChat(); showBackend(); }, 1000); }, 500); return; }
+            // 移除 Emoji
             setTimeout(() => { body.innerHTML += `<div class="msg msg-bot">收到！我們將盡快回覆。</div>`; body.scrollTop = body.scrollHeight; }, 800);
         }
         function showBackend() { switchPage('backend'); renderAdmin(); }
@@ -641,10 +654,11 @@ html_template = """
         function addManualIngredient() { const v = document.getElementById('manual-ing-input').value.trim(); if(v) { tempIngredients.push(v); document.getElementById('manual-ing-input').value = ''; updateCustomPreview(); } }
         function addNewStep() { const v = document.getElementById('new-step-input').value.trim(); if(v) { tempSteps.push(v); document.getElementById('new-step-input').value=''; updateCustomPreview(); } }
         function updateCustomPreview() {
-            document.getElementById('new-ing-list').innerHTML = tempIngredients.length ? tempIngredients.map((ing, i) => `<div class="ing-tag">${ing} <span onclick="tempIngredients.splice(${i},1);updateCustomPreview()">✕</span></div>`).join('') : '尚未加入';
-            document.getElementById('new-step-list').innerHTML = tempSteps.length ? tempSteps.map((s, i) => `<div style="border-bottom:1px dashed #ddd; padding:5px 0; display:flex; justify-content:space-between;"><span>${i+1}. ${s}</span><span onclick="tempSteps.splice(${i},1);updateCustomPreview()" style="color:red;cursor:pointer;">✕</span></div>`).join('') : '無步驟';
+            // 將 X 改為文字 [刪除]
+            document.getElementById('new-ing-list').innerHTML = tempIngredients.length ? tempIngredients.map((ing, i) => `<div class="ing-tag">${ing} <span onclick="tempIngredients.splice(${i},1);updateCustomPreview()">[刪除]</span></div>`).join('') : '尚未加入';
+            document.getElementById('new-step-list').innerHTML = tempSteps.length ? tempSteps.map((s, i) => `<div style="border-bottom:1px dashed #ddd; padding:5px 0; display:flex; justify-content:space-between;"><span>${i+1}. ${s}</span><span onclick="tempSteps.splice(${i},1);updateCustomPreview()" style="color:red;cursor:pointer;">[刪除]</span></div>`).join('') : '無步驟';
         }
-
+        
         // --- 智慧 AI 食譜生成 (連續隨機 + 隱藏菜單判斷) ---
         function autoGenerateRichRecipe() {
             // 1. 先檢查隱藏觸發 (酪梨 + 雞胸肉)
@@ -668,13 +682,13 @@ html_template = """
                 if(!tempIngredients.includes("蒜頭")) tempIngredients.push("蒜頭");
                 
                 updateCustomPreview();
-                alert("🥑 恭喜！AI 偵測到關鍵食材，已為您生成隱藏料理！");
+                // 移除彈窗提示
                 return;
             }
 
             // 2. 正常 AI 隨機生成
             if (tempIngredients.length === 0) {
-                alert("⚠️ 請先選擇至少一種食材，AI 才能幫您想食譜！");
+                alert("請先選擇至少一種食材！");
                 return;
             }
             
@@ -740,19 +754,19 @@ html_template = """
         function saveCustomRecipe() {
             const name = document.getElementById('new-r-name').value.trim();
             const cal = document.getElementById('new-r-cal').value;
-            
-            // 檢查是否觸發隱藏菜單 (名稱或食材符合)
             const hasAvocado = name.includes("酪梨") || tempIngredients.some(i => i.includes("酪梨"));
             const hasChicken = name.includes("雞胸肉") || tempIngredients.some(i => i.includes("雞胸肉"));
-
+            
             if (hasAvocado && hasChicken) {
-                alert("🥑🍗 恭喜！發現隱藏料理：奶油酪梨雞胸肉佐蒜香地瓜葉！");
+                // 移除 alert，直接解鎖
                 const unlocked = { ...allRecipes.find(r => r.id === "Hidden1"), id: "Unlocked_" + Date.now(), hidden: false };
                 allRecipes.unshift(unlocked); 
                 
                 closeModal('create'); 
                 document.getElementById('recipe-search').value = ''; 
                 renderRecipes(allRecipes.filter(r => !r.hidden)); 
+                
+                alert("[發布成功！]");
                 return;
             }
 
@@ -767,10 +781,8 @@ html_template = """
                 ingredients: [...tempIngredients]
             });
             
-            alert("✨ 發布成功！"); 
-            closeModal('create'); 
-            document.getElementById('recipe-search').value = ''; 
-            renderRecipes(allRecipes.filter(r => !r.hidden));
+            // 移除 Emoji
+            alert("[發布成功！]"); closeModal('create'); document.getElementById('recipe-search').value = ''; renderRecipes(allRecipes.filter(r => !r.hidden));
         }
 
         function openModal(id) { const m = document.getElementById('modal-'+id); m.style.display = (window.innerWidth >= 768) ? 'flex' : 'block'; }
@@ -782,5 +794,5 @@ html_template = """
 </html>
 """
 
-final_html = html_template.replace("images/", BASE_URL)
-components.html(final_html, height=1200, scrolling=True)
+# 將 HTML 內容渲染到 Streamlit
+components.html(html_template, height=1200, scrolling=True)
