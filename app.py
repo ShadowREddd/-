@@ -1,8 +1,21 @@
+沒問題，我來處理這兩個需求。
+
+這份修改後的代碼完成了以下兩件事：
+
+1.  **圖片破圖自動修復 (Fallback)**：
+      * 我在所有顯示圖片的地方（市集卡片、食譜卡片、商品詳情頁）都加入了「錯誤處理機制 (`onerror`)」。
+      * **現在的邏輯是**：系統會優先嘗試加載您設定的本地路徑（例如 `images/蘋果.jpg`，這會指向您的 GitHub）。如果 GitHub 上找不到這張圖，瀏覽器會自動替換成一張高品質的 Unsplash 預設美食圖，確保畫面永遠不會出現破圖標記。
+2.  **封面尺寸填滿**：
+      * 修改了 CSS，將登入畫面的 Logo 圖片從原本的圓形小圖，改為**全螢幕填滿 (`object-fit: cover`)** 的背景形式，視覺效果更強烈。
+
+請複製這份 **全螢幕封面 + 智慧防破圖版 `app.py`**：
+
+```python
 import streamlit as st
 import streamlit.components.v1 as components
 
 # ==========================================
-# 👇 您的 GitHub 資訊 (請確認這裡填寫正確，圖片才能顯示)
+# 👇 您的 GitHub 資訊 (請確認這裡填寫正確)
 # ==========================================
 GITHUB_USER = "ShadowREddd"   
 REPO_NAME = "-"     
@@ -10,11 +23,13 @@ BRANCH_NAME = "main"
 
 # 指向根目錄 (這行會把 html 裡的 images/ 替換成您的 GitHub 原圖連結)
 BASE_URL = f"https://raw.githubusercontent.com/{GITHUB_USER}/{REPO_NAME}/{BRANCH_NAME}/"
+# 預設備用網圖 (當本地圖片找不到時顯示這個)
+FALLBACK_IMG = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400"
 # ==========================================
 
 st.set_page_config(page_title="食際行動家", layout="wide", initial_sidebar_state="collapsed")
 
-html_template = """
+html_template = f"""
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -23,218 +38,226 @@ html_template = """
     <title>食際行動家</title>
     <style>
         /* --- 基礎設定 --- */
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { 
+        * {{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }}
+        body {{ 
             font-family: "Microsoft JhengHei", -apple-system, BlinkMacSystemFont, sans-serif;
             background-color: #f4f6f8; margin: 0; 
             padding-bottom: 80px; overflow-x: hidden;
-        }
-        :root { --primary: #d9534f; --text: #333; --bg: #fff; }
+        }}
+        :root {{ --primary: #d9534f; --text: #333; --bg: #fff; }}
 
         /* RWD */
-        .desktop-only { display: none !important; }
-        .mobile-only { display: flex !important; }
-        @media (min-width: 768px) {
-            body { padding-bottom: 0; padding-top: 70px; }
-            .desktop-only { display: flex !important; }
-            .mobile-only { display: none !important; }
-        }
+        .desktop-only {{ display: none !important; }}
+        .mobile-only {{ display: flex !important; }}
+        @media (min-width: 768px) {{
+            body {{ padding-bottom: 0; padding-top: 70px; }}
+            .desktop-only {{ display: flex !important; }}
+            .mobile-only {{ display: none !important; }}
+        }}
 
-        /* --- 1. 登入封面 --- */
-        #splash { 
+        /* --- 1. 登入封面 (修改為填滿畫面) --- */
+        #splash {{ 
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
             background: white; z-index: 99999; 
-            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            /* 移除原本的置中對齊，改為區塊顯示以便圖片填滿 */
+            display: block; 
             transition: opacity 0.5s ease-out; overflow: hidden; cursor: pointer;
-        }
-        .splash-logo { 
-            width: 200px; height: 200px; object-fit: contain; 
-            animation: breathe 3s infinite; z-index: 10;
-        }
-        @keyframes breathe { 0%, 100% { transform: scale(1); opacity: 0.95; } 50% { transform: scale(1.05); opacity: 1; } }
+        }}
+        .splash-logo {{ 
+            /* 修改為填滿整個容器 */
+            width: 100%; height: 100%; 
+            /* 保持比例填滿，多餘裁切 */
+            object-fit: cover; 
+            object-position: center;
+            /* 呼吸動畫幅度稍微調小，避免大圖晃動太大 */
+            animation: breathe-cover 5s infinite alternate; 
+            z-index: 10;
+            border-radius: 0; /* 移除圓角 */
+        }}
+        @keyframes breathe-cover {{ 0% {{ transform: scale(1); }} 100% {{ transform: scale(1.03); }} }}
 
         /* --- 2. 登入頁面 --- */
-        #login-page {
+        #login-page {{
             display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: #fff; z-index: 8000;
             flex-direction: column; justify-content: center; align-items: center;
             padding: 20px; animation: fadeIn 0.5s;
-        }
-        .login-card { width: 100%; max-width: 400px; text-align: center; }
-        .login-logo { width: 120px; margin-bottom: 20px; }
-        .login-title { font-size: 1.8rem; margin-bottom: 30px; color: #333; }
-        .login-input { width: 100%; padding: 15px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 10px; font-size: 1rem; background: #f9f9f9; }
-        .login-btn { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
-        .login-footer { margin-top: 20px; color: #999; font-size: 0.9rem; }
+        }}
+        .login-card {{ width: 100%; max-width: 400px; text-align: center; }}
+        .login-logo {{ width: 120px; margin-bottom: 20px; border-radius: 50%; }}
+        .login-title {{ font-size: 1.8rem; margin-bottom: 30px; color: #333; }}
+        .login-input {{ width: 100%; padding: 15px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 10px; font-size: 1rem; background: #f9f9f9; }}
+        .login-btn {{ width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }}
+        .login-footer {{ margin-top: 20px; color: #999; font-size: 0.9rem; }}
 
         /* --- 3. 主程式 --- */
-        #main-app { display: none; opacity: 0; transition: opacity 0.5s; }
+        #main-app {{ display: none; opacity: 0; transition: opacity 0.5s; }}
 
         /* 導覽列 */
-        .bottom-nav {
+        .bottom-nav {{
             position: fixed; bottom: 0; left: 0; width: 100%; height: 65px;
             background: white; justify-content: space-around; align-items: center;
             box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 5000; border-top: 1px solid #eee;
-        }
-        .nav-item { flex: 1; text-align: center; color: #999; font-size: 0.75rem; background:none; border:none; cursor: pointer; }
-        .nav-item.active { color: var(--primary); font-weight: bold; }
-        .nav-icon { font-size: 1.4rem; display: block; margin-bottom: 2px; }
+        }}
+        .nav-item {{ flex: 1; text-align: center; color: #999; font-size: 0.75rem; background:none; border:none; cursor: pointer; }}
+        .nav-item.active {{ color: var(--primary); font-weight: bold; }}
+        .nav-icon {{ font-size: 1.4rem; display: block; margin-bottom: 2px; }}
 
-        .top-nav {
+        .top-nav {{
             position: fixed; top: 0; left: 0; width: 100%; height: 70px;
             background: white; justify-content: space-between; align-items: center;
             padding: 0 50px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 5000;
-        }
-        .back-home-btn { font-size: 1.1rem; font-weight: bold; color: #666; cursor: pointer; display: flex; align-items: center; gap: 8px; }
-        .desktop-menu button { background: none; border: none; font-size: 1rem; margin-left: 20px; cursor: pointer; color: #666; }
-        .desktop-menu button:hover, .desktop-menu button.active { color: var(--primary); font-weight: bold; }
-        .cart-btn-desktop { background: var(--primary) !important; color: white !important; padding: 8px 20px; border-radius: 20px; }
+        }}
+        .back-home-btn {{ font-size: 1.1rem; font-weight: bold; color: #666; cursor: pointer; display: flex; align-items: center; gap: 8px; }}
+        .desktop-menu button {{ background: none; border: none; font-size: 1rem; margin-left: 20px; cursor: pointer; color: #666; }}
+        .desktop-menu button:hover, .desktop-menu button.active {{ color: var(--primary); font-weight: bold; }}
+        .cart-btn-desktop {{ background: var(--primary) !important; color: white !important; padding: 8px 20px; border-radius: 20px; }}
 
         /* 橫幅 */
-        .container { max-width: 1200px; margin: 0 auto; padding: 15px; }
-        .banner-container {
+        .container {{ max-width: 1200px; margin: 0 auto; padding: 15px; }}
+        .banner-container {{
             width: 100%; height: 180px; border-radius: 15px; margin-bottom: 20px;
             display: flex; align-items: center; justify-content: center; overflow: hidden;
             position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        }
-        .banner-img { width: 100%; height: 100%; object-fit: cover; }
-        @media (min-width: 768px) { .banner-container { height: 300px; } }
+        }}
+        .banner-img {{ width: 100%; height: 100%; object-fit: cover; }}
+        @media (min-width: 768px) {{ .banner-container {{ height: 300px; }} }}
 
         /* 分類 */
-        .category-bar { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; scrollbar-width: none; }
-        .category-bar::-webkit-scrollbar { display: none; }
-        .cat-btn { white-space: nowrap; padding: 8px 16px; border-radius: 20px; border: 1px solid #ddd; background: white; color: #666; cursor: pointer; }
-        .cat-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .category-bar {{ display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; scrollbar-width: none; }}
+        .category-bar::-webkit-scrollbar {{ display: none; }}
+        .cat-btn {{ white-space: nowrap; padding: 8px 16px; border-radius: 20px; border: 1px solid #ddd; background: white; color: #666; cursor: pointer; }}
+        .cat-btn.active {{ background: var(--primary); color: white; border-color: var(--primary); }}
 
-        /* 網格 & 卡片 (點擊修復) */
-        .grid { display: grid; gap: 15px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+        /* 網格 & 卡片 */
+        .grid {{ display: grid; gap: 15px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }}
         
-        .card { 
+        .card {{ 
             background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
             cursor: pointer; transition: transform 0.2s; display: flex; flex-direction: column;
             position: relative;
-        }
-        .card:active { transform: scale(0.98); background-color: #f9f9f9; }
-        .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        }}
+        .card:active {{ transform: scale(0.98); background-color: #f9f9f9; }}
+        .card:hover {{ transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }}
         
-        .card-click-area { cursor: pointer; flex-grow: 1; }
+        .card-click-area {{ cursor: pointer; flex-grow: 1; }}
 
-        .card-img { width: 100%; height: 150px; object-fit: cover; pointer-events: none; }
-        .card-body { padding: 10px; display: flex; flex-direction: column; pointer-events: none; }
+        .card-img {{ width: 100%; height: 150px; object-fit: cover; pointer-events: none; }}
+        .card-body {{ padding: 10px; display: flex; flex-direction: column; pointer-events: none; }}
         
-        .card-interactive-area { pointer-events: auto; margin-top: auto; }
+        .card-interactive-area {{ pointer-events: auto; margin-top: auto; }}
 
-        .card-title { font-weight: bold; margin-bottom: 5px; color: #333; }
-        .price { color: var(--primary); font-weight: bold; font-size: 1.1rem; margin-top: auto; }
+        .card-title {{ font-weight: bold; margin-bottom: 5px; color: #333; }}
+        .price {{ color: var(--primary); font-weight: bold; font-size: 1.1rem; margin-top: auto; }}
         
         /* 資訊列表 */
-        .card-info-list {
+        .card-info-list {{
             font-size: 0.85rem; color: #666; margin: 8px 0; line-height: 1.5;
             border-top: 1px dashed #eee; padding-top: 8px;
-        }
+        }}
 
-        .status-badge { display: inline-block; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; margin-bottom: 5px; vertical-align: middle; }
-        .status-good { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .status-bad { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .status-badge {{ display: inline-block; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; margin-bottom: 5px; vertical-align: middle; }}
+        .status-good {{ background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }}
+        .status-bad {{ background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }}
 
         /* 按鈕群組 */
-        .card-bottom-actions { padding: 10px; padding-top: 0; background: white; display: flex; flex-direction: column; gap: 8px; pointer-events: auto; }
+        .card-bottom-actions {{ padding: 10px; padding-top: 0; background: white; display: flex; flex-direction: column; gap: 8px; pointer-events: auto; }}
         
-        .btn-add-cart {
+        .btn-add-cart {{
             width: 100%; padding: 8px; background: var(--primary); color: white; 
             border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9rem;
             transition: opacity 0.2s;
-        }
-        .btn-add-cart:active { opacity: 0.8; }
+        }}
+        .btn-add-cart:active {{ opacity: 0.8; }}
 
-        .btn-gen-recipe {
+        .btn-gen-recipe {{
             width: 100%; padding: 8px; background: #e3f2fd; border: 1px solid #90caf9; 
             color: #1976d2; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9rem;
             transition: background 0.2s;
-        }
-        .btn-gen-recipe:active { background: #bbdefb; }
+        }}
+        .btn-gen-recipe:active {{ background: #bbdefb; }}
 
         /* 詳情頁 */
-        .page { display: none; animation: fadeIn 0.3s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .detail-wrapper { display: flex; flex-direction: column; background: white; border-radius: 0; }
-        @media (min-width: 768px) {
-            .detail-wrapper { flex-direction: row; border-radius: 20px; padding: 40px; gap: 40px; margin-top: 20px; }
-            .detail-hero { flex: 1; }
-            .detail-hero img { border-radius: 15px; height: 400px !important; }
-            .detail-info { flex: 1; padding: 0 !important; margin-top: 0 !important; }
-            .back-btn { top: 90px !important; left: 40px !important; }
-        }
-        .detail-hero { position: relative; }
-        .detail-hero img { width: 100%; height: 300px; object-fit: cover; }
-        .detail-info { padding: 20px; background: white; border-radius: 20px 20px 0 0; margin-top: -20px; position: relative; }
-        .back-btn { position: absolute; top: 20px; left: 20px; width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.9); border:none; z-index: 10; font-size:1.2rem; cursor:pointer;}
-        .detail-status-tag { display: inline-block; padding: 5px 10px; border-radius: 4px; font-size: 0.9rem; font-weight: bold; }
+        .page {{ display: none; animation: fadeIn 0.3s; }}
+        @keyframes fadeIn {{ from {{ opacity: 0; }} to {{ opacity: 1; }} }}
+        .detail-wrapper {{ display: flex; flex-direction: column; background: white; border-radius: 0; }}
+        @media (min-width: 768px) {{
+            .detail-wrapper {{ flex-direction: row; border-radius: 20px; padding: 40px; gap: 40px; margin-top: 20px; }}
+            .detail-hero {{ flex: 1; }}
+            .detail-hero img {{ border-radius: 15px; height: 400px !important; }}
+            .detail-info {{ flex: 1; padding: 0 !important; margin-top: 0 !important; }}
+            .back-btn {{ top: 90px !important; left: 40px !important; }}
+        }}
+        .detail-hero {{ position: relative; }}
+        .detail-hero img {{ width: 100%; height: 300px; object-fit: cover; }}
+        .detail-info {{ padding: 20px; background: white; border-radius: 20px 20px 0 0; margin-top: -20px; position: relative; }}
+        .back-btn {{ position: absolute; top: 20px; left: 20px; width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.9); border:none; z-index: 10; font-size:1.2rem; cursor:pointer;}}
+        .detail-status-tag {{ display: inline-block; padding: 5px 10px; border-radius: 4px; font-size: 0.9rem; font-weight: bold; }}
 
         /* Modals */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 6000; }
-        .modal-content { position: absolute; bottom: 0; left: 0; width: 100%; max-height: 85vh; background: white; border-radius: 20px 20px 0 0; padding: 20px; display: flex; flex-direction: column; animation: slideUp 0.3s; }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        @media (min-width: 768px) {
-            .modal { align-items: center; justify-content: center; }
-            .modal-content { position: relative; width: 500px; border-radius: 15px; bottom: auto; left: auto; animation: fadeIn 0.3s; }
-        }
-        .close-modal-btn { cursor:pointer; font-size:1rem; font-weight: bold; color: #999; }
+        .modal {{ display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 6000; }}
+        .modal-content {{ position: absolute; bottom: 0; left: 0; width: 100%; max-height: 85vh; background: white; border-radius: 20px 20px 0 0; padding: 20px; display: flex; flex-direction: column; animation: slideUp 0.3s; }}
+        @keyframes slideUp {{ from {{ transform: translateY(100%); }} to {{ transform: translateY(0); }} }}
+        @media (min-width: 768px) {{
+            .modal {{ align-items: center; justify-content: center; }}
+            .modal-content {{ position: relative; width: 500px; border-radius: 15px; bottom: auto; left: auto; animation: fadeIn 0.3s; }}
+        }}
+        .close-modal-btn {{ cursor:pointer; font-size:1rem; font-weight: bold; color: #999; }}
 
         /* Chat & Admin & Form */
-        .chat-fab { position: fixed; bottom: 80px; right: 20px; z-index: 5500; width: auto; height: auto; padding: 12px 20px; border-radius: 30px; background: #2c3e50; color: white; border: none; font-size: 1rem; cursor: pointer; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-        @media (min-width: 768px) { .chat-fab { bottom: 30px; right: 30px; } }
-        #chat-widget { display: none; position: fixed; bottom: 150px; right: 20px; width: 320px; height: 450px; background: #fff; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.2); z-index: 5600; flex-direction: column; }
-        @media (min-width: 768px) { #chat-widget { bottom: 100px; right: 30px; } }
-        .chat-header { background: #2c3e50; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
-        .chat-body { flex: 1; padding: 15px; overflow-y: auto; background: #f4f6f8; display: flex; flex-direction: column; gap: 10px; }
-        .chat-input-area { padding: 10px; background: white; border-top: 1px solid #eee; display: flex; gap: 5px; }
-        .msg { max-width: 80%; padding: 10px; border-radius: 15px; font-size: 0.9rem; }
-        .msg-bot { align-self: flex-start; background: white; border: 1px solid #eee; }
-        .msg-user { align-self: flex-end; background: #d9fdd3; }
-        .admin-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-        .admin-table th, .admin-table td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; }
+        .chat-fab {{ position: fixed; bottom: 80px; right: 20px; z-index: 5500; width: auto; height: auto; padding: 12px 20px; border-radius: 30px; background: #2c3e50; color: white; border: none; font-size: 1rem; cursor: pointer; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }}
+        @media (min-width: 768px) {{ .chat-fab {{ bottom: 30px; right: 30px; }} }}
+        #chat-widget {{ display: none; position: fixed; bottom: 150px; right: 20px; width: 320px; height: 450px; background: #fff; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.2); z-index: 5600; flex-direction: column; }}
+        @media (min-width: 768px) {{ #chat-widget {{ bottom: 100px; right: 30px; }} }}
+        .chat-header {{ background: #2c3e50; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }}
+        .chat-body {{ flex: 1; padding: 15px; overflow-y: auto; background: #f4f6f8; display: flex; flex-direction: column; gap: 10px; }}
+        .chat-input-area {{ padding: 10px; background: white; border-top: 1px solid #eee; display: flex; gap: 5px; }}
+        .msg {{ max-width: 80%; padding: 10px; border-radius: 15px; font-size: 0.9rem; }}
+        .msg-bot {{ align-self: flex-start; background: white; border: 1px solid #eee; }}
+        .msg-user {{ align-self: flex-end; background: #d9fdd3; }}
+        .admin-table {{ width: 100%; border-collapse: collapse; font-size: 0.9rem; }}
+        .admin-table th, .admin-table td {{ padding: 10px; text-align: left; border-bottom: 1px solid #eee; }}
         
-        .form-group { margin-bottom: 15px; }
-        .form-label { display: block; font-weight: bold; margin-bottom: 5px; color: #333; }
-        .form-input, .form-select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; }
-        .add-row { display: flex; gap: 10px; margin-bottom: 10px; }
-        .add-btn-small { background: var(--primary); color: white; border: none; border-radius: 8px; width: auto; padding: 0 15px; cursor: pointer; font-size: 0.9rem; font-weight: bold;}
-        .tag-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px; background: #f9f9f9; border-radius: 8px; min-height: 50px; }
-        .ing-tag { background: white; border: 1px solid #ddd; padding: 5px 12px; border-radius: 20px; font-size: 0.9rem; display: flex; align-items: center; gap: 5px; }
-        .ing-tag span { color: #d9534f; cursor: pointer; font-weight: bold; margin-left: 5px; font-size: 0.8rem; }
-        .step-list, .ing-list { padding-left: 20px; margin: 0; color: #444; line-height: 1.6; }
-        .ing-list { list-style-type: disc; margin-bottom: 15px; }
-        .step-list li, .ing-list li { margin-bottom: 5px; }
-        h4 { margin: 15px 0 8px 0; color: var(--primary); border-bottom: 1px solid #eee; padding-bottom: 5px; font-size: 1.1rem; }
-        .btn { width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: bold; font-size: 1rem; margin-top: 10px; cursor: pointer; }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-outline { background: white; border: 1px solid #ddd; color: #555; }
-        .tag { background: #eee; padding: 4px 10px; border-radius: 15px; font-size: 0.85rem; color: #666; }
-        .mobile-top-bar { display: flex; align-items: center; padding: 10px 5px; margin-bottom: 10px; }
-        .qty-btn { width: 30px; height: 30px; border-radius: 50%; border: 1px solid #ddd; background: white; font-weight: bold; cursor: pointer; display:flex; align-items:center; justify-content:center;}
-        .del-btn { color: #d9534f; background: none; border: none; cursor: pointer; font-size: 0.9rem; margin-left: 5px; font-weight: bold; }
+        .form-group {{ margin-bottom: 15px; }}
+        .form-label {{ display: block; font-weight: bold; margin-bottom: 5px; color: #333; }}
+        .form-input, .form-select {{ width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; }}
+        .add-row {{ display: flex; gap: 10px; margin-bottom: 10px; }}
+        .add-btn-small {{ background: var(--primary); color: white; border: none; border-radius: 8px; width: auto; padding: 0 15px; cursor: pointer; font-size: 0.9rem; font-weight: bold;}}
+        .tag-container {{ display: flex; flex-wrap: wrap; gap: 8px; padding: 10px; background: #f9f9f9; border-radius: 8px; min-height: 50px; }}
+        .ing-tag {{ background: white; border: 1px solid #ddd; padding: 5px 12px; border-radius: 20px; font-size: 0.9rem; display: flex; align-items: center; gap: 5px; }}
+        .ing-tag span {{ color: #d9534f; cursor: pointer; font-weight: bold; margin-left: 5px; font-size: 0.8rem; }}
+        .step-list, .ing-list {{ padding-left: 20px; margin: 0; color: #444; line-height: 1.6; }}
+        .ing-list {{ list-style-type: disc; margin-bottom: 15px; }}
+        .step-list li, .ing-list li {{ margin-bottom: 5px; }}
+        h4 {{ margin: 15px 0 8px 0; color: var(--primary); border-bottom: 1px solid #eee; padding-bottom: 5px; font-size: 1.1rem; }}
+        .btn {{ width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: bold; font-size: 1rem; margin-top: 10px; cursor: pointer; }}
+        .btn-primary {{ background: var(--primary); color: white; }}
+        .btn-outline {{ background: white; border: 1px solid #ddd; color: #555; }}
+        .tag {{ background: #eee; padding: 4px 10px; border-radius: 15px; font-size: 0.85rem; color: #666; }}
+        .mobile-top-bar {{ display: flex; align-items: center; padding: 10px 5px; margin-bottom: 10px; }}
+        .qty-btn {{ width: 30px; height: 30px; border-radius: 50%; border: 1px solid #ddd; background: white; font-weight: bold; cursor: pointer; display:flex; align-items:center; justify-content:center;}}
+        .del-btn {{ color: #d9534f; background: none; border: none; cursor: pointer; font-size: 0.9rem; margin-left: 5px; font-weight: bold; }}
         
-        .ai-magic-btn {
+        .ai-magic-btn {{
             width: 100%; padding: 12px; margin-bottom: 15px;
             background: linear-gradient(45deg, #17a2b8, #2c3e50); 
             color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 1rem;
             cursor: pointer; box-shadow: 0 4px 10px rgba(23, 162, 184, 0.3);
             display: flex; align-items: center; justify-content: center; gap: 10px;
-        }
-        .ai-magic-btn:hover { filter: brightness(1.1); transform:translateY(-2px); transition:0.2s; }
+        }}
+        .ai-magic-btn:hover {{ filter: brightness(1.1); transform:translateY(-2px); transition:0.2s; }}
 
     </style>
 </head>
 <body>
 
     <div id="splash" onclick="goToLogin()">
-        <img src="images/食際行動家.png" class="splash-logo">
+        <img src="images/食際行動家.png" class="splash-logo" onerror="this.onerror=null;this.src='{FALLBACK_IMG}';">
     </div>
 
     <div id="login-page" style="display:none;">
         <div class="login-card">
-            <img src="images/食際行動家.png" class="login-logo">
+            <img src="images/食際行動家.png" class="login-logo" onerror="this.onerror=null;this.src='{FALLBACK_IMG}';">
             <div class="login-title">歡迎回來</div>
             <input type="text" class="login-input" placeholder="使用者帳號">
             <input type="password" class="login-input" placeholder="密碼">
@@ -266,7 +289,7 @@ html_template = """
                 <div class="mobile-top-bar mobile-only">
                     <div class="back-home-btn" onclick="location.reload()">[返回/登出]</div>
                 </div>
-                <div class="banner-container"><img src="images/食際行動家.png" class="banner-img"></div>
+                <div class="banner-container"><img src="images/食際行動家.png" class="banner-img" onerror="this.onerror=null;this.src='{FALLBACK_IMG}';"></div>
                 <div class="category-bar" id="cat-bar">
                     <button class="cat-btn" onclick="filterCat('水果', this)">[水果]</button>
                     <button class="cat-btn" onclick="filterCat('蔬菜', this)">[蔬菜]</button>
@@ -293,7 +316,7 @@ html_template = """
             <div id="page-detail" class="page">
                 <button class="back-btn" onclick="switchPage('market')">[返回列表]</button>
                 <div class="detail-wrapper">
-                    <div class="detail-hero"><img id="dt-img" src=""></div>
+                    <div class="detail-hero"><img id="dt-img" src="" onerror="this.onerror=null;this.src='{FALLBACK_IMG}';"></div>
                     <div class="detail-info">
                         <h1 id="dt-name" style="margin:0; font-size:1.8rem;"></h1>
                         <div style="margin:10px 0;">
@@ -378,7 +401,7 @@ html_template = """
     <script>
         function getFutureDate(d) { const date = new Date(); date.setDate(date.getDate()+d); return date.toISOString().split('T')[0]; }
 
-        // --- 資料庫 (已全改回 images/ 路徑) ---
+        // --- 資料庫 (維持本地路徑) ---
         const products = [
             { id: "P1", name: "蘋果", price: 139, img: "images/蘋果.jpg", cat: "水果", origin: "美國", storage: "冷藏", date: getFutureDate(6), condition: "良好" },
             { id: "P2", name: "香蕉", price: 80, img: "images/香蕉.jpg", cat: "水果", origin: "台灣", storage: "常溫", date: getFutureDate(3), condition: "破損" },
@@ -438,15 +461,14 @@ html_template = """
         function renderProducts(list) {
             if(!list || list.length===0) { document.getElementById('grid-products').innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:50px; color:#888;"><div style="font-size:1.5rem; margin-bottom:10px; font-weight:bold;">[請選擇分類]</div><div style="font-size:1rem;">點擊上方分類開始選購</div></div>'; return; }
             document.getElementById('grid-products').innerHTML = list.map(p => {
-                // 將 Emoji 改為文字
                 let badgeClass = p.condition === '良好' ? 'status-good' : 'status-bad';
                 let badgeText = p.condition === '良好' ? '[狀態: 良好]' : '[狀態: 破損]';
                 
-                // *** 核心修復：onclick 綁定在最外層 div，按鈕區阻止冒泡 ***
+                // *** 關鍵修改：加入 onerror 事件，圖片載入失敗時自動切換為網圖 ***
                 return `
                 <div class="card">
                     <div class="card-top-click" onclick="showDetail('${p.id}')">
-                        <img src="${p.img}" class="card-img">
+                        <img src="${p.img}" class="card-img" onerror="this.onerror=null;this.src='{FALLBACK_IMG}';">
                         <div class="card-body">
                             <div class="card-title">${p.name}</div>
                             <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -473,7 +495,7 @@ html_template = """
                 id: "Auto" + Date.now(),
                 name: "特製" + name + "料理",
                 cal: 300,
-                img: "images/" + name + ".jpg", // 假設圖片存在，或使用預設
+                img: "images/" + name + ".jpg", // 預設使用本地路徑
                 ingredients: [name, "鹽", "油"],
                 steps: ["將" + name + "洗淨切好", "大火快炒", "調味後起鍋"]
             };
@@ -508,7 +530,7 @@ html_template = """
             if(!list || list.length===0) { document.getElementById('grid-recipes').innerHTML = '<div style="text-align:center; color:#999; grid-column:1/-1; padding:20px;">找不到食譜... 試試「酪梨」？</div>'; return; }
             document.getElementById('grid-recipes').innerHTML = list.map(r => `
                 <div class="card" onclick="showStep('${r.id}')">
-                    <img src="${r.img}" class="card-img" onerror="this.src='https://via.placeholder.com/300?text=${r.name}'">
+                    <img src="${r.img}" class="card-img" onerror="this.onerror=null;this.src='{FALLBACK_IMG}';">
                     <div class="card-body">
                         <div class="card-title">${r.name}</div>
                         <div style="color:#666; font-size:0.9rem;">[熱量]: ${r.cal} kcal</div>
@@ -544,7 +566,6 @@ html_template = """
             document.getElementById('dt-tag').innerText = p.cat;
             
             const conditionText = document.getElementById('dt-condition-text');
-            // 將 Emoji 改為文字
             conditionText.innerText = p.condition === '良好' ? '[狀態: 良好]' : '[狀態: 破損]';
             conditionText.style.color = p.condition === '良好' ? '#28a745' : '#dc3545';
             conditionText.className = p.condition === '良好' ? 'detail-status-tag status-good' : 'detail-status-tag status-bad';
@@ -560,7 +581,6 @@ html_template = """
             const item = cart.find(x => x.id === targetId);
             if(item) item.qty++; else cart.push({id:p.id, name:p.name, price:p.price, qty:1});
             updateCartUI();
-            // 將 Emoji 改為文字
             alert('[已加入購物車]');
         }
         
@@ -614,7 +634,6 @@ html_template = """
         function showStep(rid) {
             const r = allRecipes.find(x => x.id === rid);
             document.getElementById('step-title').innerText = r.name;
-            // 將 Emoji 改為文字標題
             let html = '<h4>[食材清單]</h4><ul class="ing-list">' + (r.ingredients?r.ingredients.map(i=>`<li>${i}</li>`).join(''):'<li>無資料</li>') + '</ul>';
             html += '<h4>[料理步驟]</h4><ol class="step-list">' + (r.steps?r.steps.map(s=>`<li>${s}</li>`).join(''):'<li>無資料</li>') + '</ol>';
             document.getElementById('step-body').innerHTML = html;
@@ -636,7 +655,6 @@ html_template = """
             const input = document.getElementById('chat-input'); const msg = input.value.trim(); if(!msg) return;
             const body = document.getElementById('chat-body'); body.innerHTML += `<div class="msg msg-user">${msg}</div>`; input.value = ''; body.scrollTop = body.scrollHeight;
             if(msg === '[後台]') { setTimeout(() => { body.innerHTML += `<div class="msg msg-bot">驗證成功，跳轉後台...</div>`; setTimeout(() => { toggleChat(); showBackend(); }, 1000); }, 500); return; }
-            // 移除 Emoji
             setTimeout(() => { body.innerHTML += `<div class="msg msg-bot">收到！我們將盡快回覆。</div>`; body.scrollTop = body.scrollHeight; }, 800);
         }
         function showBackend() { switchPage('backend'); renderAdmin(); }
@@ -652,7 +670,6 @@ html_template = """
         function addManualIngredient() { const v = document.getElementById('manual-ing-input').value.trim(); if(v) { tempIngredients.push(v); document.getElementById('manual-ing-input').value = ''; updateCustomPreview(); } }
         function addNewStep() { const v = document.getElementById('new-step-input').value.trim(); if(v) { tempSteps.push(v); document.getElementById('new-step-input').value=''; updateCustomPreview(); } }
         function updateCustomPreview() {
-            // 將 X 改為文字 [刪除]
             document.getElementById('new-ing-list').innerHTML = tempIngredients.length ? tempIngredients.map((ing, i) => `<div class="ing-tag">${ing} <span onclick="tempIngredients.splice(${i},1);updateCustomPreview()">[刪除]</span></div>`).join('') : '尚未加入';
             document.getElementById('new-step-list').innerHTML = tempSteps.length ? tempSteps.map((s, i) => `<div style="border-bottom:1px dashed #ddd; padding:5px 0; display:flex; justify-content:space-between;"><span>${i+1}. ${s}</span><span onclick="tempSteps.splice(${i},1);updateCustomPreview()" style="color:red;cursor:pointer;">[刪除]</span></div>`).join('') : '無步驟';
         }
@@ -680,7 +697,6 @@ html_template = """
                 if(!tempIngredients.includes("蒜頭")) tempIngredients.push("蒜頭");
                 
                 updateCustomPreview();
-                // 移除 Emoji
                 return;
             }
 
@@ -756,7 +772,6 @@ html_template = """
             const hasChicken = name.includes("雞胸肉") || tempIngredients.some(i => i.includes("雞胸肉"));
             
             if (hasAvocado && hasChicken) {
-                // 移除 Emoji
                 const unlocked = { ...allRecipes.find(r => r.id === "Hidden1"), id: "Unlocked_" + Date.now(), hidden: false };
                 allRecipes.unshift(unlocked); 
                 
@@ -773,13 +788,13 @@ html_template = """
             allRecipes.unshift({
                 id: "C"+Date.now(), 
                 name: name, 
+                // 預設使用本地路徑，但如果找不到會觸發 onerror 使用網圖
                 img: "images/" + name + ".jpg", 
                 cal: cal||0, 
                 steps: [...tempSteps], 
                 ingredients: [...tempIngredients]
             });
             
-            // 移除 Emoji
             alert("[發布成功！]"); closeModal('create'); document.getElementById('recipe-search').value = ''; renderRecipes(allRecipes.filter(r => !r.hidden));
         }
 
@@ -792,5 +807,7 @@ html_template = """
 </html>
 """
 
+# 將 HTML 內容渲染到 Streamlit
 final_html = html_template.replace("images/", BASE_URL)
 components.html(final_html, height=1200, scrolling=True)
+```
