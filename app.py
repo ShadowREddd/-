@@ -731,3 +731,5 @@ html_template = """
     </script>
 </body>
 </html>
+final_html = html_template.replace("images/", BASE_URL)
+components.html(final_html, height=1200, scrolling=True)
