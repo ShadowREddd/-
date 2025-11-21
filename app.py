@@ -1,16 +1,3 @@
-沒問題，我來處理這兩個需求。
-
-這份修改後的代碼完成了以下兩件事：
-
-1.  **圖片破圖自動修復 (Fallback)**：
-      * 我在所有顯示圖片的地方（市集卡片、食譜卡片、商品詳情頁）都加入了「錯誤處理機制 (`onerror`)」。
-      * **現在的邏輯是**：系統會優先嘗試加載您設定的本地路徑（例如 `images/蘋果.jpg`，這會指向您的 GitHub）。如果 GitHub 上找不到這張圖，瀏覽器會自動替換成一張高品質的 Unsplash 預設美食圖，確保畫面永遠不會出現破圖標記。
-2.  **封面尺寸填滿**：
-      * 修改了 CSS，將登入畫面的 Logo 圖片從原本的圓形小圖，改為**全螢幕填滿 (`object-fit: cover`)** 的背景形式，視覺效果更強烈。
-
-請複製這份 **全螢幕封面 + 智慧防破圖版 `app.py`**：
-
-```python
 import streamlit as st
 import streamlit.components.v1 as components
 
@@ -810,4 +797,3 @@ html_template = f"""
 # 將 HTML 內容渲染到 Streamlit
 final_html = html_template.replace("images/", BASE_URL)
 components.html(final_html, height=1200, scrolling=True)
-```
