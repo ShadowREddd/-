@@ -10,7 +10,7 @@ BRANCH_NAME = "main"
 
 # 指向根目錄
 BASE_URL = f"https://raw.githubusercontent.com/{GITHUB_USER}/{REPO_NAME}/{BRANCH_NAME}/"
-# 備用網圖 (Unsplash)
+# 備用網圖 (防止破圖用)
 FALLBACK_IMG = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400"
 # ==========================================
 
@@ -54,27 +54,18 @@ html_template = f"""
             .btn-card-action, .gen-recipe-btn {{ padding: 6px 2px !important; font-size: 0.8rem !important; }}
         }}
 
-        /* --- 1. 登入封面 (全螢幕填滿) --- */
+        /* --- 1. 登入封面 --- */
         #splash {{ 
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
             background: white; z-index: 99999; 
-            display: block; /* 改為 block 以便圖片填滿 */
-            padding: 0; margin: 0;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
             transition: opacity 0.5s ease-out; overflow: hidden; cursor: pointer;
         }}
         .splash-logo {{ 
-            width: 100%; 
-            height: 100%; 
-            object-fit: cover; /* 關鍵：強制填滿畫面，裁切多餘部分 */
-            object-position: center;
-            display: block;
-            /* 移除呼吸動畫，避免滿版圖片晃動導致暈眩，改為靜態或極緩慢放大 */
-            animation: slow-zoom 10s infinite alternate;
+            width: 200px; height: 200px; object-fit: contain; 
+            animation: breathe 3s infinite; z-index: 10;
         }}
-        @keyframes slow-zoom {{ 
-            0% {{ transform: scale(1); }} 
-            100% {{ transform: scale(1.05); }} 
-        }}
+        @keyframes breathe {{ 0%, 100% {{ transform: scale(1); opacity: 0.95; }} 50% {{ transform: scale(1.05); opacity: 1; }} }}
 
         /* --- 2. 登入頁面 --- */
         #login-page {{
@@ -156,7 +147,7 @@ html_template = f"""
         .status-good {{ background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }}
         .status-bad {{ background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }}
 
-        /* 按鈕區 */
+        /* 按鈕群組 */
         .card-bottom-actions {{ padding: 10px; padding-top: 0; background: white; display: flex; flex-direction: column; gap: 8px; pointer-events: auto; }}
         
         .btn-add-cart {{
@@ -179,17 +170,14 @@ html_template = f"""
         .detail-hero {{ position: relative; }}
         .detail-hero img {{ width: 100%; height: 300px; object-fit: cover; }}
         .detail-info {{ padding: 20px; background: white; border-radius: 20px 20px 0 0; margin-top: -20px; position: relative; }}
-        .back-btn {{ position: absolute; top: 20px; left: 20px; padding: 8px 15px; border-radius: 20px; background: rgba(255,255,255,0.9); border:none; z-index: 10; font-size:0.9rem; cursor:pointer; font-weight: bold; display:flex; align-items:center; }}
+        .back-btn {{ position: absolute; top: 20px; left: 20px; width: auto; height: 40px; padding: 0 15px; border-radius: 20px; background: rgba(255,255,255,0.9); border:none; z-index: 10; font-size:0.9rem; cursor:pointer; font-weight: bold; display:flex; align-items:center; }}
         .detail-status-tag {{ display: inline-block; padding: 5px 10px; border-radius: 4px; font-size: 0.9rem; font-weight: bold; }}
 
         /* Modals */
         .modal {{ display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 6000; }}
         .modal-content {{ position: absolute; bottom: 0; left: 0; width: 100%; max-height: 85vh; background: white; border-radius: 20px 20px 0 0; padding: 20px; display: flex; flex-direction: column; animation: slideUp 0.3s; }}
+        @media (min-width: 768px) {{ .modal {{ align-items: center; justify-content: center; }} .modal-content {{ position: relative; width: 500px; border-radius: 15px; bottom: auto; }} }}
         @keyframes slideUp {{ from {{ transform: translateY(100%); }} to {{ transform: translateY(0); }} }}
-        @media (min-width: 768px) {{
-            .modal {{ align-items: center; justify-content: center; }}
-            .modal-content {{ position: relative; width: 500px; border-radius: 15px; bottom: auto; left: auto; animation: fadeIn 0.3s; }}
-        }}
         .close-modal-btn {{ cursor:pointer; font-size:1rem; font-weight: bold; color: #999; }}
 
         /* Chat & Admin & Form */
@@ -277,7 +265,7 @@ html_template = f"""
                 <div class="mobile-top-bar mobile-only">
                     <div class="back-home-btn" onclick="location.reload()">[返回/登出]</div>
                 </div>
-                <div class="banner-container"><img src="images/食際行動家.png" class="banner-img" onerror="handleImgError(this, 'banner')"></div>
+                <div class="banner-container"><img src="images/食際行動家.png" class="banner-img" onerror="this.onerror=null;this.src='{FALLBACK_IMG}';"></div>
                 <div class="category-bar" id="cat-bar">
                     <button class="cat-btn" onclick="filterCat('水果', this)">[水果]</button>
                     <button class="cat-btn" onclick="filterCat('蔬菜', this)">[蔬菜]</button>
@@ -285,7 +273,9 @@ html_template = f"""
                     <button class="cat-btn" onclick="filterCat('肉品', this)">[肉品]</button>
                     <button class="cat-btn" onclick="filterCat('海鮮', this)">[海鮮]</button>
                 </div>
-                <div id="grid-products" class="grid"></div>
+                <div id="grid-products" class="grid">
+                    <div style="grid-column:1/-1; text-align:center; padding:50px; color:#888;"><div style="font-size:1.5rem; margin-bottom:10px; font-weight:bold;">[請選擇分類]</div><div style="font-size:1rem;">點擊上方分類開始選購</div></div>
+                </div>
             </div>
 
             <div id="page-recipe" class="page">
@@ -302,7 +292,7 @@ html_template = f"""
             <div id="page-detail" class="page">
                 <button class="back-btn" onclick="switchPage('market')">[返回列表]</button>
                 <div class="detail-wrapper">
-                    <div class="detail-hero"><img id="dt-img" src="" onerror="handleImgError(this, document.getElementById('dt-name').innerText)"></div>
+                    <div class="detail-hero"><img id="dt-img" src="" onerror="this.onerror=null;this.src='{FALLBACK_IMG}';"></div>
                     <div class="detail-info">
                         <h1 id="dt-name" style="margin:0; font-size:1.8rem;"></h1>
                         <div style="margin:10px 0;">
@@ -340,9 +330,9 @@ html_template = f"""
         </div>
 
         <div class="bottom-nav mobile-only">
-            <button class="nav-item active" id="mb-nav-market" onclick="switchPage('market')">首頁</button>
-            <button class="nav-item" id="mb-nav-recipe" onclick="switchPage('recipe')">食譜</button>
-            <button class="nav-item" onclick="openModal('cart')">購物車(<span class="cart-count-num">0</span>)</button>
+            <button class="nav-item active" id="mb-nav-market" onclick="switchPage('market')"><span class="nav-icon">🥦</span>首頁</button>
+            <button class="nav-item" id="mb-nav-recipe" onclick="switchPage('recipe')"><span class="nav-icon">👨‍🍳</span>食譜</button>
+            <button class="nav-item" onclick="openModal('cart')"><span class="nav-icon">🛒<span class="cart-count-num" style="font-size:0.8rem; color:#d9534f; vertical-align:top;">0</span></span>購物車</button>
         </div>
 
     </div>
@@ -378,7 +368,7 @@ html_template = f"""
                 <div class="form-group" style="margin-top:15px;"><label class="form-label">步驟</label><div class="add-row"><input type="text" id="new-step-input" class="form-input" placeholder="輸入步驟..."><button class="add-btn-small" onclick="addNewStep()">加入</button></div><div id="new-step-list" style="background:#f9f9f9; padding:10px; border-radius:8px; min-height:50px;"></div></div>
             </div>
             <div style="margin-top:10px; border-top:1px solid #eee; padding-top:10px;">
-                <button class="ai-magic-btn" onclick="autoGenerateRichRecipe()">[推薦做法]</button>
+                <button class="ai-magic-btn" onclick="autoGenerateRichRecipe()">[AI 自動生成食譜]</button>
                 <button class="btn btn-primary" onclick="saveCustomRecipe()">[發布食譜]</button>
             </div>
         </div>
@@ -387,62 +377,7 @@ html_template = f"""
     <script>
         function getFutureDate(d) {{ const date = new Date(); date.setDate(date.getDate()+d); return date.toISOString().split('T')[0]; }}
 
-        // ==========================================
-        // 👇 核心功能：智慧網圖對照表 (當本地圖片缺漏時，自動使用這些高品質網圖)
-        // ==========================================
-        const fallbackImages = {{
-            // 水果
-            "蘋果": "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=400",
-            "香蕉": "https://images.unsplash.com/photo-1571771896612-61871f015852?w=400",
-            "柳橙": "https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?w=400",
-            "鳳梨": "https://images.unsplash.com/photo-1550258987-190a2d41a8ba?w=400",
-            // 蔬菜
-            "高麗菜": "https://images.unsplash.com/photo-1623341214825-9f4f963727da?w=400",
-            "番茄": "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400",
-            "洋蔥": "https://images.unsplash.com/photo-1618512496248-a07fe83aa829?w=400",
-            "地瓜": "https://images.unsplash.com/photo-1596097635121-14b63b7a0c19?w=400",
-            "菠菜": "https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400",
-            "胡蘿蔔": "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=400",
-            "花椰菜": "https://images.unsplash.com/photo-1568584711075-3d021a7c3d54?w=400",
-            "甜玉米": "https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=400",
-            "彩椒": "https://images.unsplash.com/photo-1563565375-f3fdf5ecfae9?w=400",
-            "馬鈴薯": "https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400",
-            // 菇類、肉品、海鮮
-            "鮮香菇": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400",
-            "豬肉": "https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=400",
-            "牛肉": "https://images.unsplash.com/photo-1613482184648-47399b2df699?w=400",
-            "鮭魚切片": "https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?w=400",
-            "雞胸肉": "https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=400",
-            "酪梨": "https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?w=400",
-            // 食譜成品
-            "綜合蔬果沙拉": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400",
-            "番茄炒高麗菜": "https://images.unsplash.com/photo-1604908177621-8df805a94205?w=400",
-            "蜂蜜烤地瓜": "https://images.unsplash.com/photo-1596097635121-14b63b7a0c19?w=400",
-            "鳳梨蘋果汁": "https://images.unsplash.com/photo-1622597467836-165240775807?w=400",
-            "香蕉柳橙冰沙": "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400",
-            "義式烤蔬菜": "https://images.unsplash.com/photo-1565895405139-e188df996e0b?w=400",
-            "奶油酪梨雞胸肉佐蒜香地瓜葉": "https://images.unsplash.com/photo-1606756790138-7c48643e2912?w=400",
-            // 預設萬用圖
-            "default": "{FALLBACK_IMG}",
-            "banner": "https://images.unsplash.com/photo-1542838132-92c53300491e?w=1200&h=400&fit=crop"
-        }};
-
-        function handleImgError(imgElement, itemName) {{
-            imgElement.onerror = null; 
-            let fallbackUrl = fallbackImages[itemName];
-            if (!fallbackUrl) {{
-                for (const key in fallbackImages) {{
-                    if (itemName.includes(key) && key !== "default" && key !== "banner") {{
-                        fallbackUrl = fallbackImages[key];
-                        break;
-                    }}
-                }}
-            }}
-            imgElement.src = fallbackUrl || fallbackImages["default"];
-        }}
-        // ==========================================
-
-
+        // --- 資料庫 ---
         const products = [
             {{ id: "P1", name: "蘋果", price: 139, img: "images/蘋果.jpg", cat: "水果", origin: "美國", storage: "冷藏", date: getFutureDate(6), condition: "良好" }},
             {{ id: "P2", name: "香蕉", price: 80, img: "images/香蕉.jpg", cat: "水果", origin: "台灣", storage: "常溫", date: getFutureDate(3), condition: "破損" }},
@@ -468,9 +403,9 @@ html_template = f"""
             {{ id: "R1", name: "綜合蔬果沙拉", cal: 220, img: "images/綜合蔬果沙拉.jpg", steps: ["所有食材洗淨切塊", "加入橄欖油與鹽拌勻"], ingredients: ["蘋果", "番茄", "洋蔥"] }},
             {{ id: "R2", name: "番茄炒高麗菜", cal: 180, img: "images/番茄炒高麗菜.jpg", steps: ["熱鍋爆香", "加入番茄炒軟", "加入高麗菜炒熟"], ingredients: ["番茄", "高麗菜"] }},
             {{ id: "R3", name: "蜂蜜烤地瓜", cal: 250, img: "images/蜂蜜烤地瓜.jpg", steps: ["洗淨", "200度烤40分鐘"], ingredients: ["地瓜"] }},
-            {{ id: "R4", name: "鳳梨蘋果汁", cal: 150, img: "images/鳳梨蘋果汁.jpg", steps: ["切塊", "加水打成汁"], ingredients: ["鳳梨", "蘋果"] }},
-            {{ id: "R5", name: "香蕉柳橙冰沙", cal: 180, img: "images/香蕉柳橙冰沙.jpg", steps: ["加冰塊", "打成冰沙"], ingredients: ["香蕉", "柳橙"] }},
-            {{ id: "R6", name: "義式烤蔬菜", cal: 200, img: "images/義式烤蔬菜.jpg", steps: ["切塊", "撒上香料烤熟"], ingredients: ["胡蘿蔔", "洋蔥"] }},
+            { id: "R4", name: "鳳梨蘋果汁", cal: 150, img: "images/鳳梨蘋果汁.jpg", steps: ["切塊", "加水打成汁"], ingredients: ["鳳梨", "蘋果"] }},
+            { id: "R5", name: "香蕉柳橙冰沙", cal: 180, img: "images/香蕉柳橙冰沙.jpg", steps: ["加冰塊", "打成冰沙"], ingredients: ["香蕉", "柳橙"] }},
+            { id: "R6", name: "義式烤蔬菜", cal: 200, img: "images/義式烤蔬菜.jpg", steps: ["切塊", "撒上香料烤熟"], ingredients: ["胡蘿蔔", "洋蔥"] }},
             {{
                 id: "Hidden1", name: "奶油酪梨雞胸肉佐蒜香地瓜葉", cal: 450, img: "images/奶油酪梨雞胸肉佐蒜香地瓜葉.jpg", hidden: true,
                 ingredients: ["雞胸肉 (250g)", "酪梨 1 顆", "地瓜葉 1 把", "牛奶/豆漿 100ml", "洋蔥 1/4 顆", "蒜頭 3-4 瓣"],
@@ -486,7 +421,6 @@ html_template = f"""
         function init() {{
             const defaultRecipes = allRecipes.filter(r => !r.hidden);
             renderRecipes(defaultRecipes);
-            renderProducts(products);
         }}
 
         function goToLogin() {{
@@ -506,10 +440,11 @@ html_template = f"""
                 let badgeClass = p.condition === '良好' ? 'status-good' : 'status-bad';
                 let badgeText = p.condition === '良好' ? '[狀態: 良好]' : '[狀態: 破損]';
                 
+                // 圖片使用 onerror 處理破圖
                 return `
                 <div class="card">
                     <div class="card-top-click" onclick="showDetail('${{p.id}}')">
-                        <img src="${{p.img}}" class="card-img" onerror="handleImgError(this, '${{p.name}}')">
+                        <img src="${{p.img}}" class="card-img" onerror="this.onerror=null;this.src='{FALLBACK_IMG}';">
                         <div class="card-body">
                             <div class="card-title">${{p.name}}</div>
                             <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -536,7 +471,7 @@ html_template = f"""
                 id: "Auto" + Date.now(),
                 name: "特製" + name + "料理",
                 cal: 300,
-                img: "images/" + name + ".jpg",
+                img: "images/" + name + ".jpg", // 預設使用本地路徑
                 ingredients: [name, "鹽", "油"],
                 steps: ["將" + name + "洗淨切好", "大火快炒", "調味後起鍋"]
             }};
@@ -571,10 +506,10 @@ html_template = f"""
             if(!list || list.length===0) {{ document.getElementById('grid-recipes').innerHTML = '<div style="text-align:center; color:#999; grid-column:1/-1; padding:20px;">找不到食譜... 試試「酪梨」？</div>'; return; }}
             document.getElementById('grid-recipes').innerHTML = list.map(r => `
                 <div class="card" onclick="showStep('${{r.id}}')">
-                    <img src="${{r.img}}" class="card-img" onerror="handleImgError(this, '${{r.name}}')">
+                    <img src="${{r.img}}" class="card-img" onerror="this.onerror=null;this.src='{FALLBACK_IMG}';">
                     <div class="card-body">
                         <div class="card-title">${{r.name}}</div>
-                        <div style="color:#666; font-size:0.9rem;">[熱量]: ${{r.cal}} kcal</div>
+                        <div style="color:#666; font-size:0.9rem;">🔥 ${{r.cal}} kcal</div>
                         <button class="btn-outline-sm btn-card-action" style="margin-top:10px;">查看做法</button>
                     </div>
                 </div>`).join('');
@@ -675,8 +610,8 @@ html_template = f"""
         function showStep(rid) {{
             const r = allRecipes.find(x => x.id === rid);
             document.getElementById('step-title').innerText = r.name;
-            let html = '<h4>[食材清單]</h4><ul class="ing-list">' + (r.ingredients?r.ingredients.map(i=>`<li>${{i}}</li>`).join(''):'<li>無資料</li>') + '</ul>';
-            html += '<h4>[料理步驟]</h4><ol class="step-list">' + (r.steps?r.steps.map(s=>`<li>${{s}}</li>`).join(''):'<li>無資料</li>') + '</ol>';
+            let html = '<h4>🍽 食材</h4><ul class="ing-list">' + (r.ingredients?r.ingredients.map(i=>`<li>${{i}}</li>`).join(''):'<li>無資料</li>') + '</ul>';
+            html += '<h4>👩‍🍳 步驟</h4><ol class="step-list">' + (r.steps?r.steps.map(s=>`<li>${{s}}</li>`).join(''):'<li>無資料</li>') + '</ol>';
             document.getElementById('step-body').innerHTML = html;
             openModal('step');
         }}
@@ -715,7 +650,9 @@ html_template = f"""
             document.getElementById('new-step-list').innerHTML = tempSteps.length ? tempSteps.map((s, i) => `<div style="border-bottom:1px dashed #ddd; padding:5px 0; display:flex; justify-content:space-between;"><span>${{i+1}}. ${{s}}</span><span onclick="tempSteps.splice(${{i}},1);updateCustomPreview()" style="color:red;cursor:pointer;">[刪除]</span></div>`).join('') : '無步驟';
         }}
         
+        // --- 智慧 AI 食譜生成 (連續隨機 + 隱藏菜單判斷) ---
         function autoGenerateRichRecipe() {{
+            // 1. 先檢查隱藏觸發 (酪梨 + 雞胸肉)
             const hasAvocado = tempIngredients.some(i => i.includes("酪梨"));
             const hasChicken = tempIngredients.some(i => i.includes("雞胸肉") || i.includes("雞肉"));
 
@@ -730,13 +667,17 @@ html_template = f"""
                     "放回雞肉煨煮 1-2 分鐘即可。",
                     "另起鍋爆香蒜片，快炒地瓜葉，加鹽調味。"
                 ];
+                
                 if(!tempIngredients.includes("牛奶")) tempIngredients.push("牛奶");
                 if(!tempIngredients.includes("洋蔥")) tempIngredients.push("洋蔥");
                 if(!tempIngredients.includes("蒜頭")) tempIngredients.push("蒜頭");
+                
                 updateCustomPreview();
+                // 移除 Emoji
                 return;
             }}
 
+            // 2. 正常 AI 隨機生成
             if (tempIngredients.length === 0) {{
                 alert("請先選擇至少一種食材！");
                 return;
@@ -791,8 +732,13 @@ html_template = f"""
 
             document.getElementById('new-r-name').value = randomTemplate.getName(mainIng);
             document.getElementById('new-r-cal').value = Math.floor(Math.random() * 400) + 200; 
+            
             tempSteps = randomTemplate.getSteps(mainIng);
-            randomTemplate.extraIng.forEach(ing => {{ if(!tempIngredients.includes(ing)) tempIngredients.push(ing); }});
+            
+            randomTemplate.extraIng.forEach(ing => {{
+                if(!tempIngredients.includes(ing)) tempIngredients.push(ing);
+            }});
+
             updateCustomPreview();
         }}
 
@@ -803,11 +749,14 @@ html_template = f"""
             const hasChicken = name.includes("雞胸肉") || tempIngredients.some(i => i.includes("雞胸肉"));
             
             if (hasAvocado && hasChicken) {{
+                // 移除 Emoji
                 const unlocked = {{ ...allRecipes.find(r => r.id === "Hidden1"), id: "Unlocked_" + Date.now(), hidden: false }};
                 allRecipes.unshift(unlocked); 
+                
                 closeModal('create'); 
                 document.getElementById('recipe-search').value = ''; 
                 renderRecipes(allRecipes.filter(r => !r.hidden)); 
+                
                 alert("[發布成功！]");
                 return;
             }}
@@ -823,6 +772,7 @@ html_template = f"""
                 ingredients: [...tempIngredients]
             }});
             
+            // 移除 Emoji
             alert("[發布成功！]"); closeModal('create'); document.getElementById('recipe-search').value = ''; renderRecipes(allRecipes.filter(r => !r.hidden));
         }}
 
