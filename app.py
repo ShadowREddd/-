@@ -2,13 +2,13 @@ import streamlit as st
 import streamlit.components.v1 as components
 
 # ==========================================
-# 👇 您的 GitHub 資訊
+# 👇 您的 GitHub 資訊 (請確認這裡填寫正確，圖片才能顯示)
 # ==========================================
 GITHUB_USER = "ShadowREddd"   
 REPO_NAME = "-"     
 BRANCH_NAME = "main"            
 
-# 指向根目錄
+# 指向根目錄 (這行會把 html 裡的 images/ 替換成您的 GitHub 原圖連結)
 BASE_URL = f"https://raw.githubusercontent.com/{GITHUB_USER}/{REPO_NAME}/{BRANCH_NAME}/"
 # ==========================================
 
@@ -61,7 +61,7 @@ html_template = """
             padding: 20px; animation: fadeIn 0.5s;
         }
         .login-card { width: 100%; max-width: 400px; text-align: center; }
-        .login-logo { width: 100px; margin-bottom: 20px; }
+        .login-logo { width: 120px; margin-bottom: 20px; }
         .login-title { font-size: 1.8rem; margin-bottom: 30px; color: #333; }
         .login-input { width: 100%; padding: 15px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 10px; font-size: 1rem; background: #f9f9f9; }
         .login-btn { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
@@ -106,7 +106,7 @@ html_template = """
         .cat-btn { white-space: nowrap; padding: 8px 16px; border-radius: 20px; border: 1px solid #ddd; background: white; color: #666; cursor: pointer; }
         .cat-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* 網格 & 卡片 */
+        /* 網格 & 卡片 (點擊修復) */
         .grid { display: grid; gap: 15px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
         
         .card { 
@@ -182,7 +182,7 @@ html_template = """
         .close-modal-btn { cursor:pointer; font-size:1rem; font-weight: bold; color: #999; }
 
         /* Chat & Admin & Form */
-        .chat-fab { position: fixed; bottom: 80px; right: 20px; z-index: 5500; width: 60px; height: 60px; border-radius: 50%; background: #2c3e50; color: white; border: none; font-size: 1.8rem; cursor: pointer; }
+        .chat-fab { position: fixed; bottom: 80px; right: 20px; z-index: 5500; width: auto; height: auto; padding: 12px 20px; border-radius: 30px; background: #2c3e50; color: white; border: none; font-size: 1rem; cursor: pointer; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
         @media (min-width: 768px) { .chat-fab { bottom: 30px; right: 30px; } }
         #chat-widget { display: none; position: fixed; bottom: 150px; right: 20px; width: 320px; height: 450px; background: #fff; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.2); z-index: 5600; flex-direction: column; }
         @media (min-width: 768px) { #chat-widget { bottom: 100px; right: 30px; } }
@@ -213,7 +213,7 @@ html_template = """
         .tag { background: #eee; padding: 4px 10px; border-radius: 15px; font-size: 0.85rem; color: #666; }
         .mobile-top-bar { display: flex; align-items: center; padding: 10px 5px; margin-bottom: 10px; }
         .qty-btn { width: 30px; height: 30px; border-radius: 50%; border: 1px solid #ddd; background: white; font-weight: bold; cursor: pointer; display:flex; align-items:center; justify-content:center;}
-        .del-btn { color: #d9534f; background: none; border: none; cursor: pointer; font-size: 1.2rem; margin-left: 5px; }
+        .del-btn { color: #d9534f; background: none; border: none; cursor: pointer; font-size: 0.9rem; margin-left: 5px; font-weight: bold; }
         
         .ai-magic-btn {
             width: 100%; padding: 12px; margin-bottom: 15px;
@@ -369,7 +369,7 @@ html_template = """
                 <div class="form-group" style="margin-top:15px;"><label class="form-label">步驟</label><div class="add-row"><input type="text" id="new-step-input" class="form-input" placeholder="輸入步驟..."><button class="add-btn-small" onclick="addNewStep()">加入</button></div><div id="new-step-list" style="background:#f9f9f9; padding:10px; border-radius:8px; min-height:50px;"></div></div>
             </div>
             <div style="margin-top:10px; border-top:1px solid #eee; padding-top:10px;">
-                <button class="ai-magic-btn" onclick="autoGenerateRichRecipe()">[AI 自動生成食譜]</button>
+                <button class="ai-magic-btn" onclick="autoGenerateRichRecipe()">[推薦做法]</button>
                 <button class="btn btn-primary" onclick="saveCustomRecipe()">[發布食譜]</button>
             </div>
         </div>
@@ -378,6 +378,7 @@ html_template = """
     <script>
         function getFutureDate(d) { const date = new Date(); date.setDate(date.getDate()+d); return date.toISOString().split('T')[0]; }
 
+        // --- 資料庫 (已全改回 images/ 路徑) ---
         const products = [
             { id: "P1", name: "蘋果", price: 139, img: "images/蘋果.jpg", cat: "水果", origin: "美國", storage: "冷藏", date: getFutureDate(6), condition: "良好" },
             { id: "P2", name: "香蕉", price: 80, img: "images/香蕉.jpg", cat: "水果", origin: "台灣", storage: "常溫", date: getFutureDate(3), condition: "破損" },
@@ -443,8 +444,8 @@ html_template = """
                 
                 // *** 核心修復：onclick 綁定在最外層 div，按鈕區阻止冒泡 ***
                 return `
-                <div class="card" onclick="showDetail('${p.id}')">
-                    <div class="card-top-click">
+                <div class="card">
+                    <div class="card-top-click" onclick="showDetail('${p.id}')">
                         <img src="${p.img}" class="card-img">
                         <div class="card-body">
                             <div class="card-title">${p.name}</div>
@@ -472,7 +473,7 @@ html_template = """
                 id: "Auto" + Date.now(),
                 name: "特製" + name + "料理",
                 cal: 300,
-                img: "https://via.placeholder.com/300?text=" + name,
+                img: "images/" + name + ".jpg", // 假設圖片存在，或使用預設
                 ingredients: [name, "鹽", "油"],
                 steps: ["將" + name + "洗淨切好", "大火快炒", "調味後起鍋"]
             };
@@ -772,7 +773,7 @@ html_template = """
             allRecipes.unshift({
                 id: "C"+Date.now(), 
                 name: name, 
-                img: "https://via.placeholder.com/300?text="+name, 
+                img: "images/" + name + ".jpg", 
                 cal: cal||0, 
                 steps: [...tempSteps], 
                 ingredients: [...tempIngredients]
@@ -791,5 +792,5 @@ html_template = """
 </html>
 """
 
-# 將 HTML 內容渲染到 Streamlit
-components.html(html_template, height=1200, scrolling=True)
+final_html = html_template.replace("images/", BASE_URL)
+components.html(final_html, height=1200, scrolling=True)
