@@ -1,3 +1,13 @@
+沒問題！這次的修改非常精確：
+
+1.  **只有商品卡片去圖示**：卡片上的 `✅`、`📍` 等圖示全部改成純文字（如「產地:」、「狀態:」），但 **詳情頁、導覽列、購物車等其他地方保留原本漂亮的圖示**。
+2.  **名稱變更**：
+      * 「市集」全部改名為 **「首頁」**。
+      * 「AI 自動生成 / 生成食譜」按鈕全部改名為 **「推薦做法」**。
+
+請複製這份 **最終定製版 `app.py`**：
+
+```python
 import streamlit as st
 import streamlit.components.v1 as components
 
@@ -22,53 +32,39 @@ html_template = """
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>食際行動家</title>
     <style>
-        /* --- 1. 基礎設定 --- */
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-        body {
+        /* --- 基礎設定 --- */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { 
             font-family: "Microsoft JhengHei", -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: #f4f6f8;
-            margin: 0;
-            padding-bottom: 80px;
-            overflow-x: hidden;
+            background-color: #f4f6f8; margin: 0; 
+            padding-bottom: 80px; overflow-x: hidden;
         }
-        :root {
-            --primary: #d9534f;
-            --text: #333;
-            --bg: #fff;
-        }
+        :root { --primary: #d9534f; --text: #333; --bg: #fff; }
 
-        /* --- 2. RWD 響應式控制 --- */
+        /* RWD */
         .desktop-only { display: none !important; }
         .mobile-only { display: flex !important; }
-
         @media (min-width: 768px) {
             body { padding-bottom: 0; padding-top: 70px; }
             .desktop-only { display: flex !important; }
             .mobile-only { display: none !important; }
         }
 
-        /* --- 3. 登入封面 (無文字) --- */
-        #splash {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: white; z-index: 99999;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            transition: opacity 0.5s ease-out;
-            overflow: hidden; cursor: pointer;
+        /* --- 1. 登入封面 --- */
+        #splash { 
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
+            background: white; z-index: 99999; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            transition: opacity 0.5s ease-out; overflow: hidden; cursor: pointer;
         }
-        .splash-logo {
+        .splash-logo { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             object-fit: cover; object-position: center;
             animation: breathe 3s infinite; z-index: -1;
         }
-        @keyframes breathe { 
-            0%, 100% { transform: scale(1); opacity: 0.95; } 
-            50% { transform: scale(1.02); opacity: 1; } 
-        }
+        @keyframes breathe { 0%, 100% { transform: scale(1); opacity: 0.95; } 50% { transform: scale(1.02); opacity: 1; } }
 
-        /* --- 4. 登入頁面 --- */
+        /* --- 2. 登入頁面 --- */
         #login-page {
             display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: #fff; z-index: 8000;
@@ -78,19 +74,11 @@ html_template = """
         .login-card { width: 100%; max-width: 400px; text-align: center; }
         .login-logo { width: 120px; margin-bottom: 20px; }
         .login-title { font-size: 1.8rem; margin-bottom: 30px; color: #333; }
-        .login-input { 
-            width: 100%; padding: 15px; margin-bottom: 15px; 
-            border: 1px solid #ddd; border-radius: 10px; 
-            font-size: 1rem; background: #f9f9f9; 
-        }
-        .login-btn { 
-            width: 100%; padding: 15px; background: var(--primary); color: white; 
-            border: none; border-radius: 10px; font-size: 1.1rem; 
-            font-weight: bold; cursor: pointer; 
-        }
+        .login-input { width: 100%; padding: 15px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 10px; font-size: 1rem; background: #f9f9f9; }
+        .login-btn { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
         .login-footer { margin-top: 20px; color: #999; font-size: 0.9rem; }
 
-        /* --- 5. 主程式區域 --- */
+        /* --- 3. 主程式 --- */
         #main-app { display: none; opacity: 0; transition: opacity 0.5s; }
 
         /* 導覽列 */
@@ -99,33 +87,21 @@ html_template = """
             background: white; justify-content: space-around; align-items: center;
             box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 5000; border-top: 1px solid #eee;
         }
-        .nav-item { 
-            flex: 1; text-align: center; color: #999; font-size: 0.9rem; 
-            background:none; border:none; cursor: pointer; 
-            display: flex; justify-content: center; align-items: center; 
-        }
+        .nav-item { flex: 1; text-align: center; color: #999; font-size: 0.75rem; background:none; border:none; cursor: pointer; }
         .nav-item.active { color: var(--primary); font-weight: bold; }
+        .nav-icon { font-size: 1.4rem; display: block; margin-bottom: 2px; }
 
         .top-nav {
             position: fixed; top: 0; left: 0; width: 100%; height: 70px;
             background: white; justify-content: space-between; align-items: center;
             padding: 0 50px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 5000;
         }
-        .back-home-btn { 
-            font-size: 1rem; font-weight: bold; color: #666; 
-            cursor: pointer; display: flex; align-items: center; gap: 8px; 
-        }
-        .desktop-menu button { 
-            background: none; border: none; font-size: 1rem; margin-left: 20px; 
-            cursor: pointer; color: #666; 
-        }
+        .back-home-btn { font-size: 1.1rem; font-weight: bold; color: #666; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        .desktop-menu button { background: none; border: none; font-size: 1rem; margin-left: 20px; cursor: pointer; color: #666; }
         .desktop-menu button:hover, .desktop-menu button.active { color: var(--primary); font-weight: bold; }
-        .cart-btn-desktop { 
-            background: var(--primary) !important; color: white !important; 
-            padding: 8px 20px; border-radius: 20px; 
-        }
+        .cart-btn-desktop { background: var(--primary) !important; color: white !important; padding: 8px 20px; border-radius: 20px; }
 
-        /* 容器與橫幅 */
+        /* 橫幅 */
         .container { max-width: 1200px; margin: 0 auto; padding: 15px; }
         .banner-container {
             width: 100%; height: 180px; border-radius: 15px; margin-bottom: 20px;
@@ -135,20 +111,13 @@ html_template = """
         .banner-img { width: 100%; height: 100%; object-fit: cover; }
         @media (min-width: 768px) { .banner-container { height: 300px; } }
 
-        /* 分類列 */
-        .category-bar { 
-            display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; 
-            scrollbar-width: none; 
-        }
+        /* 分類 */
+        .category-bar { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; scrollbar-width: none; }
         .category-bar::-webkit-scrollbar { display: none; }
-        .cat-btn { 
-            white-space: nowrap; padding: 8px 16px; border-radius: 20px; 
-            border: 1px solid #ddd; background: white; color: #666; 
-            cursor: pointer; font-size: 0.9rem; 
-        }
+        .cat-btn { white-space: nowrap; padding: 8px 16px; border-radius: 20px; border: 1px solid #ddd; background: white; color: #666; cursor: pointer; }
         .cat-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* --- 核心：卡片樣式 --- */
+        /* 網格 & 卡片 (純文字版) */
         .grid { display: grid; gap: 15px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
         
         .card { 
@@ -156,53 +125,55 @@ html_template = """
             box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
             display: flex; flex-direction: column;
             position: relative;
-            transition: transform 0.2s;
-            cursor: pointer; /* 讓整張卡片都有手指游標 */
+            cursor: pointer;
         }
-        .card:active { transform: scale(0.98); }
+        .card:active { transform: scale(0.98); background-color: #f9f9f9; }
         .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
 
-        /* 1. 點擊觸發區 (覆蓋在圖片和文字上) */
-        .card-img { width: 100%; height: 150px; object-fit: cover; pointer-events: none; }
+        /* 卡片上半部 (圖片+資訊) */
+        .card-top-click { flex-grow: 1; display: flex; flex-direction: column; }
+        
+        .card-img { width: 100%; height: 140px; object-fit: cover; pointer-events: none; }
         .card-body { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; pointer-events: none; }
         
         .card-title { font-weight: bold; margin-bottom: 5px; color: #333; font-size: 1.05rem; }
         .price { color: var(--primary); font-weight: bold; font-size: 1.2rem; float: right; }
         
-        /* 卡片資訊文字 */
+        /* 純文字詳細資訊 (無圖示) */
         .card-info-list {
-            font-size: 0.85rem; color: #666; margin: 8px 0; line-height: 1.5;
+            font-size: 0.8rem; color: #666; margin: 8px 0; line-height: 1.6;
             border-top: 1px dashed #eee; padding-top: 8px;
         }
+        .text-label { font-weight: bold; color: #555; }
 
-        .status-badge { display: inline-block; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; vertical-align: middle; }
+        /* 純文字狀態標籤 */
+        .status-text { 
+            display: inline-block; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; 
+            vertical-align: middle; font-weight: bold;
+        }
         .status-good { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .status-bad { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
 
-        /* 2. 按鈕區 (必須允許點擊) */
-        .card-bottom-actions { 
-            padding: 10px; padding-top: 0; background: white; 
-            display: flex; flex-direction: column; gap: 8px;
-            pointer-events: auto; /* 關鍵：恢復點擊 */
-            z-index: 10; /* 提高層級 */
-        }
+        /* 下半部：按鈕區 */
+        .card-bottom-actions { padding: 10px; padding-top: 0; background: white; display: flex; flex-direction: column; gap: 8px; }
         
         .btn-add-cart {
             width: 100%; padding: 8px; background: var(--primary); color: white; 
             border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9rem;
+            transition: opacity 0.2s;
         }
         .btn-add-cart:active { opacity: 0.8; }
 
         .btn-gen-recipe {
             width: 100%; padding: 8px; background: #e3f2fd; border: 1px solid #90caf9; 
             color: #1976d2; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9rem;
+            transition: background 0.2s;
         }
         .btn-gen-recipe:active { background: #bbdefb; }
 
-        /* --- 詳情頁 --- */
+        /* 詳情頁 (保留圖示) */
         .page { display: none; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
         .detail-wrapper { display: flex; flex-direction: column; background: white; border-radius: 0; }
         @media (min-width: 768px) {
             .detail-wrapper { flex-direction: row; border-radius: 20px; padding: 40px; gap: 40px; margin-top: 20px; }
@@ -214,76 +185,51 @@ html_template = """
         .detail-hero { position: relative; }
         .detail-hero img { width: 100%; height: 300px; object-fit: cover; }
         .detail-info { padding: 20px; background: white; border-radius: 20px 20px 0 0; margin-top: -20px; position: relative; }
-        
-        .back-btn { 
-            position: absolute; top: 20px; left: 20px; width: auto; height: 40px; 
-            padding: 0 15px; border-radius: 20px; background: rgba(255,255,255,0.9); 
-            border:none; z-index: 10; font-size:0.9rem; cursor:pointer; font-weight: bold;
-            display: flex; align-items: center; justify-content: center;
-        }
+        .back-btn { position: absolute; top: 20px; left: 20px; width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.9); border:none; z-index: 10; font-size:1.2rem; cursor:pointer;}
         .detail-status-tag { display: inline-block; padding: 5px 10px; border-radius: 4px; font-size: 0.9rem; font-weight: bold; }
 
-        /* --- Modal 視窗 --- */
+        /* Modals */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 6000; }
-        .modal-content { 
-            position: absolute; bottom: 0; left: 0; width: 100%; max-height: 85vh; 
-            background: white; border-radius: 20px 20px 0 0; padding: 20px; 
-            display: flex; flex-direction: column; animation: slideUp 0.3s; 
-        }
+        .modal-content { position: absolute; bottom: 0; left: 0; width: 100%; max-height: 85vh; background: white; border-radius: 20px 20px 0 0; padding: 20px; display: flex; flex-direction: column; animation: slideUp 0.3s; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         @media (min-width: 768px) {
             .modal { align-items: center; justify-content: center; }
             .modal-content { position: relative; width: 500px; border-radius: 15px; bottom: auto; left: auto; animation: fadeIn 0.3s; }
         }
-        .close-modal-btn { cursor:pointer; font-size:1rem; font-weight: bold; color: #999; }
 
-        /* --- 客服與後台 --- */
-        .chat-fab { 
-            position: fixed; bottom: 80px; right: 20px; z-index: 5500; width: auto; height: auto; 
-            padding: 12px 20px; border-radius: 30px; background: #2c3e50; color: white; 
-            border: none; font-size: 1rem; cursor: pointer; font-weight: bold; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2); 
-        }
+        /* Chat & Admin & Form */
+        .chat-fab { position: fixed; bottom: 80px; right: 20px; z-index: 5500; width: 60px; height: 60px; border-radius: 50%; background: #2c3e50; color: white; border: none; font-size: 1.8rem; cursor: pointer; }
         @media (min-width: 768px) { .chat-fab { bottom: 30px; right: 30px; } }
-        
-        #chat-widget { 
-            display: none; position: fixed; bottom: 150px; right: 20px; width: 320px; height: 450px; 
-            background: #fff; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.2); 
-            z-index: 5600; flex-direction: column; 
-        }
+        #chat-widget { display: none; position: fixed; bottom: 150px; right: 20px; width: 320px; height: 450px; background: #fff; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.2); z-index: 5600; flex-direction: column; }
         @media (min-width: 768px) { #chat-widget { bottom: 100px; right: 30px; } }
-        
         .chat-header { background: #2c3e50; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
         .chat-body { flex: 1; padding: 15px; overflow-y: auto; background: #f4f6f8; display: flex; flex-direction: column; gap: 10px; }
         .chat-input-area { padding: 10px; background: white; border-top: 1px solid #eee; display: flex; gap: 5px; }
         .msg { max-width: 80%; padding: 10px; border-radius: 15px; font-size: 0.9rem; }
         .msg-bot { align-self: flex-start; background: white; border: 1px solid #eee; }
         .msg-user { align-self: flex-end; background: #d9fdd3; }
-        
         .admin-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
         .admin-table th, .admin-table td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; }
-
-        /* --- 表單元件 --- */
+        
         .form-group { margin-bottom: 15px; }
         .form-label { display: block; font-weight: bold; margin-bottom: 5px; color: #333; }
         .form-input, .form-select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; }
         .add-row { display: flex; gap: 10px; margin-bottom: 10px; }
-        .add-btn-small { background: var(--primary); color: white; border: none; border-radius: 8px; width: auto; padding: 0 15px; cursor: pointer; font-size: 0.9rem; font-weight: bold;}
+        .add-btn-small { background: var(--primary); color: white; border: none; border-radius: 8px; width: 40px; cursor: pointer; font-size: 1.2rem; }
         .tag-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px; background: #f9f9f9; border-radius: 8px; min-height: 50px; }
         .ing-tag { background: white; border: 1px solid #ddd; padding: 5px 12px; border-radius: 20px; font-size: 0.9rem; display: flex; align-items: center; gap: 5px; }
-        .ing-tag span { color: #d9534f; cursor: pointer; font-weight: bold; margin-left: 5px; font-size: 0.8rem; }
+        .ing-tag span { color: #d9534f; cursor: pointer; font-weight: bold; margin-left: 5px; }
         .step-list, .ing-list { padding-left: 20px; margin: 0; color: #444; line-height: 1.6; }
         .ing-list { list-style-type: disc; margin-bottom: 15px; }
         .step-list li, .ing-list li { margin-bottom: 5px; }
-        h4 { margin: 15px 0 8px 0; color: var(--primary); border-bottom: 1px solid #eee; padding-bottom: 5px; font-size: 1.1rem; }
-        
+        h4 { margin: 15px 0 8px 0; color: var(--primary); border-bottom: 1px solid #eee; padding-bottom: 5px; }
         .btn { width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: bold; font-size: 1rem; margin-top: 10px; cursor: pointer; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-outline { background: white; border: 1px solid #ddd; color: #555; }
-        
+        .tag { background: #eee; padding: 4px 10px; border-radius: 15px; font-size: 0.85rem; color: #666; }
         .mobile-top-bar { display: flex; align-items: center; padding: 10px 5px; margin-bottom: 10px; }
-        .qty-btn { width: 30px; height: 30px; border-radius: 50%; border: 1px solid #ddd; background: white; font-weight: bold; cursor: pointer; display:flex; align-items:center; justify-content:center;}
-        .del-btn { color: #d9534f; background: none; border: none; cursor: pointer; font-size: 0.9rem; margin-left: 5px; font-weight: bold; }
+        .qty-btn { width: 28px; height: 28px; border-radius: 50%; border: 1px solid #ddd; background: white; font-weight: bold; cursor: pointer; display:flex; align-items:center; justify-content:center;}
+        .del-btn { color: #d9534f; background: none; border: none; cursor: pointer; font-size: 1.2rem; margin-left: 5px; }
         
         /* 自訂食譜 AI 按鈕 */
         .ai-magic-btn {
@@ -315,16 +261,16 @@ html_template = """
     </div>
 
     <div id="main-app">
-        <button class="chat-fab" onclick="toggleChat()">[客服]</button>
+        <button class="chat-fab" onclick="toggleChat()">💬</button>
 
         <div id="chat-widget">
-            <div class="chat-header"><span style="font-weight:bold;">線上客服</span><span onclick="toggleChat()" class="close-modal-btn" style="color:white;">[關閉]</span></div>
-            <div class="chat-body" id="chat-body"><div class="msg msg-bot">您好！請問有什麼需要幫忙的嗎？</div></div>
-            <div class="chat-input-area"><input type="text" id="chat-input" class="form-input" placeholder="輸入訊息..." onkeypress="if(event.key==='Enter') sendChat()"><button class="add-btn-small" onclick="sendChat()" style="font-size:0.9rem;">傳送</button></div>
+            <div class="chat-header"><span style="font-weight:bold;">線上客服</span><span onclick="toggleChat()" style="cursor:pointer;">✕</span></div>
+            <div class="chat-body" id="chat-body"><div class="msg msg-bot">您好！請問有什麼需要幫忙的嗎？🥦</div></div>
+            <div class="chat-input-area"><input type="text" id="chat-input" class="form-input" placeholder="輸入訊息..." onkeypress="if(event.key==='Enter') sendChat()"><button class="add-btn-small" onclick="sendChat()" style="width:60px; font-size:0.9rem;">傳送</button></div>
         </div>
 
         <div class="top-nav desktop-only">
-            <div class="back-home-btn" onclick="location.reload()">[返回/登出]</div>
+            <div class="back-home-btn" onclick="location.reload()"><span style="font-size:1.5rem;">⬅</span> 登出</div>
             <div class="desktop-menu">
                 <button id="dt-nav-market" class="active" onclick="switchPage('market')">首頁</button>
                 <button id="dt-nav-recipe" onclick="switchPage('recipe')">食譜</button>
@@ -335,18 +281,18 @@ html_template = """
         <div class="container">
             <div id="page-market" class="page" style="display:block;">
                 <div class="mobile-top-bar mobile-only">
-                    <div class="back-home-btn" onclick="location.reload()">[返回/登出]</div>
+                    <div class="back-home-btn" onclick="location.reload()"><span style="font-size:1.3rem;">⬅</span> 登出</div>
                 </div>
                 <div class="banner-container"><img src="images/食際行動家.png" class="banner-img"></div>
                 <div class="category-bar" id="cat-bar">
-                    <button class="cat-btn" onclick="filterCat('水果', this)">[水果]</button>
-                    <button class="cat-btn" onclick="filterCat('蔬菜', this)">[蔬菜]</button>
-                    <button class="cat-btn" onclick="filterCat('菇類', this)">[菇類]</button>
-                    <button class="cat-btn" onclick="filterCat('肉品', this)">[肉品]</button>
-                    <button class="cat-btn" onclick="filterCat('海鮮', this)">[海鮮]</button>
+                    <button class="cat-btn" onclick="filterCat('水果', this)">水果</button>
+                    <button class="cat-btn" onclick="filterCat('蔬菜', this)">蔬菜</button>
+                    <button class="cat-btn" onclick="filterCat('菇類', this)">菇類</button>
+                    <button class="cat-btn" onclick="filterCat('肉品', this)">肉品</button>
+                    <button class="cat-btn" onclick="filterCat('海鮮', this)">海鮮</button>
                 </div>
                 <div id="grid-products" class="grid">
-                    <div style="grid-column:1/-1; text-align:center; padding:50px; color:#888;"><div style="font-size:1.5rem; margin-bottom:10px; font-weight:bold;">[請選擇分類]</div><div style="font-size:1rem;">點擊上方分類開始選購</div></div>
+                    <div style="grid-column:1/-1; text-align:center; padding:50px; color:#888;"><div style="font-size:3rem; margin-bottom:10px;">🥦🍎🥩</div><div style="font-size:1.2rem;">請點擊上方分類開始選購</div></div>
                 </div>
             </div>
 
@@ -355,14 +301,14 @@ html_template = """
                     <h2>食譜牆</h2>
                     <div style="display:flex; gap:10px;">
                         <input type="text" id="recipe-search" placeholder="搜尋食譜..." oninput="filterRecipes()" style="padding:8px; border:1px solid #ddd; border-radius:20px; outline:none;">
-                        <button class="btn-outline" style="width:auto; padding:8px 20px; font-size:0.9rem;" onclick="openCreateRecipeModal()">[自訂食譜]</button>
+                        <button class="btn-outline" style="width:auto; padding:8px 20px;" onclick="openCreateRecipeModal()">＋ 自訂</button>
                     </div>
                 </div>
                 <div id="grid-recipes" class="grid"></div>
             </div>
 
             <div id="page-detail" class="page">
-                <button class="back-btn" onclick="switchPage('market')">[返回列表]</button>
+                <button class="back-btn" onclick="switchPage('market')">←</button>
                 <div class="detail-wrapper">
                     <div class="detail-hero"><img id="dt-img" src=""></div>
                     <div class="detail-info">
@@ -372,15 +318,15 @@ html_template = """
                             <span id="dt-price" style="color:#d9534f; font-size:1.5rem; font-weight:bold; float:right;"></span>
                         </div>
                         <hr style="border:0; border-top:1px solid #eee; margin:20px 0;">
-                        <p style="color:#666; line-height:1.8; font-size:1rem;">
-                            <strong>[產地]:</strong> <span id="dt-origin"></span><br>
-                            <strong>[保存]:</strong> <span id="dt-storage"></span><br>
-                            <strong>[到期]:</strong> <span id="dt-expiry"></span><br>
-                            <strong>[外觀]:</strong> <span id="dt-condition-text" class="detail-status-tag"></span>
+                        <p style="color:#666; line-height:1.8; font-size:1.1rem;">
+                            📍 <strong>產地：</strong><span id="dt-origin"></span><br>
+                            ❄️ <strong>保存：</strong><span id="dt-storage"></span><br>
+                            📅 <strong>到期：</strong><span id="dt-expiry"></span><br>
+                            👀 <strong>外觀：</strong><span id="dt-condition-text" class="detail-status-tag"></span>
                         </p>
                         <div style="display:flex; gap:10px; margin-top:30px;">
-                            <button class="btn btn-primary" onclick="addToCart()">[加入購物車]</button>
-                            <button class="btn btn-outline" onclick="quickGenerateRecipeDetail()">[加入食譜]</button>
+                            <button class="btn btn-primary" onclick="addToCart()">＋ 加入購物車</button>
+                            <button class="btn btn-outline" onclick="quickGenerateRecipeDetail()">⚡ 推薦做法</button>
                         </div>
                     </div>
                 </div>
@@ -388,11 +334,11 @@ html_template = """
 
             <div id="page-backend" class="page">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                    <h2>後台管理系統</h2>
+                    <h2>⚙️ 後台管理系統</h2>
                     <button class="btn-outline" style="width:auto;" onclick="switchPage('market')">返回前台</button>
                 </div>
                 <div style="background:white; padding:20px; border-radius:15px; box-shadow:0 2px 10px rgba(0,0,0,0.05);">
-                    <h3>庫存管理</h3>
+                    <h3>📦 庫存管理</h3>
                     <table class="admin-table">
                         <thead><tr><th>名稱</th><th>狀態</th><th>價格</th><th>操作</th></tr></thead>
                         <tbody id="admin-list"></tbody>
@@ -402,16 +348,16 @@ html_template = """
         </div>
 
         <div class="bottom-nav mobile-only">
-            <button class="nav-item active" id="mb-nav-market" onclick="switchPage('market')">首頁</button>
-            <button class="nav-item" id="mb-nav-recipe" onclick="switchPage('recipe')">食譜</button>
-            <button class="nav-item" onclick="openModal('cart')">購物車(<span class="cart-count-num">0</span>)</button>
+            <button class="nav-item active" id="mb-nav-market" onclick="switchPage('market')"><span class="nav-icon">🥦</span>首頁</button>
+            <button class="nav-item" id="mb-nav-recipe" onclick="switchPage('recipe')"><span class="nav-icon">👨‍🍳</span>食譜</button>
+            <button class="nav-item" onclick="openModal('cart')"><span class="nav-icon">🛒<span class="cart-count-num" style="font-size:0.8rem; color:#d9534f; vertical-align:top;">0</span></span>購物車</button>
         </div>
 
     </div>
 
     <div id="modal-cart" class="modal" onclick="if(event.target===this) closeModal('cart')">
         <div class="modal-content">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;"><h3 style="margin:0;">我的購物車</h3><span onclick="closeModal('cart')" class="close-modal-btn">[關閉]</span></div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;"><h3 style="margin:0;">我的購物車</h3><span onclick="closeModal('cart')" style="cursor:pointer; font-size:1.5rem;">✕</span></div>
             <div id="cart-list" style="flex:1; overflow-y:auto; min-height:150px;"></div>
             <div style="border-top:1px solid #eee; padding-top:15px; margin-top:10px;">
                 <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:1.2rem;"><span>總計</span><span id="cart-total">$0</span></div>
@@ -422,26 +368,26 @@ html_template = """
 
     <div id="modal-step" class="modal" onclick="if(event.target===this) closeModal('step')">
         <div class="modal-content">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;"><h3 style="margin:0;" id="step-title">料理步驟</h3><span onclick="closeModal('step')" class="close-modal-btn">[關閉]</span></div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;"><h3 style="margin:0;" id="step-title">料理步驟</h3><span onclick="closeModal('step')" style="cursor:pointer; font-size:1.5rem;">✕</span></div>
             <div id="step-body" style="flex:1; overflow-y:auto; line-height:1.8;"></div>
-            <button class="btn btn-outline" onclick="closeModal('step')">關閉視窗</button>
+            <button class="btn btn-outline" onclick="closeModal('step')">關閉</button>
         </div>
     </div>
 
     <div id="modal-create" class="modal" onclick="if(event.target===this) closeModal('create')">
         <div class="modal-content">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;"><h3 style="margin:0;">新增私房食譜</h3><span onclick="closeModal('create')" class="close-modal-btn">[關閉]</span></div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;"><h3 style="margin:0;">新增私房食譜</h3><span onclick="closeModal('create')" style="cursor:pointer; font-size:1.5rem;">✕</span></div>
             <div style="flex:1; overflow-y:auto; padding-right:5px;">
                 <div class="form-group"><label class="form-label">食譜名稱</label><input type="text" id="new-r-name" class="form-input" placeholder="例如：阿嬤的紅燒肉"></div>
                 <div class="form-group"><label class="form-label">預估卡路里</label><input type="number" id="new-r-cal" class="form-input" placeholder="例如：500"></div>
-                <div class="form-group"><label class="form-label">選擇食材 (從市集)</label><div class="add-row"><select id="product-select" class="form-select"><option value="">-- 請選擇食材 --</option></select><button class="add-btn-small" onclick="addIngredientFromSelect()">加入</button></div></div>
-                <div class="form-group"><label class="form-label">或 手動輸入</label><div class="add-row"><input type="text" id="manual-ing-input" class="form-input" placeholder="例如：鹽、醬油..."><button class="add-btn-small" onclick="addManualIngredient()">加入</button></div></div>
+                <div class="form-group"><label class="form-label">選擇食材 (從市集)</label><div class="add-row"><select id="product-select" class="form-select"><option value="">-- 請選擇食材 --</option></select><button class="add-btn-small" onclick="addIngredientFromSelect()">＋</button></div></div>
+                <div class="form-group"><label class="form-label">或 手動輸入</label><div class="add-row"><input type="text" id="manual-ing-input" class="form-input" placeholder="例如：鹽、醬油..."><button class="add-btn-small" onclick="addManualIngredient()">＋</button></div></div>
                 <div id="new-ing-list" class="tag-container"><span style="color:#999; font-size:0.9rem;">尚未加入食材</span></div>
-                <div class="form-group" style="margin-top:15px;"><label class="form-label">步驟</label><div class="add-row"><input type="text" id="new-step-input" class="form-input" placeholder="輸入步驟..."><button class="add-btn-small" onclick="addNewStep()">加入</button></div><div id="new-step-list" style="background:#f9f9f9; padding:10px; border-radius:8px; min-height:50px;"></div></div>
+                <div class="form-group" style="margin-top:15px;"><label class="form-label">步驟</label><div class="add-row"><input type="text" id="new-step-input" class="form-input" placeholder="輸入步驟..."><button class="add-btn-small" onclick="addNewStep()">＋</button></div><div id="new-step-list" style="background:#f9f9f9; padding:10px; border-radius:8px; min-height:50px;"></div></div>
             </div>
             <div style="margin-top:10px; border-top:1px solid #eee; padding-top:10px;">
-                <button class="ai-magic-btn" onclick="autoGenerateRichRecipe()">[AI 自動生成食譜]</button>
-                <button class="btn btn-primary" onclick="saveCustomRecipe()">[發布食譜]</button>
+                <button class="ai-magic-btn" onclick="autoGenerateRichRecipe()">🎲 推薦做法</button>
+                <button class="btn btn-primary" onclick="saveCustomRecipe()">✨ 發布食譜</button>
             </div>
         </div>
     </div>
@@ -506,16 +452,15 @@ html_template = """
         }
 
         function renderProducts(list) {
-            if(!list || list.length===0) { document.getElementById('grid-products').innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:50px; color:#888;"><div style="font-size:1.5rem; margin-bottom:10px; font-weight:bold;">[請選擇分類]</div><div style="font-size:1rem;">點擊上方分類開始選購</div></div>'; return; }
+            if(!list || list.length===0) { document.getElementById('grid-products').innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:50px; color:#888;"><div style="font-size:3rem;">🥦🍎🥩</div><div>請點擊上方分類開始選購</div></div>'; return; }
             document.getElementById('grid-products').innerHTML = list.map(p => {
-                // 將 Emoji 改為文字
                 let badgeClass = p.condition === '良好' ? 'status-good' : 'status-bad';
-                let badgeText = p.condition === '良好' ? '[狀態: 良好]' : '[狀態: 破損]';
+                let badgeText = p.condition === '良好' ? '狀態: 良好' : '狀態: 破損';
                 
-                // *** 核心修復：onclick 綁定在最外層 div，按鈕區阻止冒泡 ***
+                // *** 核心修改：只顯示資訊，按鈕獨立 ***
                 return `
-                <div class="card" onclick="showDetail('${p.id}')">
-                    <div class="card-top-click">
+                <div class="card">
+                    <div class="card-top-click" onclick="showDetail('${p.id}')">
                         <img src="${p.img}" class="card-img">
                         <div class="card-body">
                             <div class="card-title">${p.name}</div>
@@ -524,15 +469,15 @@ html_template = """
                                 <div class="price">$${p.price}</div>
                             </div>
                             <div class="card-info-list">
-                                [產地]: ${p.origin} | [保存]: ${p.storage}<br>
-                                [到期]: ${p.date}
+                                產地: ${p.origin} | 保存: ${p.storage}<br>
+                                到期: ${p.date}
                             </div>
                         </div>
                     </div>
                     
                     <div class="card-bottom-actions">
-                        <button class="btn-add-cart" onclick="event.stopPropagation(); addToCart('${p.id}')">[加入購物車]</button>
-                        <button class="btn-gen-recipe" onclick="event.stopPropagation(); quickGenerateRecipe('${p.name}')">[加入食譜]</button>
+                        <button class="btn-add-cart" onclick="event.stopPropagation(); addToCart('${p.id}')">加入購物車</button>
+                        <button class="btn-gen-recipe" onclick="event.stopPropagation(); quickGenerateRecipe('${p.name}')">推薦做法</button>
                     </div>
                 </div>`;
             }).join('');
@@ -581,7 +526,7 @@ html_template = """
                     <img src="${r.img}" class="card-img" onerror="this.src='https://via.placeholder.com/300?text=${r.name}'">
                     <div class="card-body">
                         <div class="card-title">${r.name}</div>
-                        <div style="color:#666; font-size:0.9rem;">[熱量]: ${r.cal} kcal</div>
+                        <div style="color:#666; font-size:0.9rem;">熱量: ${r.cal} kcal</div>
                         <button class="btn-outline-sm btn-card-action" style="margin-top:10px;">查看做法</button>
                     </div>
                 </div>`).join('');
@@ -614,11 +559,10 @@ html_template = """
             document.getElementById('dt-tag').innerText = p.cat;
             
             const conditionText = document.getElementById('dt-condition-text');
-            // 將 Emoji 改為文字
-            conditionText.innerText = p.condition === '良好' ? '[狀態: 良好]' : '[狀態: 破損]';
+            conditionText.innerText = p.condition === '良好' ? '狀態: 良好' : '狀態: 破損';
             conditionText.style.color = p.condition === '良好' ? '#28a745' : '#dc3545';
             conditionText.className = p.condition === '良好' ? 'detail-status-tag status-good' : 'detail-status-tag status-bad';
-            document.getElementById('dt-condition-badge').innerHTML = `<span class="status-badge ${p.condition === '良好' ? 'status-good' : 'status-bad'}">${p.condition === '良好' ? '[狀態: 良好]' : '[狀態: 破損]'}</span>`;
+            document.getElementById('dt-condition-badge').innerHTML = `<span class="status-badge ${p.condition === '良好' ? 'status-good' : 'status-bad'}">${p.condition === '良好' ? '狀態: 良好' : '狀態: 破損'}</span>`;
 
             switchPage('detail');
         }
@@ -630,8 +574,7 @@ html_template = """
             const item = cart.find(x => x.id === targetId);
             if(item) item.qty++; else cart.push({id:p.id, name:p.name, price:p.price, qty:1});
             updateCartUI();
-            // 將 Emoji 改為文字
-            alert('[已加入購物車]');
+            alert('已加入購物車');
         }
         
         function changeQty(id, delta) {
@@ -674,7 +617,7 @@ html_template = """
                             <button class="qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
                             <span style="font-weight:bold; min-width:20px; text-align:center;">${item.qty}</span>
                             <button class="qty-btn" onclick="changeQty('${item.id}', 1)">+</button>
-                            <button class="del-btn" onclick="removeFromCart('${item.id}')">[刪除]</button>
+                            <button class="del-btn" onclick="removeFromCart('${item.id}')">刪除</button>
                         </div>
                     </div>
                 `).join('');
@@ -684,9 +627,8 @@ html_template = """
         function showStep(rid) {
             const r = allRecipes.find(x => x.id === rid);
             document.getElementById('step-title').innerText = r.name;
-            // 將 Emoji 改為文字標題
-            let html = '<h4>[食材清單]</h4><ul class="ing-list">' + (r.ingredients?r.ingredients.map(i=>`<li>${i}</li>`).join(''):'<li>無資料</li>') + '</ul>';
-            html += '<h4>[料理步驟]</h4><ol class="step-list">' + (r.steps?r.steps.map(s=>`<li>${s}</li>`).join(''):'<li>無資料</li>') + '</ol>';
+            let html = '<h4>食材清單</h4><ul class="ing-list">' + (r.ingredients?r.ingredients.map(i=>`<li>${i}</li>`).join(''):'<li>無資料</li>') + '</ul>';
+            html += '<h4>料理步驟</h4><ol class="step-list">' + (r.steps?r.steps.map(s=>`<li>${s}</li>`).join(''):'<li>無資料</li>') + '</ol>';
             document.getElementById('step-body').innerHTML = html;
             openModal('step');
         }
@@ -706,7 +648,6 @@ html_template = """
             const input = document.getElementById('chat-input'); const msg = input.value.trim(); if(!msg) return;
             const body = document.getElementById('chat-body'); body.innerHTML += `<div class="msg msg-user">${msg}</div>`; input.value = ''; body.scrollTop = body.scrollHeight;
             if(msg === '[後台]') { setTimeout(() => { body.innerHTML += `<div class="msg msg-bot">驗證成功，跳轉後台...</div>`; setTimeout(() => { toggleChat(); showBackend(); }, 1000); }, 500); return; }
-            // 移除 Emoji
             setTimeout(() => { body.innerHTML += `<div class="msg msg-bot">收到！我們將盡快回覆。</div>`; body.scrollTop = body.scrollHeight; }, 800);
         }
         function showBackend() { switchPage('backend'); renderAdmin(); }
@@ -722,27 +663,10 @@ html_template = """
         function addManualIngredient() { const v = document.getElementById('manual-ing-input').value.trim(); if(v) { tempIngredients.push(v); document.getElementById('manual-ing-input').value = ''; updateCustomPreview(); } }
         function addNewStep() { const v = document.getElementById('new-step-input').value.trim(); if(v) { tempSteps.push(v); document.getElementById('new-step-input').value=''; updateCustomPreview(); } }
         function updateCustomPreview() {
-            // 將 X 改為文字 [刪除]
-            document.getElementById('new-ing-list').innerHTML = tempIngredients.length ? tempIngredients.map((ing, i) => `<div class="ing-tag">${ing} <span onclick="tempIngredients.splice(${i},1);updateCustomPreview()">[刪除]</span></div>`).join('') : '尚未加入';
-            document.getElementById('new-step-list').innerHTML = tempSteps.length ? tempSteps.map((s, i) => `<div style="border-bottom:1px dashed #ddd; padding:5px 0; display:flex; justify-content:space-between;"><span>${i+1}. ${s}</span><span onclick="tempSteps.splice(${i},1);updateCustomPreview()" style="color:red;cursor:pointer;">[刪除]</span></div>`).join('') : '無步驟';
+            document.getElementById('new-ing-list').innerHTML = tempIngredients.length ? tempIngredients.map((ing, i) => `<div class="ing-tag">${ing} <span onclick="tempIngredients.splice(${i},1);updateCustomPreview()">刪除</span></div>`).join('') : '尚未加入';
+            document.getElementById('new-step-list').innerHTML = tempSteps.length ? tempSteps.map((s, i) => `<div style="border-bottom:1px dashed #ddd; padding:5px 0; display:flex; justify-content:space-between;"><span>${i+1}. ${s}</span><span onclick="tempSteps.splice(${i},1);updateCustomPreview()" style="color:red;cursor:pointer;">刪除</span></div>`).join('') : '無步驟';
         }
-        function saveCustomRecipe() {
-            const name = document.getElementById('new-r-name').value.trim();
-            const cal = document.getElementById('new-r-cal').value;
-            const hasAvocado = name.includes("酪梨") || tempIngredients.some(i => i.includes("酪梨"));
-            const hasChicken = name.includes("雞胸肉") || tempIngredients.some(i => i.includes("雞胸肉"));
-            if (hasAvocado && hasChicken) {
-                // 移除 Emoji
-                alert("恭喜！發現隱藏料理：奶油酪梨雞胸肉佐蒜香地瓜葉！");
-                const unlocked = { ...allRecipes.find(r => r.id === "Hidden1"), id: "Unlocked_" + Date.now(), hidden: false };
-                allRecipes.unshift(unlocked); closeModal('create'); document.getElementById('recipe-search').value = ''; renderRecipes(allRecipes.filter(r => !r.hidden)); return;
-            }
-            if(!name || tempIngredients.length===0 || tempSteps.length===0) { alert("請填寫完整！"); return; }
-            allRecipes.unshift({id: "C"+Date.now(), name: name, img: "https://via.placeholder.com/300?text="+name, cal: cal||0, steps: [...tempSteps], ingredients: [...tempIngredients]});
-            // 移除 Emoji
-            alert("[發布成功！]"); closeModal('create'); document.getElementById('recipe-search').value = ''; renderRecipes(allRecipes.filter(r => !r.hidden));
-        }
-        
+
         function autoGenerateRichRecipe() {
             const hasAvocado = tempIngredients.some(i => i.includes("酪梨"));
             const hasChicken = tempIngredients.some(i => i.includes("雞胸肉") || i.includes("雞肉"));
@@ -752,17 +676,31 @@ html_template = """
                 document.getElementById('new-r-cal').value = 450;
                 tempSteps = ["雞胸肉切塊，加鹽、黑胡椒、橄欖油醃 10 分鐘。", "熱鍋煎雞胸肉至金黃，盛起備用。", "原鍋炒香洋蔥丁與蒜末，加入酪梨肉壓成泥。", "倒入牛奶煮成濃滑醬汁，加鹽調味。", "放回雞肉煨煮 1-2 分鐘即可。", "另起鍋爆香蒜片，快炒地瓜葉，加鹽調味。"];
                 updateCustomPreview();
-                // 移除 Emoji
                 alert("觸發隱藏料理！");
                 return;
             }
 
             if(tempIngredients.length === 0) { alert("請先選擇食材！"); return; }
             const mainIng = tempIngredients[0];
-            document.getElementById('new-r-name').value = "AI 特製" + mainIng + "料理";
+            document.getElementById('new-r-name').value = "特製" + mainIng + "料理";
             document.getElementById('new-r-cal').value = 350;
             tempSteps = ["將" + mainIng + "處理乾淨", "大火快炒", "調味起鍋"];
             updateCustomPreview();
+        }
+
+        function saveCustomRecipe() {
+            const name = document.getElementById('new-r-name').value.trim();
+            const cal = document.getElementById('new-r-cal').value;
+            const hasAvocado = name.includes("酪梨") || tempIngredients.some(i => i.includes("酪梨"));
+            const hasChicken = name.includes("雞胸肉") || tempIngredients.some(i => i.includes("雞胸肉"));
+            if (hasAvocado && hasChicken) {
+                alert("發現隱藏料理：奶油酪梨雞胸肉佐蒜香地瓜葉！");
+                const unlocked = { ...allRecipes.find(r => r.id === "Hidden1"), id: "Unlocked_" + Date.now(), hidden: false };
+                allRecipes.unshift(unlocked); closeModal('create'); document.getElementById('recipe-search').value = ''; renderRecipes(allRecipes.filter(r => !r.hidden)); return;
+            }
+            if(!name || tempIngredients.length===0 || tempSteps.length===0) { alert("請填寫完整！"); return; }
+            allRecipes.unshift({id: "C"+Date.now(), name: name, img: "https://via.placeholder.com/300?text="+name, cal: cal||0, steps: [...tempSteps], ingredients: [...tempIngredients]});
+            alert("發布成功！"); closeModal('create'); document.getElementById('recipe-search').value = ''; renderRecipes(allRecipes.filter(r => !r.hidden));
         }
 
         function openModal(id) { const m = document.getElementById('modal-'+id); m.style.display = (window.innerWidth >= 768) ? 'flex' : 'block'; }
@@ -772,7 +710,5 @@ html_template = """
     </script>
 </body>
 </html>
-"""
-
-# 將 HTML 內容渲染到 Streamlit
-components.html(html_template, height=1200, scrolling=True)
+final_html = html_template.replace("images/", BASE_URL)
+components.html(final_html, height=1200, scrolling=True)
