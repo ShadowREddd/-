@@ -14,7 +14,6 @@ BASE_URL = f"https://raw.githubusercontent.com/{GITHUB_USER}/{REPO_NAME}/{BRANCH
 
 st.set_page_config(page_title="食際行動家", layout="wide", initial_sidebar_state="collapsed")
 
-# ↓↓↓ 這裡開始是 HTML 字串，請確保複製到檔案最末端 ↓↓↓
 html_template = """
 <!DOCTYPE html>
 <html lang="zh-TW">
@@ -46,7 +45,7 @@ html_template = """
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
             background: white; z-index: 99999; 
             display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            transition: opacity 0.5s ease-out; cursor: pointer;
+            transition: opacity 0.5s ease-out; overflow: hidden; cursor: pointer;
         }
         .splash-logo { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -92,7 +91,7 @@ html_template = """
         .desktop-menu button:hover, .desktop-menu button.active { color: var(--primary); font-weight: bold; }
         .cart-btn-desktop { background: var(--primary) !important; color: white !important; padding: 8px 20px; border-radius: 20px; }
 
-        /* 容器 */
+        /* 橫幅 */
         .container { max-width: 1200px; margin: 0 auto; padding: 15px; }
         .banner-container {
             width: 100%; height: 180px; border-radius: 15px; margin-bottom: 20px;
@@ -108,7 +107,7 @@ html_template = """
         .cat-btn { white-space: nowrap; padding: 8px 16px; border-radius: 20px; border: 1px solid #ddd; background: white; color: #666; cursor: pointer; }
         .cat-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* --- 卡片 (分層結構) --- */
+        /* 網格 & 卡片 (資訊直接顯示版) */
         .grid { display: grid; gap: 15px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
         
         .card { 
@@ -116,45 +115,43 @@ html_template = """
             box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
             display: flex; flex-direction: column;
             position: relative;
-            transition: transform 0.2s;
         }
-        .card:hover { transform: translateY(-3px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
+        /* 點擊卡片上半部看詳情 */
+        .card-top-click { cursor: pointer; flex-grow: 1; }
+        .card-top-click:hover { opacity: 0.95; }
 
-        /* 上半部：點擊區 */
-        .card-top-click {
-            cursor: pointer; flex-grow: 1;
-            display: flex; flex-direction: column;
-        }
-        .card-top-click:active { opacity: 0.7; }
+        .card-img { width: 100%; height: 140px; object-fit: cover; pointer-events: none; }
+        .card-body { padding: 10px; display: flex; flex-direction: column; }
         
-        .card-img { width: 100%; height: 150px; object-fit: cover; pointer-events: none; }
-        .card-body { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; pointer-events: none; }
-
-        /* 下半部：按鈕區 */
-        .card-bottom-actions {
-            padding: 10px; padding-top: 0;
-            background: white; display: flex; flex-direction: column; gap: 5px;
+        .card-title { font-weight: bold; margin-bottom: 5px; color: #333; font-size: 1.05rem; }
+        .price { color: var(--primary); font-weight: bold; font-size: 1.2rem; float: right; }
+        
+        /* 直接顯示在卡片上的詳細資訊 */
+        .card-info-list {
+            font-size: 0.85rem; color: #666; margin: 8px 0; line-height: 1.5;
+            border-top: 1px dashed #eee; padding-top: 8px;
         }
 
-        .card-title { font-weight: bold; margin-bottom: 5px; color: #333; }
-        .price { color: var(--primary); font-weight: bold; font-size: 1.1rem; margin-top: auto; }
-        
-        .status-badge { display: inline-block; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; margin-bottom: 5px; }
+        .status-badge { display: inline-block; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; vertical-align: middle; }
         .status-good { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .status-bad { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
 
-        .card-row-btns { display: flex; gap: 5px; }
-        .btn-card-action { 
-            flex: 1; padding: 8px; border-radius: 6px; font-size: 0.85rem; 
-            cursor: pointer; border: none; font-weight: bold;
-        }
-        .btn-outline-sm { background: white; border: 1px solid #ddd; color: #555; }
-        .btn-primary-sm { background: var(--primary); color: white; }
+        /* 按鈕區 */
+        .card-bottom-actions { padding: 10px; padding-top: 0; background: white; display: flex; flex-direction: column; gap: 8px; }
         
-        .gen-recipe-btn {
-            width: 100%; padding: 8px; background: #e3f2fd; border: 1px solid #90caf9; 
-            color: #1976d2; border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: bold;
+        .btn-add-cart {
+            width: 100%; padding: 8px; background: var(--primary); color: white; 
+            border: none; border-radius: 6px; cursor: pointer; font-weight: bold;
+            transition: opacity 0.2s;
         }
+        .btn-add-cart:active { opacity: 0.8; }
+
+        .btn-gen-recipe {
+            width: 100%; padding: 8px; background: #e3f2fd; border: 1px solid #90caf9; 
+            color: #1976d2; border-radius: 6px; cursor: pointer; font-weight: bold;
+            transition: background 0.2s;
+        }
+        .btn-gen-recipe:active { background: #bbdefb; }
 
         /* 詳情頁 */
         .page { display: none; animation: fadeIn 0.3s; }
@@ -439,27 +436,29 @@ html_template = """
             if(!list || list.length===0) { document.getElementById('grid-products').innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:50px; color:#888;"><div style="font-size:3rem;">🥦🍎🥩</div><div>請點擊上方分類開始選購</div></div>'; return; }
             document.getElementById('grid-products').innerHTML = list.map(p => {
                 let badgeClass = p.condition === '良好' ? 'status-good' : 'status-bad';
-                let badgeText = p.condition === '良好' ? '✅ 外觀良好' : '⚠️ 外觀破損';
+                let badgeText = p.condition === '良好' ? '✅ 良好' : '⚠️ 破損';
                 
-                // *** 終極修復：兩層結構 ***
-                // 1. 上半部 (點擊進詳情)
-                // 2. 下半部 (獨立按鈕)
+                // *** 核心修復：把詳情內容直接印在卡片上，移除詳細按鈕 ***
                 return `
-                <div class="card">
-                    <div class="card-top-click" onclick="showDetail('${p.id}')">
+                <div class="card" onclick="showDetail('${p.id}')">
+                    <div class="card-top-click">
                         <img src="${p.img}" class="card-img">
                         <div class="card-body">
                             <div class="card-title">${p.name}</div>
-                            <div><span class="status-badge ${badgeClass}">${badgeText}</span></div>
-                            <div class="price">$${p.price}</div>
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span class="status-badge ${badgeClass}">${badgeText}</span>
+                                <div class="price">$${p.price}</div>
+                            </div>
+                            <div class="card-info-list">
+                                📍 ${p.origin} | ❄️ ${p.storage}<br>
+                                📅 ${p.date}
+                            </div>
                         </div>
                     </div>
                     
                     <div class="card-bottom-actions">
-                        <div class="card-actions">
-                             <button class="btn-card-action btn-primary-sm" onclick="addToCart('${p.id}')">🛒 加入</button>
-                        </div>
-                        <button class="gen-recipe-btn" onclick="quickGenerateRecipe('${p.name}')">➕ 加入食譜</button>
+                        <button class="btn-add-cart" onclick="event.stopPropagation(); addToCart('${p.id}')">🛒 加入購物車</button>
+                        <button class="btn-gen-recipe" onclick="event.stopPropagation(); quickGenerateRecipe('${p.name}')">➕ 加入食譜</button>
                     </div>
                 </div>`;
             }).join('');
@@ -544,7 +543,7 @@ html_template = """
             conditionText.innerText = p.condition === '良好' ? '✅ 外觀良好' : '⚠️ 外觀有破損';
             conditionText.style.color = p.condition === '良好' ? '#28a745' : '#dc3545';
             conditionText.className = p.condition === '良好' ? 'detail-status-tag status-good' : 'detail-status-tag status-bad';
-            document.getElementById('dt-condition-badge').innerHTML = `<span class="status-badge ${p.condition === '良好' ? 'status-good' : 'status-bad'}">${p.condition === '良好' ? '✅ 外觀良好' : '⚠️ 外觀破損'}</span>`;
+            document.getElementById('dt-condition-badge').innerHTML = `<span class="status-badge ${p.condition === '良好' ? 'status-good' : 'status-bad'}">${p.condition === '良好' ? '✅ 良好' : '⚠️ 破損'}</span>`;
 
             switchPage('detail');
         }
@@ -648,73 +647,6 @@ html_template = """
             document.getElementById('new-ing-list').innerHTML = tempIngredients.length ? tempIngredients.map((ing, i) => `<div class="ing-tag">${ing} <span onclick="tempIngredients.splice(${i},1);updateCustomPreview()">✕</span></div>`).join('') : '尚未加入';
             document.getElementById('new-step-list').innerHTML = tempSteps.length ? tempSteps.map((s, i) => `<div style="border-bottom:1px dashed #ddd; padding:5px 0; display:flex; justify-content:space-between;"><span>${i+1}. ${s}</span><span onclick="tempSteps.splice(${i},1);updateCustomPreview()" style="color:red;cursor:pointer;">✕</span></div>`).join('') : '無步驟';
         }
-
-        // --- 智慧 AI 食譜生成 (連續隨機版) ---
-        function autoGenerateRichRecipe() {
-            if (tempIngredients.length === 0) {
-                alert("⚠️ 請先選擇至少一種食材，AI 才能幫您想食譜！");
-                return;
-            }
-            
-            const mainIng = tempIngredients[0];
-            
-            const templates = [
-                {
-                    getName: (ing) => "塔香爆炒" + ing,
-                    getSteps: (ing) => [
-                        `將${ing}切成適口大小，蒜頭拍碎備用。`,
-                        "熱鍋下油，放入蒜末爆香至金黃色。",
-                        `轉大火，放入${ing}快速翻炒。`,
-                        "加入醬油、糖、米酒調味，起鍋前放入九層塔提香。"
-                    ],
-                    extraIng: ["蒜頭", "九層塔", "醬油"]
-                },
-                {
-                    getName: (ing) => "清蒸檸檬" + ing,
-                    getSteps: (ing) => [
-                        `將${ing}洗淨擺盤，鋪上薑片去腥。`,
-                        "淋上米酒與魚露，放入蒸鍋大火蒸 10 分鐘。",
-                        "取出後撒上蔥絲與辣椒絲。",
-                        "淋上熱油激發香氣，最後擠上新鮮檸檬汁。"
-                    ],
-                    extraIng: ["薑片", "蔥絲", "檸檬"]
-                },
-                {
-                    getName: (ing) => "家常紅燒" + ing,
-                    getSteps: (ing) => [
-                        `將${ing}切塊，放入滾水中汆燙去血水。`,
-                        "熱鍋炒糖色，放入食材翻炒上色。",
-                        "加入醬油、八角、水，小火慢燉 40 分鐘。",
-                        "湯汁收乾至濃稠即可起鍋。"
-                    ],
-                    extraIng: ["八角", "冰糖", "醬油"]
-                },
-                {
-                    getName: (ing) => "爽口涼拌" + ing,
-                    getSteps: (ing) => [
-                        `將${ing}切絲或切片，滾水汆燙後冰鎮。`,
-                        "準備醬汁：蒜泥、醋、糖、香油拌勻。",
-                        "將醬汁淋在食材上，撒上白芝麻。",
-                        "放入冰箱冷藏 30 分鐘入味後食用。"
-                    ],
-                    extraIng: ["蒜泥", "白芝麻", "香油"]
-                }
-            ];
-
-            const randomTemplate = templates[Math.floor(Math.random() * templates.length)];
-
-            document.getElementById('new-r-name').value = randomTemplate.getName(mainIng);
-            document.getElementById('new-r-cal').value = Math.floor(Math.random() * 400) + 200; 
-            
-            tempSteps = randomTemplate.getSteps(mainIng);
-            
-            randomTemplate.extraIng.forEach(ing => {
-                if(!tempIngredients.includes(ing)) tempIngredients.push(ing);
-            });
-
-            updateCustomPreview();
-        }
-
         function saveCustomRecipe() {
             const name = document.getElementById('new-r-name').value.trim();
             const cal = document.getElementById('new-r-cal').value;
@@ -728,6 +660,28 @@ html_template = """
             if(!name || tempIngredients.length===0 || tempSteps.length===0) { alert("請填寫完整！"); return; }
             allRecipes.unshift({id: "C"+Date.now(), name: name, img: "https://via.placeholder.com/300?text="+name, cal: cal||0, steps: [...tempSteps], ingredients: [...tempIngredients]});
             alert("✨ 發布成功！"); closeModal('create'); document.getElementById('recipe-search').value = ''; renderRecipes(allRecipes.filter(r => !r.hidden));
+        }
+        
+        // 隨機生成+彩蛋
+        function autoGenerateRichRecipe() {
+            const hasAvocado = tempIngredients.some(i => i.includes("酪梨"));
+            const hasChicken = tempIngredients.some(i => i.includes("雞胸肉") || i.includes("雞肉"));
+            
+            if(hasAvocado && hasChicken) {
+                document.getElementById('new-r-name').value = "奶油酪梨雞胸肉佐蒜香地瓜葉";
+                document.getElementById('new-r-cal').value = 450;
+                tempSteps = ["雞胸肉切塊，加鹽、黑胡椒、橄欖油醃 10 分鐘。", "熱鍋煎雞胸肉至金黃，盛起備用。", "原鍋炒香洋蔥丁與蒜末，加入酪梨肉壓成泥。", "倒入牛奶煮成濃滑醬汁，加鹽調味。", "放回雞肉煨煮 1-2 分鐘即可。", "另起鍋爆香蒜片，快炒地瓜葉，加鹽調味。"];
+                updateCustomPreview();
+                alert("🥑 觸發隱藏料理！");
+                return;
+            }
+
+            if(tempIngredients.length === 0) { alert("請先選擇食材！"); return; }
+            const mainIng = tempIngredients[0];
+            document.getElementById('new-r-name').value = "AI 特製" + mainIng + "料理";
+            document.getElementById('new-r-cal').value = 350;
+            tempSteps = ["將" + mainIng + "處理乾淨", "大火快炒", "調味起鍋"];
+            updateCustomPreview();
         }
 
         function openModal(id) { const m = document.getElementById('modal-'+id); m.style.display = (window.innerWidth >= 768) ? 'flex' : 'block'; }
