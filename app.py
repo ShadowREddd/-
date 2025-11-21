@@ -1,3 +1,10 @@
+這個錯誤 `SyntaxError: unterminated triple-quoted string literal` 代表您複製程式碼時**沒複製完整**，導致那個超長的 HTML 字串沒有結尾的 `"""` 引號。
+
+因為程式碼比較長，請確保您**從第一行 `import` 一直到最後一行**都複製到了。
+
+這是**修復後的完整代碼**，請**全選 (Ctrl+A)** 後複製貼上：
+
+```python
 import streamlit as st
 import streamlit.components.v1 as components
 
@@ -750,3 +757,4 @@ html_template = """
     </script>
 </body>
 </html>
+```
