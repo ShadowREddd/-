@@ -31,7 +31,7 @@ html_template = """
         }
         :root { --primary: #d9534f; --text: #333; --bg: #fff; }
 
-        /* RWD 設定 */
+        /* RWD */
         .desktop-only { display: none !important; }
         .mobile-only { display: flex !important; }
         @media (min-width: 768px) {
@@ -91,7 +91,7 @@ html_template = """
         .desktop-menu button:hover, .desktop-menu button.active { color: var(--primary); font-weight: bold; }
         .cart-btn-desktop { background: var(--primary) !important; color: white !important; padding: 8px 20px; border-radius: 20px; }
 
-        /* 容器與橫幅 */
+        /* 橫幅 */
         .container { max-width: 1200px; margin: 0 auto; padding: 15px; }
         .banner-container {
             width: 100%; height: 180px; border-radius: 15px; margin-bottom: 20px;
@@ -101,54 +101,65 @@ html_template = """
         .banner-img { width: 100%; height: 100%; object-fit: cover; }
         @media (min-width: 768px) { .banner-container { height: 300px; } }
 
-        /* 分類列 */
+        /* 分類 */
         .category-bar { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; scrollbar-width: none; }
         .category-bar::-webkit-scrollbar { display: none; }
         .cat-btn { white-space: nowrap; padding: 8px 16px; border-radius: 20px; border: 1px solid #ddd; background: white; color: #666; cursor: pointer; }
         .cat-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* --- 網格與卡片 (修復點擊的核心樣式) --- */
+        /* 網格 & 卡片 (結構重寫：分區點擊) */
         .grid { display: grid; gap: 15px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
         
         .card { 
             background: white; border-radius: 12px; overflow: hidden; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
             display: flex; flex-direction: column;
-            transition: transform 0.2s;
-            cursor: pointer; /* 讓滑鼠變手型 */
+            position: relative;
         }
-        .card:active { transform: scale(0.98); }
-        .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-
-        /* 上半部：點擊進入詳情 */
-        .card-content-area { flex-grow: 1; display: flex; flex-direction: column; }
-
-        .card-img { width: 100%; height: 150px; object-fit: cover; }
-        .card-body { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; }
+        
+        /* 1. 上半部：圖片與資訊 (點擊進詳情) */
+        .card-view-area {
+            cursor: pointer;
+            flex-grow: 1;
+            display: flex; 
+            flex-direction: column;
+        }
+        .card-view-area:active { opacity: 0.8; background-color: #f9f9f9; }
+        
+        .card-img { width: 100%; height: 150px; object-fit: cover; pointer-events: none; }
+        .card-body { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; pointer-events: none; }
         .card-title { font-weight: bold; margin-bottom: 5px; color: #333; }
         .price { color: var(--primary); font-weight: bold; font-size: 1.1rem; margin-top: auto; }
-        
+
+        /* 2. 下半部：按鈕區 (獨立操作) */
+        .card-actions-area {
+            padding: 10px; padding-top: 0;
+            background: white;
+        }
+
+        /* 狀態標籤 */
         .status-badge { display: inline-block; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; margin-bottom: 5px; }
         .status-good { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .status-bad { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
 
-        /* 按鈕區域 (獨立層，防止冒泡) */
-        .card-footer { padding: 10px; padding-top: 0; margin-top: auto; pointer-events: auto; }
-        .card-actions { display: flex; gap: 5px; margin-bottom: 5px; }
+        /* 按鈕樣式 */
+        .card-actions { display: flex; gap: 5px; margin-bottom: 8px; }
         
         .btn-card-action { 
             flex: 1; padding: 8px; border-radius: 6px; font-size: 0.85rem; 
             cursor: pointer; border: none; font-weight: bold; transition: 0.2s;
-            z-index: 2; /* 確保按鈕在最上層 */
         }
         .btn-outline-sm { background: white; border: 1px solid #ddd; color: #555; }
+        .btn-outline-sm:active { background: #f0f0f0; }
         .btn-primary-sm { background: var(--primary); color: white; }
+        .btn-primary-sm:active { opacity: 0.8; }
 
         .gen-recipe-btn {
-            width: 100%; padding: 8px; background: #e3f2fd; border: 1px solid #90caf9; 
-            color: #1976d2; border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: bold;
-            z-index: 2;
+            width: 100%; padding: 8px; 
+            background: #e3f2fd; border: 1px solid #90caf9; color: #1976d2;
+            border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: bold;
         }
+        .gen-recipe-btn:active { background: #bbdefb; }
 
         /* 詳情頁 */
         .page { display: none; animation: fadeIn 0.3s; }
@@ -199,7 +210,17 @@ html_template = """
         .qty-btn { width: 28px; height: 28px; border-radius: 50%; border: 1px solid #ddd; background: white; font-weight: bold; cursor: pointer; display:flex; align-items:center; justify-content:center;}
         .del-btn { color: #d9534f; background: none; border: none; cursor: pointer; font-size: 1.2rem; margin-left: 5px; }
         
-        /* Chat */
+        /* 自訂食譜 AI 按鈕 */
+        .ai-magic-btn {
+            width: 100%; padding: 12px; margin-bottom: 15px;
+            background: linear-gradient(45deg, #17a2b8, #2c3e50); 
+            color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 1rem;
+            cursor: pointer; box-shadow: 0 4px 10px rgba(23, 162, 184, 0.3);
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        .ai-magic-btn:hover { filter: brightness(1.1); transform:translateY(-2px); transition:0.2s; }
+
+        /* Chat & Admin */
         .chat-fab { position: fixed; bottom: 80px; right: 20px; z-index: 5500; width: 60px; height: 60px; border-radius: 50%; background: #2c3e50; color: white; border: none; font-size: 1.8rem; cursor: pointer; }
         @media (min-width: 768px) { .chat-fab { bottom: 30px; right: 30px; } }
         #chat-widget { display: none; position: fixed; bottom: 150px; right: 20px; width: 320px; height: 450px; background: #fff; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.2); z-index: 5600; flex-direction: column; }
@@ -210,15 +231,6 @@ html_template = """
         .msg { max-width: 80%; padding: 10px; border-radius: 15px; font-size: 0.9rem; }
         .msg-bot { align-self: flex-start; background: white; border: 1px solid #eee; }
         .msg-user { align-self: flex-end; background: #d9fdd3; }
-        
-        .ai-magic-btn {
-            width: 100%; padding: 12px; margin-bottom: 15px;
-            background: linear-gradient(45deg, #17a2b8, #2c3e50); 
-            color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 1rem;
-            cursor: pointer; box-shadow: 0 4px 10px rgba(23, 162, 184, 0.3);
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-        }
-        .ai-magic-btn:hover { filter: brightness(1.1); transform:translateY(-2px); transition:0.2s; }
 
     </style>
 </head>
@@ -264,14 +276,15 @@ html_template = """
                 </div>
                 <div class="banner-container"><img src="images/食際行動家.png" class="banner-img"></div>
                 <div class="category-bar" id="cat-bar">
-                    <button class="cat-btn active" onclick="filterCat('all', this)">全部</button>
                     <button class="cat-btn" onclick="filterCat('水果', this)">🍎 水果</button>
                     <button class="cat-btn" onclick="filterCat('蔬菜', this)">🥦 蔬菜</button>
                     <button class="cat-btn" onclick="filterCat('菇類', this)">🍄 菇類</button>
                     <button class="cat-btn" onclick="filterCat('肉品', this)">🥩 肉品</button>
                     <button class="cat-btn" onclick="filterCat('海鮮', this)">🐟 海鮮</button>
                 </div>
-                <div id="grid-products" class="grid"></div>
+                <div id="grid-products" class="grid">
+                    <div style="grid-column:1/-1; text-align:center; padding:50px; color:#888;"><div style="font-size:3rem; margin-bottom:10px;">🥦🍎🥩</div><div style="font-size:1.2rem;">請點擊上方分類開始選購</div></div>
+                </div>
             </div>
 
             <div id="page-recipe" class="page">
@@ -416,7 +429,6 @@ html_template = """
         function init() {
             const defaultRecipes = allRecipes.filter(r => !r.hidden);
             renderRecipes(defaultRecipes);
-            renderProducts(products);
         }
 
         function goToLogin() {
@@ -436,9 +448,10 @@ html_template = """
                 let badgeClass = p.condition === '良好' ? 'status-good' : 'status-bad';
                 let badgeText = p.condition === '良好' ? '✅ 外觀良好' : '⚠️ 外觀破損';
                 
+                // *** 關鍵修復：分區點擊結構 ***
                 return `
-                <div class="card" onclick="showDetail('${p.id}')">
-                    <div class="card-content-area">
+                <div class="card">
+                    <div class="card-view-area" onclick="showDetail('${p.id}')">
                         <img src="${p.img}" class="card-img">
                         <div class="card-body">
                             <div class="card-title">${p.name}</div>
@@ -447,12 +460,12 @@ html_template = """
                         </div>
                     </div>
                     
-                    <div class="card-footer">
+                    <div class="card-actions-area">
                         <div class="card-actions">
-                             <button class="btn-card-action btn-outline-sm" onclick="event.stopPropagation(); showDetail('${p.id}')">📄 詳細</button>
-                             <button class="btn-card-action btn-primary-sm" onclick="event.stopPropagation(); addToCart('${p.id}')">🛒 加入</button>
+                             <button class="btn-card-action btn-outline-sm" onclick="showDetail('${p.id}')">📄 詳細</button>
+                             <button class="btn-card-action btn-primary-sm" onclick="addToCart('${p.id}')">🛒 加入</button>
                         </div>
-                        <button class="gen-recipe-btn" onclick="event.stopPropagation(); quickGenerateRecipe('${p.name}')">➕ 加入食譜</button>
+                        <button class="gen-recipe-btn" onclick="quickGenerateRecipe('${p.name}')">➕ 加入食譜</button>
                     </div>
                 </div>`;
             }).join('');
@@ -515,6 +528,10 @@ html_template = """
             if(document.getElementById('dt-nav-'+page)) document.getElementById('dt-nav-'+page).classList.add('active');
             document.getElementById('page-'+page).style.display = 'block';
             if(page==='recipe') { document.getElementById('recipe-search').value=''; renderRecipes(allRecipes.filter(r=>!r.hidden)); }
+            if(page==='market') { 
+                if(document.getElementById('grid-products').innerHTML.includes('請點擊上方')) { } 
+                else { } 
+            }
             window.scrollTo(0,0);
         }
 
@@ -637,20 +654,96 @@ html_template = """
             document.getElementById('new-ing-list').innerHTML = tempIngredients.length ? tempIngredients.map((ing, i) => `<div class="ing-tag">${ing} <span onclick="tempIngredients.splice(${i},1);updateCustomPreview()">✕</span></div>`).join('') : '尚未加入';
             document.getElementById('new-step-list').innerHTML = tempSteps.length ? tempSteps.map((s, i) => `<div style="border-bottom:1px dashed #ddd; padding:5px 0; display:flex; justify-content:space-between;"><span>${i+1}. ${s}</span><span onclick="tempSteps.splice(${i},1);updateCustomPreview()" style="color:red;cursor:pointer;">✕</span></div>`).join('') : '無步驟';
         }
+
+        // --- 智慧 AI 食譜生成 (連續隨機 + 隱藏菜單判斷) ---
         function autoGenerateRichRecipe() {
-            if (tempIngredients.length === 0) { alert("⚠️ 請先選擇至少一種食材，AI 才能幫您想食譜！"); return; }
+            if (tempIngredients.length === 0) {
+                alert("⚠️ 請先選擇至少一種食材，AI 才能幫您想食譜！");
+                return;
+            }
+            
             const mainIng = tempIngredients[0];
+            
+            // 隱藏彩蛋檢查
+            const hasAvocado = tempIngredients.some(i => i.includes("酪梨"));
+            const hasChicken = tempIngredients.some(i => i.includes("雞胸肉") || i.includes("雞肉"));
+
+            if (hasAvocado && hasChicken) {
+                document.getElementById('new-r-name').value = "奶油酪梨雞胸肉佐蒜香地瓜葉";
+                document.getElementById('new-r-cal').value = 450;
+                tempSteps = [
+                    "雞胸肉切塊，加鹽、黑胡椒、橄欖油醃 10 分鐘。",
+                    "熱鍋煎雞胸肉至金黃，盛起備用。",
+                    "原鍋炒香洋蔥丁與蒜末，加入酪梨肉壓成泥。",
+                    "倒入牛奶煮成濃滑醬汁，加鹽調味。",
+                    "放回雞肉煨煮 1-2 分鐘即可。",
+                    "另起鍋爆香蒜片，快炒地瓜葉，加鹽調味。"
+                ];
+                
+                if(!tempIngredients.includes("牛奶")) tempIngredients.push("牛奶");
+                if(!tempIngredients.includes("洋蔥")) tempIngredients.push("洋蔥");
+                if(!tempIngredients.includes("蒜頭")) tempIngredients.push("蒜頭");
+                
+                updateCustomPreview();
+                alert("🥑 恭喜！AI 偵測到關鍵食材，已為您生成隱藏料理！");
+                return;
+            }
+            
+            // 隨機樣板
             const templates = [
-                { getName: (ing) => "塔香爆炒" + ing, getSteps: (ing) => [`將${ing}切成適口大小，蒜頭拍碎備用。`, "熱鍋下油，放入蒜末爆香至金黃色。", `轉大火，放入${ing}快速翻炒。`, "加入醬油、糖、米酒調味，起鍋前放入九層塔提香。"], extraIng: ["蒜頭", "九層塔", "醬油"] },
-                { getName: (ing) => "清蒸檸檬" + ing, getSteps: (ing) => [`將${ing}洗淨擺盤，鋪上薑片去腥。`, "淋上米酒與魚露，放入蒸鍋大火蒸 10 分鐘。", "取出後撒上蔥絲與辣椒絲。", "淋上熱油激發香氣，最後擠上新鮮檸檬汁。"], extraIng: ["薑片", "蔥絲", "檸檬"] },
-                { getName: (ing) => "家常紅燒" + ing, getSteps: (ing) => [`將${ing}切塊，放入滾水中汆燙去血水。`, "熱鍋炒糖色，放入食材翻炒上色。", "加入醬油、八角、水，小火慢燉 40 分鐘。", "湯汁收乾至濃稠即可起鍋。"], extraIng: ["八角", "冰糖", "醬油"] },
-                { getName: (ing) => "爽口涼拌" + ing, getSteps: (ing) => [`將${ing}切絲或切片，滾水汆燙後冰鎮。`, "準備醬汁：蒜泥、醋、糖、香油拌勻。", "將醬汁淋在食材上，撒上白芝麻。", "放入冰箱冷藏 30 分鐘入味後食用。"], extraIng: ["蒜泥", "白芝麻", "香油"] }
+                {
+                    getName: (ing) => "塔香爆炒" + ing,
+                    getSteps: (ing) => [
+                        `將${ing}切成適口大小，蒜頭拍碎備用。`,
+                        "熱鍋下油，放入蒜末爆香至金黃色。",
+                        `轉大火，放入${ing}快速翻炒。`,
+                        "加入醬油、糖、米酒調味，起鍋前放入九層塔提香。"
+                    ],
+                    extraIng: ["蒜頭", "九層塔", "醬油"]
+                },
+                {
+                    getName: (ing) => "清蒸檸檬" + ing,
+                    getSteps: (ing) => [
+                        `將${ing}洗淨擺盤，鋪上薑片去腥。`,
+                        "淋上米酒與魚露，放入蒸鍋大火蒸 10 分鐘。",
+                        "取出後撒上蔥絲與辣椒絲。",
+                        "淋上熱油激發香氣，最後擠上新鮮檸檬汁。"
+                    ],
+                    extraIng: ["薑片", "蔥絲", "檸檬"]
+                },
+                {
+                    getName: (ing) => "家常紅燒" + ing,
+                    getSteps: (ing) => [
+                        `將${ing}切塊，放入滾水中汆燙去血水。`,
+                        "熱鍋炒糖色，放入食材翻炒上色。",
+                        "加入醬油、八角、水，小火慢燉 40 分鐘。",
+                        "湯汁收乾至濃稠即可起鍋。"
+                    ],
+                    extraIng: ["八角", "冰糖", "醬油"]
+                },
+                {
+                    getName: (ing) => "爽口涼拌" + ing,
+                    getSteps: (ing) => [
+                        `將${ing}切絲或切片，滾水汆燙後冰鎮。`,
+                        "準備醬汁：蒜泥、醋、糖、香油拌勻。",
+                        "將醬汁淋在食材上，撒上白芝麻。",
+                        "放入冰箱冷藏 30 分鐘入味後食用。"
+                    ],
+                    extraIng: ["蒜泥", "白芝麻", "香油"]
+                }
             ];
+
             const randomTemplate = templates[Math.floor(Math.random() * templates.length)];
+
             document.getElementById('new-r-name').value = randomTemplate.getName(mainIng);
             document.getElementById('new-r-cal').value = Math.floor(Math.random() * 400) + 200; 
+            
             tempSteps = randomTemplate.getSteps(mainIng);
-            randomTemplate.extraIng.forEach(ing => { if(!tempIngredients.includes(ing)) tempIngredients.push(ing); });
+            
+            randomTemplate.extraIng.forEach(ing => {
+                if(!tempIngredients.includes(ing)) tempIngredients.push(ing);
+            });
+
             updateCustomPreview();
         }
 
