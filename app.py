@@ -30,7 +30,7 @@ html_template = """
             padding-bottom: 80px; overflow-x: hidden;
         }
 
-        :root { --primary: #d9534f; --text: #333; --bg: #fff; }
+        :root { --primary: #d9534f; --text: #333; --bg: #fff; --accent: #f0ad4e; }
 
         /* RWD 控制 */
         .desktop-only { display: none !important; }
@@ -47,8 +47,7 @@ html_template = """
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
             background: white; z-index: 99999; 
             display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            transition: opacity 0.5s ease-out;
-            overflow: hidden; cursor: pointer;
+            transition: opacity 0.5s ease-out; overflow: hidden; cursor: pointer;
         }
         .splash-logo { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -138,7 +137,6 @@ html_template = """
 
         /* 網格 & 卡片 */
         .grid { display: grid; gap: 15px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
-        
         .card { 
             background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
             cursor: pointer; transition: transform 0.2s; display: flex; flex-direction: column;
@@ -147,24 +145,21 @@ html_template = """
         .card:active { transform: scale(0.98); }
         .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
         
-        .card-click-area { cursor: pointer; flex-grow: 1; } /* 點擊區 */
+        .card-click-area { cursor: pointer; flex-grow: 1; }
 
         .card-img { width: 100%; height: 150px; object-fit: cover; }
         .card-body { padding: 10px; display: flex; flex-direction: column; }
         .card-title { font-weight: bold; margin-bottom: 5px; color: #333; }
         .price { color: var(--primary); font-weight: bold; font-size: 1.1rem; margin-top: auto; }
         
-        /* 狀態標籤 */
         .status-badge { display: inline-block; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; margin-bottom: 5px; }
         .status-good { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .status-bad { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
 
-        /* 卡片按鈕 */
-        .card-actions { display: flex; gap: 5px; margin-top: 8px; border-top: 1px solid #eee; padding-top: 8px; z-index: 10; }
+        .card-actions { display: flex; gap: 5px; margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee; z-index: 10; }
         .btn-card-action { 
-            flex: 1; padding: 6px; border-radius: 6px; font-size: 0.85rem; 
-            cursor: pointer; border: none; font-weight: bold; transition: 0.2s; 
-            z-index: 10; /* 確保最上層 */
+            flex: 1; padding: 8px; border-radius: 6px; font-size: 0.85rem; 
+            cursor: pointer; border: none; font-weight: bold; transition: 0.2s; z-index: 10;
         }
         .btn-outline-sm { background: white; border: 1px solid #ddd; color: #555; }
         .btn-outline-sm:hover { background: #f0f0f0; }
@@ -193,7 +188,6 @@ html_template = """
         .detail-hero img { width: 100%; height: 300px; object-fit: cover; }
         .detail-info { padding: 20px; background: white; border-radius: 20px 20px 0 0; margin-top: -20px; position: relative; }
         .back-btn { position: absolute; top: 20px; left: 20px; width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.9); border:none; z-index: 10; font-size:1.2rem; cursor:pointer;}
-        
         .detail-status-tag { display: inline-block; padding: 5px 10px; border-radius: 4px; font-size: 0.9rem; font-weight: bold; }
 
         /* Modals */
@@ -225,6 +219,18 @@ html_template = """
         .btn-outline { background: white; border: 1px solid #ddd; color: #555; }
         .tag { background: #eee; padding: 4px 10px; border-radius: 15px; font-size: 0.85rem; color: #666; }
         .mobile-top-bar { display: flex; align-items: center; padding: 10px 5px; margin-bottom: 10px; }
+        .qty-btn { width: 28px; height: 28px; border-radius: 50%; border: 1px solid #ddd; background: white; font-weight: bold; cursor: pointer; display:flex; align-items:center; justify-content:center;}
+        .del-btn { color: #d9534f; background: none; border: none; cursor: pointer; font-size: 1.2rem; margin-left: 5px; }
+        
+        /* 自訂食譜 AI 按鈕 */
+        .ai-magic-btn {
+            width: 100%; padding: 12px; margin-bottom: 15px;
+            background: linear-gradient(45deg, #f0ad4e, #d9534f);
+            color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 1rem;
+            cursor: pointer; box-shadow: 0 4px 10px rgba(217, 83, 79, 0.3);
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        .ai-magic-btn:hover { filter: brightness(1.1); }
 
     </style>
 </head>
@@ -299,17 +305,17 @@ html_template = """
                     <div class="detail-info">
                         <h1 id="dt-name" style="margin:0; font-size:1.8rem;"></h1>
                         <div style="margin:10px 0;">
-                            <span id="dt-price" style="color:#d9534f; font-size:1.5rem; font-weight:bold;"></span>
-                            <span id="dt-tag" class="tag" style="float:right; margin-top:5px;"></span>
+                            <span id="dt-condition-badge"></span>
+                            <span id="dt-price" style="color:#d9534f; font-size:1.5rem; font-weight:bold; float:right;"></span>
                         </div>
                         <hr style="border:0; border-top:1px solid #eee; margin:20px 0;">
-                        <p style="color:#666; line-height:1.8; font-size:1.1rem;">
-                            📍 <strong>產地：</strong><span id="dt-origin"></span><br>
-                            ❄️ <strong>保存：</strong><span id="dt-storage"></span><br>
-                            📅 <strong>到期：</strong><span id="dt-expiry"></span><br>
-                            👀 <strong>外觀：</strong><span id="dt-condition-text" class="detail-status-tag"></span>
+                        <p style="color:#666; line-height:1.6; font-size:1rem;">
+                            📍 產地：<span id="dt-origin"></span><br>
+                            ❄️ 保存：<span id="dt-storage"></span><br>
+                            📅 到期：<span id="dt-expiry"></span><br>
+                            👀 外觀：<span id="dt-condition-text" class="detail-status-tag"></span>
                         </p>
-                        <div style="display:flex; gap:10px; margin-top:30px;">
+                        <div style="display:flex; gap:10px; margin-top:20px;">
                             <button class="btn btn-primary" onclick="addToCart()">＋ 加入購物車</button>
                             <button class="btn btn-outline" onclick="quickGenerateRecipeDetail()">⚡ 生成食譜</button>
                         </div>
@@ -363,14 +369,22 @@ html_template = """
         <div class="modal-content">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;"><h3 style="margin:0;">新增私房食譜</h3><span onclick="closeModal('create')" style="cursor:pointer; font-size:1.5rem;">✕</span></div>
             <div style="flex:1; overflow-y:auto; padding-right:5px;">
+                
+                <button class="ai-magic-btn" onclick="autoGenerateRichRecipe()">
+                    <span>✨</span> 根據已選食材 AI 生成食譜
+                </button>
+
                 <div class="form-group"><label class="form-label">食譜名稱</label><input type="text" id="new-r-name" class="form-input" placeholder="例如：阿嬤的紅燒肉"></div>
                 <div class="form-group"><label class="form-label">預估卡路里</label><input type="number" id="new-r-cal" class="form-input" placeholder="例如：500"></div>
+                
                 <div class="form-group"><label class="form-label">選擇食材 (從市集)</label><div class="add-row"><select id="product-select" class="form-select"><option value="">-- 請選擇食材 --</option></select><button class="add-btn-small" onclick="addIngredientFromSelect()">＋</button></div></div>
                 <div class="form-group"><label class="form-label">或 手動輸入</label><div class="add-row"><input type="text" id="manual-ing-input" class="form-input" placeholder="例如：鹽、醬油..."><button class="add-btn-small" onclick="addManualIngredient()">＋</button></div></div>
+                
                 <div id="new-ing-list" class="tag-container"><span style="color:#999; font-size:0.9rem;">尚未加入食材</span></div>
+                
                 <div class="form-group" style="margin-top:15px;"><label class="form-label">步驟</label><div class="add-row"><input type="text" id="new-step-input" class="form-input" placeholder="輸入步驟..."><button class="add-btn-small" onclick="addNewStep()">＋</button></div><div id="new-step-list" style="background:#f9f9f9; padding:10px; border-radius:8px; min-height:50px;"></div></div>
             </div>
-            <button class="btn btn-primary" onclick="saveCustomRecipe()">✨ 完成並發布</button>
+            <button class="btn btn-primary" onclick="saveCustomRecipe()">發布食譜</button>
         </div>
     </div>
 
@@ -438,8 +452,6 @@ html_template = """
             document.getElementById('grid-products').innerHTML = list.map(p => {
                 let badgeClass = p.condition === '良好' ? 'status-good' : 'status-bad';
                 let badgeText = p.condition === '良好' ? '✅ 外觀良好' : '⚠️ 外觀破損';
-                
-                // *** 核心修復：onclick 放在最外層 div ***
                 return `
                 <div class="card">
                     <div class="card-click-area" onclick="showDetail('${p.id}')">
@@ -518,16 +530,10 @@ html_template = """
             if(document.getElementById('mb-nav-'+page)) document.getElementById('mb-nav-'+page).classList.add('active');
             if(document.getElementById('dt-nav-'+page)) document.getElementById('dt-nav-'+page).classList.add('active');
             document.getElementById('page-'+page).style.display = 'block';
-            
-            // 保持市集頁面狀態
             if(page==='recipe') { document.getElementById('recipe-search').value=''; renderRecipes(allRecipes.filter(r=>!r.hidden)); }
-            if(page==='market') {
-                 // 如果是第一次進入(或被重置)，不顯示商品，等待點擊
-                 if(document.getElementById('grid-products').innerHTML.includes('請點擊上方')) {
-                     // 保持空白
-                 } else {
-                     // 否則保持原狀
-                 }
+            if(page==='market') { 
+                if(document.getElementById('grid-products').innerHTML.includes('請點擊上方')) { } 
+                else { } 
             }
             window.scrollTo(0,0);
         }
@@ -544,7 +550,7 @@ html_template = """
             document.getElementById('dt-tag').innerText = p.cat;
             
             const conditionText = document.getElementById('dt-condition-text');
-            conditionText.innerText = p.condition === '良好' ? '✅ 外觀良好' : '⚠️ 外觀有破損';
+            conditionText.innerText = p.condition === '良好' ? '✅ 外觀良好，適合送禮或直接食用' : '⚠️ 外觀有輕微破損，建議盡快食用或加工';
             conditionText.style.color = p.condition === '良好' ? '#28a745' : '#dc3545';
             conditionText.className = p.condition === '良好' ? 'detail-status-tag status-good' : 'detail-status-tag status-bad';
 
@@ -560,19 +566,74 @@ html_template = """
             updateCartUI();
             alert('✅ 已加入購物車');
         }
+        
+        function changeQty(id, delta) {
+            const item = cart.find(x => x.id === id);
+            if (!item) return;
+            item.qty += delta;
+            if (item.qty <= 0) {
+                if(confirm('確定要移除此商品嗎？')) {
+                    cart = cart.filter(x => x.id !== id);
+                } else {
+                    item.qty = 1; // 恢復
+                }
+            }
+            updateCartUI();
+        }
+
+        function removeFromCart(id) {
+            if(confirm('確定要移除此商品嗎？')) {
+                cart = cart.filter(x => x.id !== id);
+                updateCartUI();
+            }
+        }
+
         function updateCartUI() {
             const count = cart.reduce((sum, i) => sum + i.qty, 0);
             const total = cart.reduce((sum, i) => sum + i.price*i.qty, 0);
             document.querySelectorAll('.cart-count-num').forEach(el => el.innerText = count);
             document.getElementById('cart-total').innerText = '$' + total;
-            document.getElementById('cart-list').innerHTML = cart.length ? cart.map(i => `<div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #f5f5f5;"><span>${i.name} x ${i.qty}</span><span>$${i.price*i.qty}</span></div>`).join('') : '<p style="text-align:center; color:#999;">購物車是空的</p>';
+            
+            if (cart.length === 0) {
+                document.getElementById('cart-list').innerHTML = '<p style="text-align:center; color:#999;">購物車是空的</p>';
+            } else {
+                document.getElementById('cart-list').innerHTML = cart.map(item => `
+                    <div class="cart-item">
+                        <div class="cart-info">
+                            <div class="cart-name">${item.name}</div>
+                            <div class="cart-price">$${item.price} / 個</div>
+                        </div>
+                        <div class="cart-controls">
+                            <button class="qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
+                            <span style="font-weight:bold; min-width:20px; text-align:center;">${item.qty}</span>
+                            <button class="qty-btn" onclick="changeQty('${item.id}', 1)">+</button>
+                            <button class="del-btn" onclick="removeFromCart('${item.id}')">🗑️</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
         }
 
         function showStep(rid) {
             const r = allRecipes.find(x => x.id === rid);
             document.getElementById('step-title').innerText = r.name;
-            let html = '<h4>🍽 食材</h4><ul class="ing-list">' + (r.ingredients?r.ingredients.map(i=>`<li>${i}</li>`).join(''):'<li>無資料</li>') + '</ul>';
-            html += '<h4>👩‍🍳 做法</h4><ol class="step-list">' + (r.steps?r.steps.map(s=>`<li>${s}</li>`).join(''):'<li>無資料</li>') + '</ol>';
+            
+            let html = '<h4>🍽 食材</h4><ul class="ing-list">';
+            if (r.ingredients && r.ingredients.length > 0) {
+                html += r.ingredients.map(i => `<li>${i}</li>`).join('');
+            } else {
+                html += '<li>無詳細食材資料</li>';
+            }
+            html += '</ul>';
+            
+            html += '<h4>👩‍🍳 做法</h4><ol class="step-list">';
+            if (r.steps && r.steps.length > 0) {
+                html += r.steps.map(s => `<li>${s}</li>`).join('');
+            } else {
+                html += '<li>無詳細步驟</li>';
+            }
+            html += '</ol>';
+
             document.getElementById('step-body').innerHTML = html;
             openModal('step');
         }
@@ -610,6 +671,64 @@ html_template = """
             document.getElementById('new-ing-list').innerHTML = tempIngredients.length ? tempIngredients.map((ing, i) => `<div class="ing-tag">${ing} <span onclick="tempIngredients.splice(${i},1);updateCustomPreview()">✕</span></div>`).join('') : '尚未加入';
             document.getElementById('new-step-list').innerHTML = tempSteps.length ? tempSteps.map((s, i) => `<div style="border-bottom:1px dashed #ddd; padding:5px 0; display:flex; justify-content:space-between;"><span>${i+1}. ${s}</span><span onclick="tempSteps.splice(${i},1);updateCustomPreview()" style="color:red;cursor:pointer;">✕</span></div>`).join('') : '無步驟';
         }
+        
+        // --- 核心 AI 生成邏輯 ---
+        function autoGenerateRichRecipe() {
+            if (tempIngredients.length === 0) {
+                alert("⚠️ 請先選擇至少一種食材，AI 才能幫您想食譜！");
+                return;
+            }
+            
+            // 模擬 AI 思考
+            const mainIng = tempIngredients[0];
+            let generatedName = "";
+            let generatedCal = 0;
+            let generatedSteps = [];
+            
+            // 簡單的規則庫 (模擬 LLM)
+            if (mainIng.includes("肉") || mainIng.includes("排")) {
+                generatedName = "香煎" + mainIng + "佐時蔬";
+                generatedCal = 650;
+                generatedSteps = [
+                    "將" + mainIng + "用廚房紙巾吸乾水分，撒上海鹽與黑胡椒醃製 10 分鐘。",
+                    "熱鍋倒入橄欖油，將" + mainIng + "下鍋煎至兩面金黃焦香。",
+                    "利用鍋中餘油，將其他配料大火快炒。",
+                    "將肉與配菜擺盤，淋上少許檸檬汁即可享用。"
+                ];
+                // 自動補齊調料
+                if(!tempIngredients.includes("黑胡椒")) tempIngredients.push("黑胡椒");
+                if(!tempIngredients.includes("橄欖油")) tempIngredients.push("橄欖油");
+            } else if (mainIng.includes("魚") || mainIng.includes("海鮮")) {
+                generatedName = "清蒸檸檬" + mainIng;
+                generatedCal = 400;
+                generatedSteps = [
+                    "將" + mainIng + "洗淨，用米酒與薑片去腥。",
+                    "準備蒸鍋，水滾後放入" + mainIng + "大火蒸 8-10 分鐘。",
+                    "起鍋後淋上蒸魚醬油，鋪上蔥絲。",
+                    "最後淋上熱油激發香氣即可。"
+                ];
+                 if(!tempIngredients.includes("薑片")) tempIngredients.push("薑片");
+                 if(!tempIngredients.includes("蔥絲")) tempIngredients.push("蔥絲");
+            } else {
+                // 蔬果類
+                generatedName = "清爽" + mainIng + "溫沙拉";
+                generatedCal = 250;
+                generatedSteps = [
+                    "將" + mainIng + "洗淨切成適口大小。",
+                    "準備一鍋滾水，加入少許鹽巴，將食材快速汆燙 30 秒撈起。",
+                    "拌入橄欖油、蒜末與黑胡椒調味。",
+                    "趁熱享用，風味最佳。"
+                ];
+                if(!tempIngredients.includes("蒜末")) tempIngredients.push("蒜末");
+            }
+
+            // 填入表單
+            document.getElementById('new-r-name').value = generatedName;
+            document.getElementById('new-r-cal').value = generatedCal;
+            tempSteps = generatedSteps;
+            updateCustomPreview();
+        }
+
         function saveCustomRecipe() {
             const name = document.getElementById('new-r-name').value.trim();
             const cal = document.getElementById('new-r-cal').value;
