@@ -136,25 +136,27 @@ html_template = """
         .cat-btn { white-space: nowrap; padding: 8px 16px; border-radius: 20px; border: 1px solid #ddd; background: white; color: #666; cursor: pointer; }
         .cat-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* 網格 & 卡片 */
+        /* 網格 & 卡片 (結構重構：解決點擊問題) */
         .grid { display: grid; gap: 15px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
         
-        /* 卡片樣式 */
         .card { 
             background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
-            cursor: pointer; transition: transform 0.2s; display: flex; flex-direction: column;
-            position: relative;
+            display: flex; flex-direction: column; position: relative; transition: transform 0.2s;
         }
-        .card:active { transform: scale(0.98); background-color: #f9f9f9; }
         .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-        
-        /* 點擊區 */
-        .card-click-area { cursor: pointer; flex-grow: 1; }
+
+        /* 上半部：點擊進入詳情 */
+        .card-top-clickable { cursor: pointer; flex-grow: 1; display: flex; flex-direction: column; }
+        .card-top-clickable:active { opacity: 0.8; }
 
         .card-img { width: 100%; height: 150px; object-fit: cover; pointer-events: none; }
-        .card-body { padding: 10px; display: flex; flex-direction: column; pointer-events: none; }
+        .card-info { padding: 10px; flex-grow: 1; pointer-events: none; }
         
-        .card-interactive-area { pointer-events: auto; margin-top: auto; }
+        /* 下半部：功能按鈕區 (獨立層級) */
+        .card-bottom-actions { 
+            padding: 10px; border-top: 1px solid #eee; background: #fff;
+            display: flex; flex-direction: column; gap: 8px;
+        }
 
         .card-title { font-weight: bold; margin-bottom: 5px; color: #333; }
         .price { color: var(--primary); font-weight: bold; font-size: 1.1rem; margin-top: auto; }
@@ -163,11 +165,11 @@ html_template = """
         .status-good { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .status-bad { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
 
-        /* 卡片按鈕 */
-        .card-actions { display: flex; gap: 5px; margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee; z-index: 10; }
+        /* 按鈕樣式 */
+        .row-btns { display: flex; gap: 5px; }
         .btn-card-action { 
             flex: 1; padding: 8px; border-radius: 6px; font-size: 0.85rem; 
-            cursor: pointer; border: none; font-weight: bold; transition: 0.2s; z-index: 10;
+            cursor: pointer; border: none; font-weight: bold; transition: 0.2s;
         }
         .btn-outline-sm { background: white; border: 1px solid #ddd; color: #555; }
         .btn-outline-sm:hover { background: #f0f0f0; }
@@ -175,9 +177,9 @@ html_template = """
         .btn-primary-sm:hover { background: #c9302c; }
 
         .gen-recipe-btn {
-            margin-top: 5px; width: 100%; padding: 8px; 
+            width: 100%; padding: 8px; 
             background: #e3f2fd; border: 1px solid #90caf9; color: #1976d2;
-            border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: bold; z-index: 10;
+            border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: bold;
         }
         .gen-recipe-btn:hover { background: #bbdefb; }
 
@@ -456,10 +458,10 @@ html_template = """
                 let badgeClass = p.condition === '良好' ? 'status-good' : 'status-bad';
                 let badgeText = p.condition === '良好' ? '✅ 外觀良好' : '⚠️ 外觀破損';
                 
-                // *** 核心修復：onclick 綁定在最外層 div，實現全卡片點擊 ***
+                // *** 核心修復：卡片分為上（詳情）下（功能）兩塊獨立區域 ***
                 return `
-                <div class="card" onclick="showDetail('${p.id}')">
-                    <div class="card-click-area">
+                <div class="card">
+                    <div class="card-click-area" onclick="showDetail('${p.id}')">
                         <img src="${p.img}" class="card-img">
                         <div class="card-body">
                             <div class="card-title">${p.name}</div>
@@ -468,12 +470,12 @@ html_template = """
                         </div>
                     </div>
                     
-                    <div class="card-body" style="padding-top:0; pointer-events:auto;">
-                        <div class="card-actions">
-                             <button class="btn-card-action btn-outline-sm" onclick="event.stopPropagation(); showDetail('${p.id}')">📄 詳細</button>
-                             <button class="btn-card-action btn-primary-sm" onclick="event.stopPropagation(); addToCart('${p.id}')">🛒 加入</button>
+                    <div class="card-bottom-actions">
+                        <div class="row-btns">
+                             <button class="btn-card-action btn-outline-sm" onclick="showDetail('${p.id}')">📄 詳細</button>
+                             <button class="btn-card-action btn-primary-sm" onclick="addToCart('${p.id}')">🛒 加入</button>
                         </div>
-                        <button class="gen-recipe-btn" onclick="event.stopPropagation(); quickGenerateRecipe('${p.name}')">⚡ 生成食譜</button>
+                        <button class="gen-recipe-btn" onclick="quickGenerateRecipe('${p.name}')">⚡ 生成食譜</button>
                     </div>
                 </div>`;
             }).join('');
