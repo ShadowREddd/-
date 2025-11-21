@@ -47,8 +47,7 @@ html_template = """
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
             background: white; z-index: 99999; 
             display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            transition: opacity 0.5s ease-out;
-            overflow: hidden; cursor: pointer;
+            transition: opacity 0.5s ease-out; overflow: hidden; cursor: pointer;
         }
         .splash-logo { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -139,36 +138,34 @@ html_template = """
         /* 網格 & 卡片 */
         .grid { display: grid; gap: 15px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
         
-        /* --- 卡片樣式 (核心修復區) --- */
+        /* 卡片樣式 (整張可點擊) */
         .card { 
             background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
-            cursor: pointer; /* 強制滑鼠變手型 */
-            transition: transform 0.2s; display: flex; flex-direction: column;
+            cursor: pointer; transition: transform 0.2s; display: flex; flex-direction: column;
             position: relative;
         }
-        /* 點擊回饋 */
         .card:active { transform: scale(0.98); background-color: #f9f9f9; }
         .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
         
-        .card-img { width: 100%; height: 150px; object-fit: cover; pointer-events: none; /* 讓圖片的點擊穿透到 card */ }
-        .card-body { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; pointer-events: none; /* 讓內容的點擊穿透 */ }
+        /* 讓點擊事件穿透圖片與內容 */
+        .card-img { width: 100%; height: 150px; object-fit: cover; pointer-events: none; }
+        .card-body { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; pointer-events: none; }
         
-        /* 讓按鈕區域可以點擊 */
+        /* 讓按鈕區域恢復可點擊 */
         .card-interactive-area { pointer-events: auto; margin-top: auto; }
 
         .card-title { font-weight: bold; margin-bottom: 5px; color: #333; }
         .price { color: var(--primary); font-weight: bold; font-size: 1.1rem; margin-top: auto; }
         
-        /* 狀態標籤 */
         .status-badge { display: inline-block; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; margin-bottom: 5px; }
         .status-good { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .status-bad { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
 
-        /* 卡片按鈕 (獨立層級) */
+        /* 卡片按鈕 */
         .card-actions { display: flex; gap: 5px; margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee; z-index: 10; }
         .btn-card-action { 
             flex: 1; padding: 8px; border-radius: 6px; font-size: 0.85rem; 
-            cursor: pointer; border: none; font-weight: bold; transition: 0.2s;
+            cursor: pointer; border: none; font-weight: bold; transition: 0.2s; z-index: 10;
         }
         .btn-outline-sm { background: white; border: 1px solid #ddd; color: #555; }
         .btn-outline-sm:hover { background: #f0f0f0; }
@@ -178,7 +175,7 @@ html_template = """
         .gen-recipe-btn {
             margin-top: 5px; width: 100%; padding: 8px; 
             background: #e3f2fd; border: 1px solid #90caf9; color: #1976d2;
-            border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: bold;
+            border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: bold; z-index: 10;
         }
         .gen-recipe-btn:hover { background: #bbdefb; }
 
@@ -457,22 +454,24 @@ html_template = """
                 let badgeClass = p.condition === '良好' ? 'status-good' : 'status-bad';
                 let badgeText = p.condition === '良好' ? '✅ 外觀良好' : '⚠️ 外觀破損';
                 
-                // 這裡是最關鍵的修改：將 onclick 綁定在卡片最外層，並在按鈕上阻止冒泡
+                // *** 修復：確保整個 card 都有 onclick ***
                 return `
                 <div class="card" onclick="showDetail('${p.id}')">
-                    <img src="${p.img}" class="card-img">
-                    <div class="card-body">
-                        <div class="card-title">${p.name}</div>
-                        <div><span class="status-badge ${badgeClass}">${badgeText}</span></div>
-                        <div class="price">$${p.price}</div>
-                        
-                        <div class="card-interactive-area">
-                            <div class="card-actions">
-                                 <button class="btn-card-action btn-outline-sm" onclick="event.stopPropagation(); showDetail('${p.id}')">📄 詳細</button>
-                                 <button class="btn-card-action btn-primary-sm" onclick="event.stopPropagation(); addToCart('${p.id}')">🛒 加入</button>
-                            </div>
-                            <button class="gen-recipe-btn" onclick="event.stopPropagation(); quickGenerateRecipe('${p.name}')">⚡ 生成食譜</button>
+                    <div class="card-click-area">
+                        <img src="${p.img}" class="card-img">
+                        <div class="card-body">
+                            <div class="card-title">${p.name}</div>
+                            <div><span class="status-badge ${badgeClass}">${badgeText}</span></div>
+                            <div class="price">$${p.price}</div>
                         </div>
+                    </div>
+                    
+                    <div class="card-body" style="padding-top:0; pointer-events:auto;">
+                        <div class="card-actions">
+                             <button class="btn-card-action btn-outline-sm" onclick="event.stopPropagation(); showDetail('${p.id}')">📄 詳細</button>
+                             <button class="btn-card-action btn-primary-sm" onclick="event.stopPropagation(); addToCart('${p.id}')">🛒 加入</button>
+                        </div>
+                        <button class="gen-recipe-btn" onclick="event.stopPropagation(); quickGenerateRecipe('${p.name}')">⚡ 生成食譜</button>
                     </div>
                 </div>`;
             }).join('');
@@ -660,7 +659,7 @@ html_template = """
             document.getElementById('new-ing-list').innerHTML = tempIngredients.length ? tempIngredients.map((ing, i) => `<div class="ing-tag">${ing} <span onclick="tempIngredients.splice(${i},1);updateCustomPreview()">✕</span></div>`).join('') : '尚未加入';
             document.getElementById('new-step-list').innerHTML = tempSteps.length ? tempSteps.map((s, i) => `<div style="border-bottom:1px dashed #ddd; padding:5px 0; display:flex; justify-content:space-between;"><span>${i+1}. ${s}</span><span onclick="tempSteps.splice(${i},1);updateCustomPreview()" style="color:red;cursor:pointer;">✕</span></div>`).join('') : '無步驟';
         }
-
+        
         // --- 智慧 AI 食譜生成 (連續隨機版) ---
         function autoGenerateRichRecipe() {
             if (tempIngredients.length === 0) {
