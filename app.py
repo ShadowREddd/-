@@ -107,18 +107,19 @@ html_template = """
         .cat-btn { white-space: nowrap; padding: 8px 16px; border-radius: 20px; border: 1px solid #ddd; background: white; color: #666; cursor: pointer; }
         .cat-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* 網格 & 卡片 (完全修復版) */
+        /* 網格 & 卡片 (完全重寫 CSS 以修復點擊) */
         .grid { display: grid; gap: 15px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
         
         .card { 
             background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
-            cursor: pointer; /* 整張卡片都是手指 */
+            cursor: pointer; /* 關鍵：滑鼠變手型 */
             transition: transform 0.2s; display: flex; flex-direction: column;
             position: relative;
         }
         .card:active { transform: scale(0.98); background-color: #f9f9f9; }
         .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
         
+        /* 移除 pointer-events: none，讓點擊事件自然冒泡 */
         .card-img { width: 100%; height: 150px; object-fit: cover; }
         .card-body { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; }
         
@@ -129,9 +130,10 @@ html_template = """
         .status-good { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .status-bad { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
 
-        /* 按鈕群組 (重點修復：確保按鈕可點且獨立) */
+        /* 按鈕群組 */
         .card-actions { display: flex; gap: 5px; margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee; }
         
+        /* 按鈕樣式 */
         .btn-card-action { 
             flex: 1; padding: 8px; border-radius: 6px; font-size: 0.85rem; 
             cursor: pointer; border: none; font-weight: bold; transition: 0.2s;
@@ -435,15 +437,19 @@ html_template = """
                 let badgeClass = p.condition === '良好' ? 'status-good' : 'status-bad';
                 let badgeText = p.condition === '良好' ? '✅ 外觀良好' : '⚠️ 外觀破損';
                 
-                // 綁定在最外層，所有點擊都導向詳情頁，除非點到按鈕
+                // onclick 綁定在最外層 div，按鈕區阻止冒泡
                 return `
                 <div class="card" onclick="showDetail('${p.id}')">
-                    <img src="${p.img}" class="card-img">
-                    <div class="card-body">
-                        <div class="card-title">${p.name}</div>
-                        <div><span class="status-badge ${badgeClass}">${badgeText}</span></div>
-                        <div class="price">$${p.price}</div>
-                        
+                    <div class="card-click-area">
+                        <img src="${p.img}" class="card-img">
+                        <div class="card-body">
+                            <div class="card-title">${p.name}</div>
+                            <div><span class="status-badge ${badgeClass}">${badgeText}</span></div>
+                            <div class="price">$${p.price}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body" style="padding-top:0; pointer-events:auto;">
                         <div class="card-actions">
                              <button class="btn-card-action btn-outline-sm" onclick="event.stopPropagation(); showDetail('${p.id}')">📄 詳細</button>
                              <button class="btn-card-action btn-primary-sm" onclick="event.stopPropagation(); addToCart('${p.id}')">🛒 加入</button>
@@ -725,7 +731,3 @@ html_template = """
     </script>
 </body>
 </html>
-"""
-
-final_html = html_template.replace("images/", BASE_URL)
-components.html(final_html, height=1200, scrolling=True)
