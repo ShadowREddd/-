@@ -2,13 +2,13 @@ import streamlit as st
 import streamlit.components.v1 as components
 
 # ==========================================
-# 👇 您的 GitHub 資訊
+# 👇 【重要】請修改您的 GitHub 資訊
 # ==========================================
 GITHUB_USER = "ShadowREddd"   
 REPO_NAME = "-"     
 BRANCH_NAME = "main"            
 
-# 指向根目錄
+# 指向根目錄 (程式會自動將 images/ 替換為此網址)
 BASE_URL = f"https://raw.githubusercontent.com/{GITHUB_USER}/{REPO_NAME}/{BRANCH_NAME}/"
 # ==========================================
 
@@ -30,7 +30,7 @@ html_template = """
             padding-bottom: 80px; overflow-x: hidden;
         }
 
-        :root { --primary: #d9534f; --text: #333; --bg: #fff; --accent: #f0ad4e; }
+        :root { --primary: #d9534f; --text: #333; --bg: #fff; }
 
         /* RWD 控制 */
         .desktop-only { display: none !important; }
@@ -47,7 +47,8 @@ html_template = """
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
             background: white; z-index: 99999; 
             display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            transition: opacity 0.5s ease-out; overflow: hidden; cursor: pointer;
+            transition: opacity 0.5s ease-out;
+            overflow: hidden; cursor: pointer;
         }
         .splash-logo { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -137,15 +138,18 @@ html_template = """
 
         /* 網格 & 卡片 */
         .grid { display: grid; gap: 15px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+        
+        /* 卡片整體 */
         .card { 
             background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
-            cursor: pointer; transition: transform 0.2s; display: flex; flex-direction: column;
+            transition: transform 0.2s; display: flex; flex-direction: column;
             position: relative;
         }
-        .card:active { transform: scale(0.98); }
         .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
         
+        /* 點擊區：圖片+標題 */
         .card-click-area { cursor: pointer; flex-grow: 1; }
+        .card-click-area:active { opacity: 0.8; }
 
         .card-img { width: 100%; height: 150px; object-fit: cover; }
         .card-body { padding: 10px; display: flex; flex-direction: column; }
@@ -156,6 +160,7 @@ html_template = """
         .status-good { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .status-bad { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
 
+        /* 按鈕群組 */
         .card-actions { display: flex; gap: 5px; margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee; z-index: 10; }
         .btn-card-action { 
             flex: 1; padding: 8px; border-radius: 6px; font-size: 0.85rem; 
@@ -225,12 +230,12 @@ html_template = """
         /* 自訂食譜 AI 按鈕 */
         .ai-magic-btn {
             width: 100%; padding: 12px; margin-bottom: 15px;
-            background: linear-gradient(45deg, #f0ad4e, #d9534f);
+            background: linear-gradient(45deg, #17a2b8, #2c3e50); 
             color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 1rem;
-            cursor: pointer; box-shadow: 0 4px 10px rgba(217, 83, 79, 0.3);
+            cursor: pointer; box-shadow: 0 4px 10px rgba(23, 162, 184, 0.3);
             display: flex; align-items: center; justify-content: center; gap: 10px;
         }
-        .ai-magic-btn:hover { filter: brightness(1.1); }
+        .ai-magic-btn:hover { filter: brightness(1.1); transform:translateY(-2px); transition:0.2s; }
 
     </style>
 </head>
@@ -309,13 +314,13 @@ html_template = """
                             <span id="dt-price" style="color:#d9534f; font-size:1.5rem; font-weight:bold; float:right;"></span>
                         </div>
                         <hr style="border:0; border-top:1px solid #eee; margin:20px 0;">
-                        <p style="color:#666; line-height:1.6; font-size:1rem;">
-                            📍 產地：<span id="dt-origin"></span><br>
-                            ❄️ 保存：<span id="dt-storage"></span><br>
-                            📅 到期：<span id="dt-expiry"></span><br>
-                            👀 外觀：<span id="dt-condition-text" class="detail-status-tag"></span>
+                        <p style="color:#666; line-height:1.8; font-size:1.1rem;">
+                            📍 <strong>產地：</strong><span id="dt-origin"></span><br>
+                            ❄️ <strong>保存：</strong><span id="dt-storage"></span><br>
+                            📅 <strong>到期：</strong><span id="dt-expiry"></span><br>
+                            👀 <strong>外觀：</strong><span id="dt-condition-text" class="detail-status-tag"></span>
                         </p>
-                        <div style="display:flex; gap:10px; margin-top:20px;">
+                        <div style="display:flex; gap:10px; margin-top:30px;">
                             <button class="btn btn-primary" onclick="addToCart()">＋ 加入購物車</button>
                             <button class="btn btn-outline" onclick="quickGenerateRecipeDetail()">⚡ 生成食譜</button>
                         </div>
@@ -369,22 +374,17 @@ html_template = """
         <div class="modal-content">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;"><h3 style="margin:0;">新增私房食譜</h3><span onclick="closeModal('create')" style="cursor:pointer; font-size:1.5rem;">✕</span></div>
             <div style="flex:1; overflow-y:auto; padding-right:5px;">
-                
-                <button class="ai-magic-btn" onclick="autoGenerateRichRecipe()">
-                    <span>✨</span> 根據已選食材 AI 生成食譜
-                </button>
-
                 <div class="form-group"><label class="form-label">食譜名稱</label><input type="text" id="new-r-name" class="form-input" placeholder="例如：阿嬤的紅燒肉"></div>
                 <div class="form-group"><label class="form-label">預估卡路里</label><input type="number" id="new-r-cal" class="form-input" placeholder="例如：500"></div>
-                
                 <div class="form-group"><label class="form-label">選擇食材 (從市集)</label><div class="add-row"><select id="product-select" class="form-select"><option value="">-- 請選擇食材 --</option></select><button class="add-btn-small" onclick="addIngredientFromSelect()">＋</button></div></div>
                 <div class="form-group"><label class="form-label">或 手動輸入</label><div class="add-row"><input type="text" id="manual-ing-input" class="form-input" placeholder="例如：鹽、醬油..."><button class="add-btn-small" onclick="addManualIngredient()">＋</button></div></div>
-                
                 <div id="new-ing-list" class="tag-container"><span style="color:#999; font-size:0.9rem;">尚未加入食材</span></div>
-                
                 <div class="form-group" style="margin-top:15px;"><label class="form-label">步驟</label><div class="add-row"><input type="text" id="new-step-input" class="form-input" placeholder="輸入步驟..."><button class="add-btn-small" onclick="addNewStep()">＋</button></div><div id="new-step-list" style="background:#f9f9f9; padding:10px; border-radius:8px; min-height:50px;"></div></div>
             </div>
-            <button class="btn btn-primary" onclick="saveCustomRecipe()">發布食譜</button>
+            <div style="margin-top:10px; border-top:1px solid #eee; padding-top:10px;">
+                <button class="ai-magic-btn" onclick="autoGenerateRichRecipe()">🎲 AI 隨機生成創意食譜</button>
+                <button class="btn btn-primary" onclick="saveCustomRecipe()">✨ 發布食譜</button>
+            </div>
         </div>
     </div>
 
@@ -452,6 +452,7 @@ html_template = """
             document.getElementById('grid-products').innerHTML = list.map(p => {
                 let badgeClass = p.condition === '良好' ? 'status-good' : 'status-bad';
                 let badgeText = p.condition === '良好' ? '✅ 外觀良好' : '⚠️ 外觀破損';
+                
                 return `
                 <div class="card">
                     <div class="card-click-area" onclick="showDetail('${p.id}')">
@@ -550,7 +551,7 @@ html_template = """
             document.getElementById('dt-tag').innerText = p.cat;
             
             const conditionText = document.getElementById('dt-condition-text');
-            conditionText.innerText = p.condition === '良好' ? '✅ 外觀良好，適合送禮或直接食用' : '⚠️ 外觀有輕微破損，建議盡快食用或加工';
+            conditionText.innerText = p.condition === '良好' ? '✅ 外觀良好' : '⚠️ 外觀有破損';
             conditionText.style.color = p.condition === '良好' ? '#28a745' : '#dc3545';
             conditionText.className = p.condition === '良好' ? 'detail-status-tag status-good' : 'detail-status-tag status-bad';
 
@@ -617,23 +618,8 @@ html_template = """
         function showStep(rid) {
             const r = allRecipes.find(x => x.id === rid);
             document.getElementById('step-title').innerText = r.name;
-            
-            let html = '<h4>🍽 食材</h4><ul class="ing-list">';
-            if (r.ingredients && r.ingredients.length > 0) {
-                html += r.ingredients.map(i => `<li>${i}</li>`).join('');
-            } else {
-                html += '<li>無詳細食材資料</li>';
-            }
-            html += '</ul>';
-            
-            html += '<h4>👩‍🍳 做法</h4><ol class="step-list">';
-            if (r.steps && r.steps.length > 0) {
-                html += r.steps.map(s => `<li>${s}</li>`).join('');
-            } else {
-                html += '<li>無詳細步驟</li>';
-            }
-            html += '</ol>';
-
+            let html = '<h4>🍽 食材</h4><ul class="ing-list">' + (r.ingredients?r.ingredients.map(i=>`<li>${i}</li>`).join(''):'<li>無資料</li>') + '</ul>';
+            html += '<h4>👩‍🍳 做法</h4><ol class="step-list">' + (r.steps?r.steps.map(s=>`<li>${s}</li>`).join(''):'<li>無資料</li>') + '</ol>';
             document.getElementById('step-body').innerHTML = html;
             openModal('step');
         }
@@ -671,61 +657,70 @@ html_template = """
             document.getElementById('new-ing-list').innerHTML = tempIngredients.length ? tempIngredients.map((ing, i) => `<div class="ing-tag">${ing} <span onclick="tempIngredients.splice(${i},1);updateCustomPreview()">✕</span></div>`).join('') : '尚未加入';
             document.getElementById('new-step-list').innerHTML = tempSteps.length ? tempSteps.map((s, i) => `<div style="border-bottom:1px dashed #ddd; padding:5px 0; display:flex; justify-content:space-between;"><span>${i+1}. ${s}</span><span onclick="tempSteps.splice(${i},1);updateCustomPreview()" style="color:red;cursor:pointer;">✕</span></div>`).join('') : '無步驟';
         }
-        
-        // --- 核心 AI 生成邏輯 ---
+
+        // --- 智慧 AI 食譜生成 (連續隨機版) ---
         function autoGenerateRichRecipe() {
             if (tempIngredients.length === 0) {
                 alert("⚠️ 請先選擇至少一種食材，AI 才能幫您想食譜！");
                 return;
             }
             
-            // 模擬 AI 思考
             const mainIng = tempIngredients[0];
-            let generatedName = "";
-            let generatedCal = 0;
-            let generatedSteps = [];
             
-            // 簡單的規則庫 (模擬 LLM)
-            if (mainIng.includes("肉") || mainIng.includes("排")) {
-                generatedName = "香煎" + mainIng + "佐時蔬";
-                generatedCal = 650;
-                generatedSteps = [
-                    "將" + mainIng + "用廚房紙巾吸乾水分，撒上海鹽與黑胡椒醃製 10 分鐘。",
-                    "熱鍋倒入橄欖油，將" + mainIng + "下鍋煎至兩面金黃焦香。",
-                    "利用鍋中餘油，將其他配料大火快炒。",
-                    "將肉與配菜擺盤，淋上少許檸檬汁即可享用。"
-                ];
-                // 自動補齊調料
-                if(!tempIngredients.includes("黑胡椒")) tempIngredients.push("黑胡椒");
-                if(!tempIngredients.includes("橄欖油")) tempIngredients.push("橄欖油");
-            } else if (mainIng.includes("魚") || mainIng.includes("海鮮")) {
-                generatedName = "清蒸檸檬" + mainIng;
-                generatedCal = 400;
-                generatedSteps = [
-                    "將" + mainIng + "洗淨，用米酒與薑片去腥。",
-                    "準備蒸鍋，水滾後放入" + mainIng + "大火蒸 8-10 分鐘。",
-                    "起鍋後淋上蒸魚醬油，鋪上蔥絲。",
-                    "最後淋上熱油激發香氣即可。"
-                ];
-                 if(!tempIngredients.includes("薑片")) tempIngredients.push("薑片");
-                 if(!tempIngredients.includes("蔥絲")) tempIngredients.push("蔥絲");
-            } else {
-                // 蔬果類
-                generatedName = "清爽" + mainIng + "溫沙拉";
-                generatedCal = 250;
-                generatedSteps = [
-                    "將" + mainIng + "洗淨切成適口大小。",
-                    "準備一鍋滾水，加入少許鹽巴，將食材快速汆燙 30 秒撈起。",
-                    "拌入橄欖油、蒜末與黑胡椒調味。",
-                    "趁熱享用，風味最佳。"
-                ];
-                if(!tempIngredients.includes("蒜末")) tempIngredients.push("蒜末");
-            }
+            const templates = [
+                {
+                    getName: (ing) => "塔香爆炒" + ing,
+                    getSteps: (ing) => [
+                        `將${ing}切成適口大小，蒜頭拍碎備用。`,
+                        "熱鍋下油，放入蒜末爆香至金黃色。",
+                        `轉大火，放入${ing}快速翻炒。`,
+                        "加入醬油、糖、米酒調味，起鍋前放入九層塔提香。"
+                    ],
+                    extraIng: ["蒜頭", "九層塔", "醬油"]
+                },
+                {
+                    getName: (ing) => "清蒸檸檬" + ing,
+                    getSteps: (ing) => [
+                        `將${ing}洗淨擺盤，鋪上薑片去腥。`,
+                        "淋上米酒與魚露，放入蒸鍋大火蒸 10 分鐘。",
+                        "取出後撒上蔥絲與辣椒絲。",
+                        "淋上熱油激發香氣，最後擠上新鮮檸檬汁。"
+                    ],
+                    extraIng: ["薑片", "蔥絲", "檸檬"]
+                },
+                {
+                    getName: (ing) => "家常紅燒" + ing,
+                    getSteps: (ing) => [
+                        `將${ing}切塊，放入滾水中汆燙去血水。`,
+                        "熱鍋炒糖色，放入食材翻炒上色。",
+                        "加入醬油、八角、水，小火慢燉 40 分鐘。",
+                        "湯汁收乾至濃稠即可起鍋。"
+                    ],
+                    extraIng: ["八角", "冰糖", "醬油"]
+                },
+                {
+                    getName: (ing) => "爽口涼拌" + ing,
+                    getSteps: (ing) => [
+                        `將${ing}切絲或切片，滾水汆燙後冰鎮。`,
+                        "準備醬汁：蒜泥、醋、糖、香油拌勻。",
+                        "將醬汁淋在食材上，撒上白芝麻。",
+                        "放入冰箱冷藏 30 分鐘入味後食用。"
+                    ],
+                    extraIng: ["蒜泥", "白芝麻", "香油"]
+                }
+            ];
 
-            // 填入表單
-            document.getElementById('new-r-name').value = generatedName;
-            document.getElementById('new-r-cal').value = generatedCal;
-            tempSteps = generatedSteps;
+            const randomTemplate = templates[Math.floor(Math.random() * templates.length)];
+
+            document.getElementById('new-r-name').value = randomTemplate.getName(mainIng);
+            document.getElementById('new-r-cal').value = Math.floor(Math.random() * 400) + 200; 
+            
+            tempSteps = randomTemplate.getSteps(mainIng);
+            
+            randomTemplate.extraIng.forEach(ing => {
+                if(!tempIngredients.includes(ing)) tempIngredients.push(ing);
+            });
+
             updateCustomPreview();
         }
 
