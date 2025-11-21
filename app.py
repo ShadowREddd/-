@@ -32,43 +32,14 @@ html_template = """
 
         :root { --primary: #d9534f; --text: #333; --bg: #fff; }
 
-        /* --- RWD 控制與優化 --- */
+        /* RWD 控制 */
         .desktop-only { display: none !important; }
         .mobile-only { display: flex !important; }
 
-        /* 📱 手機版專屬優化 */
-        @media (max-width: 768px) {
-            /* 縮小容器邊距，讓畫面更寬 */
-            .container { padding: 10px !important; width: 100% !important; }
-            
-            /* 強制雙欄顯示，間距縮小 */
-            .grid { 
-                grid-template-columns: repeat(2, 1fr) !important; 
-                gap: 10px !important; 
-            }
-            
-            /* 圖片高度調整 */
-            .card-img { height: 130px !important; }
-            
-            /* 橫幅高度調整 */
-            .banner-container { height: 160px !important; }
-            
-            /* 字體微調 */
-            .card-title { font-size: 0.95rem !important; }
-            .price { font-size: 1rem !important; }
-            
-            /* 分類按鈕縮小一點 */
-            .cat-btn { padding: 6px 12px !important; font-size: 0.85rem !important; }
-        }
-
-        /* 💻 電腦版樣式 */
         @media (min-width: 768px) {
             body { padding-bottom: 0; padding-top: 70px; }
             .desktop-only { display: flex !important; }
             .mobile-only { display: none !important; }
-            
-            /* 電腦版網格較寬 */
-            .grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
         }
 
         /* --- 1. 登入封面 --- */
@@ -167,18 +138,24 @@ html_template = """
 
         /* 網格 & 卡片 */
         .grid { display: grid; gap: 15px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+        
+        /* --- 卡片樣式 (核心修復區) --- */
         .card { 
             background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
-            cursor: pointer; transition: transform 0.2s; display: flex; flex-direction: column;
+            cursor: pointer; /* 強制滑鼠變手型 */
+            transition: transform 0.2s; display: flex; flex-direction: column;
             position: relative;
         }
-        .card:active { transform: scale(0.98); }
+        /* 點擊回饋 */
+        .card:active { transform: scale(0.98); background-color: #f9f9f9; }
         .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
         
-        .card-click-area { cursor: pointer; flex-grow: 1; }
+        .card-img { width: 100%; height: 150px; object-fit: cover; pointer-events: none; /* 讓圖片的點擊穿透到 card */ }
+        .card-body { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; pointer-events: none; /* 讓內容的點擊穿透 */ }
+        
+        /* 讓按鈕區域可以點擊 */
+        .card-interactive-area { pointer-events: auto; margin-top: auto; }
 
-        .card-img { width: 100%; height: 160px; object-fit: cover; }
-        .card-body { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; }
         .card-title { font-weight: bold; margin-bottom: 5px; color: #333; }
         .price { color: var(--primary); font-weight: bold; font-size: 1.1rem; margin-top: auto; }
         
@@ -187,11 +164,11 @@ html_template = """
         .status-good { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .status-bad { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
 
-        /* 卡片按鈕 */
+        /* 卡片按鈕 (獨立層級) */
         .card-actions { display: flex; gap: 5px; margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee; z-index: 10; }
         .btn-card-action { 
             flex: 1; padding: 8px; border-radius: 6px; font-size: 0.85rem; 
-            cursor: pointer; border: none; font-weight: bold; transition: 0.2s; z-index: 10;
+            cursor: pointer; border: none; font-weight: bold; transition: 0.2s;
         }
         .btn-outline-sm { background: white; border: 1px solid #ddd; color: #555; }
         .btn-outline-sm:hover { background: #f0f0f0; }
@@ -201,7 +178,7 @@ html_template = """
         .gen-recipe-btn {
             margin-top: 5px; width: 100%; padding: 8px; 
             background: #e3f2fd; border: 1px solid #90caf9; color: #1976d2;
-            border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: bold; z-index: 10;
+            border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: bold;
         }
         .gen-recipe-btn:hover { background: #bbdefb; }
 
@@ -480,24 +457,22 @@ html_template = """
                 let badgeClass = p.condition === '良好' ? 'status-good' : 'status-bad';
                 let badgeText = p.condition === '良好' ? '✅ 外觀良好' : '⚠️ 外觀破損';
                 
-                // *** 核心修復：onclick 綁定在最外層 div，實現全卡片點擊 ***
+                // 這裡是最關鍵的修改：將 onclick 綁定在卡片最外層，並在按鈕上阻止冒泡
                 return `
-                <div class="card">
-                    <div class="card-click-area" onclick="showDetail('${p.id}')">
-                        <img src="${p.img}" class="card-img">
-                        <div class="card-body">
-                            <div class="card-title">${p.name}</div>
-                            <div><span class="status-badge ${badgeClass}">${badgeText}</span></div>
-                            <div class="price">$${p.price}</div>
+                <div class="card" onclick="showDetail('${p.id}')">
+                    <img src="${p.img}" class="card-img">
+                    <div class="card-body">
+                        <div class="card-title">${p.name}</div>
+                        <div><span class="status-badge ${badgeClass}">${badgeText}</span></div>
+                        <div class="price">$${p.price}</div>
+                        
+                        <div class="card-interactive-area">
+                            <div class="card-actions">
+                                 <button class="btn-card-action btn-outline-sm" onclick="event.stopPropagation(); showDetail('${p.id}')">📄 詳細</button>
+                                 <button class="btn-card-action btn-primary-sm" onclick="event.stopPropagation(); addToCart('${p.id}')">🛒 加入</button>
+                            </div>
+                            <button class="gen-recipe-btn" onclick="event.stopPropagation(); quickGenerateRecipe('${p.name}')">⚡ 生成食譜</button>
                         </div>
-                    </div>
-                    
-                    <div class="card-body" style="padding-top:0;">
-                        <div class="card-actions">
-                             <button class="btn-card-action btn-outline-sm" onclick="event.stopPropagation(); showDetail('${p.id}')">📄 詳細</button>
-                             <button class="btn-card-action btn-primary-sm" onclick="event.stopPropagation(); addToCart('${p.id}')">🛒 加入</button>
-                        </div>
-                        <button class="gen-recipe-btn" onclick="event.stopPropagation(); quickGenerateRecipe('${p.name}')">⚡ 生成食譜</button>
                     </div>
                 </div>`;
             }).join('');
