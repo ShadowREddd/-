@@ -512,4 +512,255 @@ html_template = f"""
 
         function switchPage(page) {{
             document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
-            document
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.querySelectorAll('.desktop-menu button').forEach(n => n.classList.remove('active'));
+            if(document.getElementById('mb-nav-'+page)) document.getElementById('mb-nav-'+page).classList.add('active');
+            if(document.getElementById('dt-nav-'+page)) document.getElementById('dt-nav-'+page).classList.add('active');
+            document.getElementById('page-'+page).style.display = 'block';
+            if(page==='recipe') {{ document.getElementById('recipe-search').value=''; renderRecipes(allRecipes.filter(r=>!r.hidden)); }}
+            if(page==='market') {{ 
+                if(document.getElementById('grid-products').innerHTML.includes('請點擊上方')) {{ }} 
+                else {{ }} 
+            }}
+            window.scrollTo(0,0);
+        }}
+
+        function showDetail(pid) {{
+            currentPid = pid;
+            const p = products.find(x => x.id === pid);
+            document.getElementById('dt-img').src = p.img;
+            document.getElementById('dt-name').innerText = p.name;
+            document.getElementById('dt-price').innerText = '$' + p.price;
+            document.getElementById('dt-origin').innerText = p.origin;
+            document.getElementById('dt-storage').innerText = p.storage;
+            document.getElementById('dt-expiry').innerText = p.date;
+            document.getElementById('dt-tag').innerText = p.cat;
+            
+            const conditionText = document.getElementById('dt-condition-text');
+            conditionText.innerText = p.condition === '良好' ? '良好' : '破損';
+            conditionText.style.color = p.condition === '良好' ? '#28a745' : '#dc3545';
+            conditionText.className = p.condition === '良好' ? 'detail-status-tag status-good' : 'detail-status-tag status-bad';
+            
+            // 詳情頁保留圖示
+            document.getElementById('dt-condition-badge').innerHTML = `<span class="status-badge ${{p.condition === '良好' ? 'status-good' : 'status-bad'}}">${{p.condition === '良好' ? '✅ 良好' : '⚠️ 破損'}}</span>`;
+
+            switchPage('detail');
+        }}
+
+        function addToCart(optId) {{
+            const targetId = optId || currentPid;
+            if(!targetId) return;
+            const p = products.find(x => x.id === targetId);
+            const item = cart.find(x => x.id === targetId);
+            if(item) item.qty++; else cart.push({{id:p.id, name:p.name, price:p.price, qty:1}});
+            updateCartUI();
+            alert('✅ 已加入購物車');
+        }}
+        
+        function changeQty(id, delta) {{
+            const item = cart.find(x => x.id === id);
+            if (!item) return;
+            item.qty += delta;
+            if (item.qty <= 0) {{
+                if(confirm('確定要移除此商品嗎？')) {{
+                    cart = cart.filter(x => x.id !== id);
+                }} else {{
+                    item.qty = 1; // 恢復
+                }}
+            }}
+            updateCartUI();
+        }}
+
+        function removeFromCart(id) {{
+            if(confirm('確定要移除此商品嗎？')) {{
+                cart = cart.filter(x => x.id !== id);
+                updateCartUI();
+            }}
+        }}
+
+        function updateCartUI() {{
+            const count = cart.reduce((sum, i) => sum + i.qty, 0);
+            const total = cart.reduce((sum, i) => sum + i.price*i.qty, 0);
+            document.querySelectorAll('.cart-count-num').forEach(el => el.innerText = count);
+            document.getElementById('cart-total').innerText = '$' + total;
+            
+            if (cart.length === 0) {{
+                document.getElementById('cart-list').innerHTML = '<p style="text-align:center; color:#999;">購物車是空的</p>';
+            }} else {{
+                document.getElementById('cart-list').innerHTML = cart.map(item => `
+                    <div class="cart-item">
+                        <div class="cart-info">
+                            <div class="cart-name">${{item.name}}</div>
+                            <div class="cart-price">$${{item.price}} / 個</div>
+                        </div>
+                        <div class="cart-controls">
+                            <button class="qty-btn" onclick="changeQty('${{item.id}}', -1)">-</button>
+                            <span style="font-weight:bold; min-width:20px; text-align:center;">${{item.qty}}</span>
+                            <button class="qty-btn" onclick="changeQty('${{item.id}}', 1)">+</button>
+                            <button class="del-btn" onclick="removeFromCart('${{item.id}}')">🗑️</button>
+                        </div>
+                    </div>
+                `).join('');
+            }}
+        }}
+
+        function showStep(rid) {{
+            const r = allRecipes.find(x => x.id === rid);
+            document.getElementById('step-title').innerText = r.name;
+            let html = '<h4>🍽 食材</h4><ul class="ing-list">' + (r.ingredients?r.ingredients.map(i=>`<li>${{i}}</li>`).join(''):'<li>無資料</li>') + '</ul>';
+            html += '<h4>👩‍🍳 步驟</h4><ol class="step-list">' + (r.steps?r.steps.map(s=>`<li>${{s}}</li>`).join(''):'<li>無資料</li>') + '</ol>';
+            document.getElementById('step-body').innerHTML = html;
+            openModal('step');
+        }}
+        
+        function findRecipe() {{
+            const p = products.find(x => x.id === currentPid);
+            alert(`正在搜尋「${{p.name}}」食譜...`);
+            switchPage('recipe');
+            setTimeout(() => {{
+                const searchInput = document.getElementById('recipe-search');
+                if(searchInput) {{ searchInput.value = p.name; filterRecipes(); }}
+            }}, 100);
+        }}
+
+        function toggleChat() {{ const w = document.getElementById('chat-widget'); w.style.display = (w.style.display === 'flex') ? 'none' : 'flex'; }}
+        function sendChat() {{
+            const input = document.getElementById('chat-input'); const msg = input.value.trim(); if(!msg) return;
+            const body = document.getElementById('chat-body'); body.innerHTML += `<div class="msg msg-user">${{msg}}</div>`; input.value = ''; body.scrollTop = body.scrollHeight;
+            if(msg === '[後台]') {{ setTimeout(() => {{ body.innerHTML += `<div class="msg msg-bot">驗證成功，跳轉後台...</div>`; setTimeout(() => {{ toggleChat(); showBackend(); }}, 1000); }}, 500); return; }}
+            setTimeout(() => {{ body.innerHTML += `<div class="msg msg-bot">收到！我們將盡快回覆。</div>`; body.scrollTop = body.scrollHeight; }}, 800);
+        }}
+        function showBackend() {{ switchPage('backend'); renderAdmin(); }}
+        function renderAdmin() {{ document.getElementById('admin-list').innerHTML = products.map(p => `<tr><td>${{p.name}}</td><td>${{p.condition}}</td><td>$${{p.price}}</td><td><button style="color:red;border:none;background:none;cursor:pointer;" onclick="alert('刪除')">🗑️</button></td></tr>`).join(''); }}
+
+        function openCreateRecipeModal() {{
+            document.getElementById('new-r-name').value = ''; document.getElementById('new-r-cal').value = '';
+            tempIngredients = []; tempSteps = []; updateCustomPreview();
+            document.getElementById('product-select').innerHTML = '<option value="">-- 請選擇食材 --</option>' + products.map(p => `<option value="${{p.name}}">${{p.name}}</option>`).join('');
+            openModal('create');
+        }}
+        function addIngredientFromSelect() {{ const v = document.getElementById('product-select').value; if(v && !tempIngredients.includes(v)) {{ tempIngredients.push(v); updateCustomPreview(); }} }}
+        function addManualIngredient() {{ const v = document.getElementById('manual-ing-input').value.trim(); if(v) {{ tempIngredients.push(v); document.getElementById('manual-ing-input').value = ''; updateCustomPreview(); }} }}
+        function addNewStep() {{ const v = document.getElementById('new-step-input').value.trim(); if(v) {{ tempSteps.push(v); document.getElementById('new-step-input').value=''; updateCustomPreview(); }} }}
+        function updateCustomPreview() {{
+            document.getElementById('new-ing-list').innerHTML = tempIngredients.length ? tempIngredients.map((ing, i) => `<div class="ing-tag">${{ing}} <span onclick="tempIngredients.splice(${{i}},1);updateCustomPreview()">✕</span></div>`).join('') : '尚未加入';
+            document.getElementById('new-step-list').innerHTML = tempSteps.length ? tempSteps.map((s, i) => `<div style="border-bottom:1px dashed #ddd; padding:5px 0; display:flex; justify-content:space-between;"><span>${{i+1}}. ${{s}}</span><span onclick="tempSteps.splice(${{i}},1);updateCustomPreview()" style="color:red;cursor:pointer;">✕</span></div>`).join('') : '無步驟';
+        }}
+
+        // --- 智慧 AI 食譜生成 (連續隨機 + 隱藏菜單判斷) ---
+        function autoGenerateRichRecipe() {{
+            // 1. 先檢查隱藏觸發 (酪梨 + 雞胸肉)
+            const hasAvocado = tempIngredients.some(i => i.includes("酪梨"));
+            const hasChicken = tempIngredients.some(i => i.includes("雞胸肉") || i.includes("雞肉"));
+
+            if (hasAvocado && hasChicken) {{
+                document.getElementById('new-r-name').value = "奶油酪梨雞胸肉佐蒜香地瓜葉";
+                document.getElementById('new-r-cal').value = 450;
+                tempSteps = [
+                    "雞胸肉切塊，加鹽、黑胡椒、橄欖油醃 10 分鐘。",
+                    "熱鍋煎雞胸肉至金黃，盛起備用。",
+                    "原鍋炒香洋蔥丁與蒜末，加入酪梨肉壓成泥。",
+                    "倒入牛奶煮成濃滑醬汁，加鹽調味。",
+                    "放回雞肉煨煮 1-2 分鐘即可。",
+                    "另起鍋爆香蒜片，快炒地瓜葉，加鹽調味。"
+                ];
+                
+                if(!tempIngredients.includes("牛奶")) tempIngredients.push("牛奶");
+                if(!tempIngredients.includes("洋蔥")) tempIngredients.push("洋蔥");
+                if(!tempIngredients.includes("蒜頭")) tempIngredients.push("蒜頭");
+                
+                updateCustomPreview();
+                return;
+            }}
+
+            // 2. 正常 AI 隨機生成
+            if (tempIngredients.length === 0) {{
+                alert("⚠️ 請先選擇至少一種食材，AI 才能幫您想食譜！");
+                return;
+            }}
+            
+            const mainIng = tempIngredients[0];
+            
+            const templates = [
+                {{
+                    getName: (ing) => "塔香爆炒" + ing,
+                    getSteps: (ing) => [
+                        `將${{ing}}切成適口大小，蒜頭拍碎備用。`,
+                        "熱鍋下油，放入蒜末爆香至金黃色。",
+                        `轉大火，放入${{ing}}快速翻炒。`,
+                        "加入醬油、糖、米酒調味，起鍋前放入九層塔提香。"
+                    ],
+                    extraIng: ["蒜頭", "九層塔", "醬油"]
+                }},
+                {{
+                    getName: (ing) => "清蒸檸檬" + ing,
+                    getSteps: (ing) => [
+                        `將${{ing}}洗淨擺盤，鋪上薑片去腥。`,
+                        "淋上米酒與魚露，放入蒸鍋大火蒸 10 分鐘。",
+                        "取出後撒上蔥絲與辣椒絲。",
+                        "淋上熱油激發香氣，最後擠上新鮮檸檬汁。"
+                    ],
+                    extraIng: ["薑片", "蔥絲", "檸檬"]
+                }},
+                {{
+                    getName: (ing) => "家常紅燒" + ing,
+                    getSteps: (ing) => [
+                        `將${{ing}}切塊，放入滾水中汆燙去血水。`,
+                        "熱鍋炒糖色，放入食材翻炒上色。",
+                        "加入醬油、八角、水，小火慢燉 40 分鐘。",
+                        "湯汁收乾至濃稠即可起鍋。"
+                    ],
+                    extraIng: ["八角", "冰糖", "醬油"]
+                }},
+                {{
+                    getName: (ing) => "爽口涼拌" + ing,
+                    getSteps: (ing) => [
+                        `將${{ing}}切絲或切片，滾水汆燙後冰鎮。`,
+                        "準備醬汁：蒜泥、醋、糖、香油拌勻。",
+                        "將醬汁淋在食材上，撒上白芝麻。",
+                        "放入冰箱冷藏 30 分鐘入味後食用。"
+                    ],
+                    extraIng: ["蒜泥", "白芝麻", "香油"]
+                }}
+            ];
+
+            const randomTemplate = templates[Math.floor(Math.random() * templates.length)];
+
+            document.getElementById('new-r-name').value = randomTemplate.getName(mainIng);
+            document.getElementById('new-r-cal').value = Math.floor(Math.random() * 400) + 200; 
+            
+            tempSteps = randomTemplate.getSteps(mainIng);
+            
+            randomTemplate.extraIng.forEach(ing => {{
+                if(!tempIngredients.includes(ing)) tempIngredients.push(ing);
+            }});
+
+            updateCustomPreview();
+        }}
+
+        function saveCustomRecipe() {{
+            const name = document.getElementById('new-r-name').value.trim();
+            const cal = document.getElementById('new-r-cal').value;
+            const hasAvocado = name.includes("酪梨") || tempIngredients.some(i => i.includes("酪梨"));
+            const hasChicken = name.includes("雞胸肉") || tempIngredients.some(i => i.includes("雞胸肉"));
+            if (hasAvocado && hasChicken) {{
+                const unlocked = {{ ...allRecipes.find(r => r.id === "Hidden1"), id: "Unlocked_" + Date.now(), hidden: false }};
+                allRecipes.unshift(unlocked); closeModal('create'); document.getElementById('recipe-search').value = ''; renderRecipes(allRecipes.filter(r => !r.hidden)); return;
+            }}
+            if(!name || tempIngredients.length===0 || tempSteps.length===0) {{ alert("請填寫完整！"); return; }}
+            allRecipes.unshift({{id: "C"+Date.now(), name: name, img: "https://via.placeholder.com/300?text="+name, cal: cal||0, steps: [...tempSteps], ingredients: [...tempIngredients]}});
+            alert("✨ 發布成功！"); closeModal('create'); document.getElementById('recipe-search').value = ''; renderRecipes(allRecipes.filter(r => !r.hidden));
+        }}
+
+        function openModal(id) {{ const m = document.getElementById('modal-'+id); m.style.display = (window.innerWidth >= 768) ? 'flex' : 'block'; }}
+        function closeModal(id) {{ document.getElementById('modal-'+id).style.display = 'none'; }}
+
+        window.onload = init;
+    </script>
+</body>
+</html>
+"""
+
+# 將 HTML 內容渲染到 Streamlit (並執行路徑替換)
+final_html = html_template.replace("images/", BASE_URL).replace("__FALLBACK_IMG__", FALLBACK_IMG)
+components.html(final_html, height=1200, scrolling=True)
