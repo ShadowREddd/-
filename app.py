@@ -101,37 +101,37 @@ html_template = """
         .banner-img { width: 100%; height: 100%; object-fit: cover; }
         @media (min-width: 768px) { .banner-container { height: 300px; } }
 
-        /* 分類列 */
+        /* 分類 */
         .category-bar { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; scrollbar-width: none; }
         .category-bar::-webkit-scrollbar { display: none; }
         .cat-btn { white-space: nowrap; padding: 8px 16px; border-radius: 20px; border: 1px solid #ddd; background: white; color: #666; cursor: pointer; }
         .cat-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* 網格 & 卡片 */
+        /* 網格 & 卡片 (完全修復版) */
         .grid { display: grid; gap: 15px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
         
         .card { 
             background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
-            cursor: pointer; transition: transform 0.2s; display: flex; flex-direction: column;
+            cursor: pointer; /* 整張卡片都是手指 */
+            transition: transform 0.2s; display: flex; flex-direction: column;
             position: relative;
         }
         .card:active { transform: scale(0.98); background-color: #f9f9f9; }
         .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
         
-        /* 圖片與內容 (點擊穿透) */
-        .card-img { width: 100%; height: 150px; object-fit: cover; pointer-events: none; }
-        .card-body { padding: 10px; display: flex; flex-direction: column; pointer-events: none; flex-grow: 1; }
+        .card-img { width: 100%; height: 150px; object-fit: cover; }
+        .card-body { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; }
         
         .card-title { font-weight: bold; margin-bottom: 5px; color: #333; }
         .price { color: var(--primary); font-weight: bold; font-size: 1.1rem; margin-top: auto; }
         
-        /* 狀態標籤 */
         .status-badge { display: inline-block; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; margin-bottom: 5px; }
         .status-good { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .status-bad { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
 
-        /* 卡片按鈕 (關鍵：pointer-events: auto) */
-        .card-actions { display: flex; gap: 5px; margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee; z-index: 10; pointer-events: auto; }
+        /* 按鈕群組 (重點修復：確保按鈕可點且獨立) */
+        .card-actions { display: flex; gap: 5px; margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee; }
+        
         .btn-card-action { 
             flex: 1; padding: 8px; border-radius: 6px; font-size: 0.85rem; 
             cursor: pointer; border: none; font-weight: bold; transition: 0.2s;
@@ -144,8 +144,7 @@ html_template = """
         .gen-recipe-btn {
             margin-top: 5px; width: 100%; padding: 8px; 
             background: #e3f2fd; border: 1px solid #90caf9; color: #1976d2;
-            border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: bold; z-index: 10;
-            pointer-events: auto; /* 確保可點擊 */
+            border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: bold;
         }
         .gen-recipe-btn:hover { background: #bbdefb; }
 
@@ -208,7 +207,7 @@ html_template = """
         }
         .ai-magic-btn:hover { filter: brightness(1.1); transform:translateY(-2px); transition:0.2s; }
 
-        /* 聊天按鈕 */
+        /* Chat & Admin */
         .chat-fab { position: fixed; bottom: 80px; right: 20px; z-index: 5500; width: 60px; height: 60px; border-radius: 50%; background: #2c3e50; color: white; border: none; font-size: 1.8rem; cursor: pointer; }
         @media (min-width: 768px) { .chat-fab { bottom: 30px; right: 30px; } }
         #chat-widget { display: none; position: fixed; bottom: 150px; right: 20px; width: 320px; height: 450px; background: #fff; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.2); z-index: 5600; flex-direction: column; }
@@ -436,9 +435,10 @@ html_template = """
                 let badgeClass = p.condition === '良好' ? 'status-good' : 'status-bad';
                 let badgeText = p.condition === '良好' ? '✅ 外觀良好' : '⚠️ 外觀破損';
                 
+                // 綁定在最外層，所有點擊都導向詳情頁，除非點到按鈕
                 return `
                 <div class="card" onclick="showDetail('${p.id}')">
-                    <div class="card-img" style="background-image:url('${p.img}');background-size:cover;background-position:center;height:150px;width:100%;"></div>
+                    <img src="${p.img}" class="card-img">
                     <div class="card-body">
                         <div class="card-title">${p.name}</div>
                         <div><span class="status-badge ${badgeClass}">${badgeText}</span></div>
@@ -494,7 +494,7 @@ html_template = """
             if(!list || list.length===0) { document.getElementById('grid-recipes').innerHTML = '<div style="text-align:center; color:#999; grid-column:1/-1; padding:20px;">找不到食譜... 試試「酪梨」？</div>'; return; }
             document.getElementById('grid-recipes').innerHTML = list.map(r => `
                 <div class="card" onclick="showStep('${r.id}')">
-                    <img src="${r.img}" class="card-img" style="height:150px;object-fit:cover;width:100%;">
+                    <img src="${r.img}" class="card-img" onerror="this.src='https://via.placeholder.com/300?text=${r.name}'">
                     <div class="card-body">
                         <div class="card-title">${r.name}</div>
                         <div style="color:#666; font-size:0.9rem;">🔥 ${r.cal} kcal</div>
@@ -530,7 +530,7 @@ html_template = """
             document.getElementById('dt-tag').innerText = p.cat;
             
             const conditionText = document.getElementById('dt-condition-text');
-            conditionText.innerText = p.condition === '良好' ? '✅ 外觀良好' : '⚠️ 外觀有破損';
+            conditionText.innerText = p.condition === '良好' ? '✅ 外觀良好，適合送禮或直接食用' : '⚠️ 外觀有輕微破損，建議盡快食用或加工';
             conditionText.style.color = p.condition === '良好' ? '#28a745' : '#dc3545';
             conditionText.className = p.condition === '良好' ? 'detail-status-tag status-good' : 'detail-status-tag status-bad';
 
@@ -637,34 +637,8 @@ html_template = """
             document.getElementById('new-step-list').innerHTML = tempSteps.length ? tempSteps.map((s, i) => `<div style="border-bottom:1px dashed #ddd; padding:5px 0; display:flex; justify-content:space-between;"><span>${i+1}. ${s}</span><span onclick="tempSteps.splice(${i},1);updateCustomPreview()" style="color:red;cursor:pointer;">✕</span></div>`).join('') : '無步驟';
         }
 
-        // --- 智慧 AI 食譜生成 (連續隨機 + 隱藏菜單判斷) ---
+        // --- 智慧 AI 食譜生成 (連續隨機版) ---
         function autoGenerateRichRecipe() {
-            // 1. 先檢查隱藏觸發 (酪梨 + 雞胸肉)
-            const hasAvocado = tempIngredients.some(i => i.includes("酪梨"));
-            const hasChicken = tempIngredients.some(i => i.includes("雞胸肉") || i.includes("雞肉"));
-
-            if (hasAvocado && hasChicken) {
-                document.getElementById('new-r-name').value = "奶油酪梨雞胸肉佐蒜香地瓜葉";
-                document.getElementById('new-r-cal').value = 450;
-                tempSteps = [
-                    "雞胸肉切塊，加鹽、黑胡椒、橄欖油醃 10 分鐘。",
-                    "熱鍋煎雞胸肉至金黃，盛起備用。",
-                    "原鍋炒香洋蔥丁與蒜末，加入酪梨肉壓成泥。",
-                    "倒入牛奶煮成濃滑醬汁，加鹽調味。",
-                    "放回雞肉煨煮 1-2 分鐘即可。",
-                    "另起鍋爆香蒜片，快炒地瓜葉，加鹽調味。"
-                ];
-                
-                if(!tempIngredients.includes("牛奶")) tempIngredients.push("牛奶");
-                if(!tempIngredients.includes("洋蔥")) tempIngredients.push("洋蔥");
-                if(!tempIngredients.includes("蒜頭")) tempIngredients.push("蒜頭");
-                
-                updateCustomPreview();
-                alert("🥑 恭喜！AI 偵測到關鍵食材，已為您生成隱藏料理！");
-                return;
-            }
-
-            // 2. 正常 AI 隨機生成
             if (tempIngredients.length === 0) {
                 alert("⚠️ 請先選擇至少一種食材，AI 才能幫您想食譜！");
                 return;
@@ -732,37 +706,16 @@ html_template = """
         function saveCustomRecipe() {
             const name = document.getElementById('new-r-name').value.trim();
             const cal = document.getElementById('new-r-cal').value;
-            
-            // 檢查是否觸發隱藏菜單 (名稱或食材符合)
             const hasAvocado = name.includes("酪梨") || tempIngredients.some(i => i.includes("酪梨"));
             const hasChicken = name.includes("雞胸肉") || tempIngredients.some(i => i.includes("雞胸肉"));
-
             if (hasAvocado && hasChicken) {
                 alert("🥑🍗 恭喜！發現隱藏料理：奶油酪梨雞胸肉佐蒜香地瓜葉！");
                 const unlocked = { ...allRecipes.find(r => r.id === "Hidden1"), id: "Unlocked_" + Date.now(), hidden: false };
-                allRecipes.unshift(unlocked); 
-                
-                closeModal('create'); 
-                document.getElementById('recipe-search').value = ''; 
-                renderRecipes(allRecipes.filter(r => !r.hidden)); 
-                return;
+                allRecipes.unshift(unlocked); closeModal('create'); document.getElementById('recipe-search').value = ''; renderRecipes(allRecipes.filter(r => !r.hidden)); return;
             }
-
             if(!name || tempIngredients.length===0 || tempSteps.length===0) { alert("請填寫完整！"); return; }
-            
-            allRecipes.unshift({
-                id: "C"+Date.now(), 
-                name: name, 
-                img: "https://via.placeholder.com/300?text="+name, 
-                cal: cal||0, 
-                steps: [...tempSteps], 
-                ingredients: [...tempIngredients]
-            });
-            
-            alert("✨ 發布成功！"); 
-            closeModal('create'); 
-            document.getElementById('recipe-search').value = ''; 
-            renderRecipes(allRecipes.filter(r => !r.hidden));
+            allRecipes.unshift({id: "C"+Date.now(), name: name, img: "https://via.placeholder.com/300?text="+name, cal: cal||0, steps: [...tempSteps], ingredients: [...tempIngredients]});
+            alert("✨ 發布成功！"); closeModal('create'); document.getElementById('recipe-search').value = ''; renderRecipes(allRecipes.filter(r => !r.hidden));
         }
 
         function openModal(id) { const m = document.getElementById('modal-'+id); m.style.display = (window.innerWidth >= 768) ? 'flex' : 'block'; }
