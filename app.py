@@ -54,7 +54,7 @@ html_template = f"""
             .btn-card-action, .gen-recipe-btn {{ padding: 6px 2px !important; font-size: 0.8rem !important; }}
         }}
 
-        /* --- 1. 登入封面 (全螢幕填滿) --- */
+        /* --- 1. 登入封面 --- */
         #splash {{ 
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
             background: white; z-index: 99999; 
@@ -80,8 +80,18 @@ html_template = f"""
         .login-card {{ width: 100%; max-width: 400px; text-align: center; }}
         .login-logo {{ width: 160px; margin-bottom: 20px; border-radius: 50%; }}
         .login-title {{ font-size: 1.8rem; margin-bottom: 30px; color: #333; }}
-        .login-input {{ width: 100%; padding: 15px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 10px; font-size: 1rem; background: #f9f9f9; }}
-        .login-btn {{ width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }}
+        
+        .login-input, .login-select {{ 
+            width: 100%; padding: 12px; margin-bottom: 12px; 
+            border: 1px solid #ddd; border-radius: 10px; 
+            font-size: 1rem; background: #f9f9f9; 
+        }}
+
+        .login-btn-group {{ display: flex; gap: 10px; margin-top: 10px; }}
+        
+        .login-btn {{ width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; flex: 2; }}
+        .register-btn {{ width: 100%; padding: 15px; background: white; color: var(--primary); border: 1px solid var(--primary); border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; flex: 1; }}
+        
         .login-footer {{ margin-top: 20px; color: #999; font-size: 0.9rem; }}
 
         /* --- 3. 主程式 --- */
@@ -115,15 +125,16 @@ html_template = f"""
             position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }}
         .banner-img {{ width: 100%; height: 100%; object-fit: cover; }}
+        @media (min-width: 768px) {{ .banner-container {{ height: 300px; }} }}
 
         /* 分類 */
         .category-bar {{ display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; scrollbar-width: none; }}
         .category-bar::-webkit-scrollbar {{ display: none; }}
-        .cat-btn {{ white-space: nowrap; padding: 8px 16px; border-radius: 20px; border: 1px solid #ddd; background: white; color: #666; cursor: pointer; font-size: 0.9rem; }}
+        .cat-btn {{ white-space: nowrap; padding: 8px 16px; border-radius: 20px; border: 1px solid #ddd; background: white; color: #666; cursor: pointer; }}
         .cat-btn.active {{ background: var(--primary); color: white; border-color: var(--primary); }}
 
         /* 網格 & 卡片 */
-        .grid {{ display: grid; gap: 15px; }}
+        .grid {{ display: grid; gap: 15px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }}
         
         .card {{ 
             background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
@@ -137,21 +148,35 @@ html_template = f"""
         .card-img {{ width: 100%; height: 150px; object-fit: cover; pointer-events: none; }}
         .card-body {{ padding: 10px; flex-grow: 1; display: flex; flex-direction: column; pointer-events: none; }}
         
-        .card-title {{ font-weight: bold; margin-bottom: 5px; color: #333; font-size: 1.1rem; }}
-        .price {{ color: var(--primary); font-weight: bold; font-size: 1.2rem; float: right; }}
+        .card-title {{ font-weight: bold; margin-bottom: 5px; color: #333; font-size: 1.05rem; }}
+        .price {{ color: var(--primary); font-weight: bold; font-size: 1.1rem; margin-top: auto; }}
         
-        /* 卡片資訊 (純文字) */
-        .card-info-list {{ font-size: 0.85rem; color: #666; margin: 8px 0; line-height: 1.5; border-top: 1px dashed #eee; padding-top: 8px; }}
+        /* 資訊列表 */
+        .card-info-list {{
+            font-size: 0.85rem; color: #666; margin: 8px 0; line-height: 1.5;
+            border-top: 1px dashed #eee; padding-top: 8px;
+        }}
 
-        .status-badge {{ display: inline-block; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; vertical-align: middle; margin-left: 5px; }}
+        .status-badge {{ display: inline-block; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; margin-bottom: 5px; vertical-align: middle; }}
         .status-good {{ background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }}
         .status-bad {{ background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }}
 
-        /* 按鈕區 */
+        /* 按鈕群組 */
         .card-bottom-actions {{ padding: 10px; padding-top: 0; background: white; display: flex; flex-direction: column; gap: 8px; pointer-events: auto; }}
         
-        .btn-add-cart {{ width: 100%; padding: 8px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9rem; }}
-        .btn-gen-recipe {{ width: 100%; padding: 8px; background: #e3f2fd; border: 1px solid #90caf9; color: #1976d2; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9rem; }}
+        .btn-add-cart {{
+            width: 100%; padding: 8px; background: var(--primary); color: white; 
+            border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9rem;
+            transition: opacity 0.2s;
+        }}
+        .btn-add-cart:active {{ opacity: 0.8; }}
+
+        .btn-gen-recipe {{
+            width: 100%; padding: 8px; background: #e3f2fd; border: 1px solid #90caf9; 
+            color: #1976d2; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9rem;
+            transition: background 0.2s;
+        }}
+        .btn-gen-recipe:active {{ background: #bbdefb; }}
 
         /* 詳情頁 */
         .page {{ display: none; animation: fadeIn 0.3s; }}
@@ -161,7 +186,7 @@ html_template = f"""
         .detail-hero {{ position: relative; }}
         .detail-hero img {{ width: 100%; height: 300px; object-fit: cover; }}
         .detail-info {{ padding: 20px; background: white; border-radius: 20px 20px 0 0; margin-top: -20px; position: relative; }}
-        .back-btn {{ position: absolute; top: 20px; left: 20px; width: auto; padding: 8px 15px; border-radius: 20px; background: rgba(255,255,255,0.9); border:none; z-index: 10; font-size:0.9rem; cursor:pointer; font-weight: bold; display: flex; align-items: center; gap: 5px; }}
+        .back-btn {{ position: absolute; top: 20px; left: 20px; width: auto; padding: 8px 15px; border-radius: 20px; background: rgba(255,255,255,0.9); border:none; z-index: 10; font-size:0.9rem; cursor:pointer; font-weight: bold; display:flex; align-items:center; }}
         .detail-status-tag {{ display: inline-block; padding: 5px 10px; border-radius: 4px; font-size: 0.9rem; font-weight: bold; }}
 
         /* Modals */
@@ -200,6 +225,7 @@ html_template = f"""
         .btn {{ width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: bold; font-size: 1rem; margin-top: 10px; cursor: pointer; }}
         .btn-primary {{ background: var(--primary); color: white; }}
         .btn-outline {{ background: white; border: 1px solid #ddd; color: #555; }}
+        .tag {{ background: #eee; padding: 4px 10px; border-radius: 15px; font-size: 0.85rem; color: #666; }}
         .mobile-top-bar {{ display: flex; align-items: center; padding: 10px 5px; margin-bottom: 10px; }}
         .qty-btn {{ width: 30px; height: 30px; border-radius: 50%; border: 1px solid #ddd; background: white; font-weight: bold; cursor: pointer; display:flex; align-items:center; justify-content:center;}}
         .del-btn {{ color: #d9534f; background: none; border: none; cursor: pointer; font-size: 0.9rem; margin-left: 5px; font-weight: bold; }}
@@ -212,6 +238,7 @@ html_template = f"""
             display: flex; align-items: center; justify-content: center; gap: 10px;
         }}
         .ai-magic-btn:hover {{ filter: brightness(1.1); transform:translateY(-2px); transition:0.2s; }}
+
     </style>
 </head>
 <body>
@@ -222,11 +249,22 @@ html_template = f"""
 
     <div id="login-page" style="display:none;">
         <div class="login-card">
-            <img src="images/食際行動家.png" class="login-logo" onerror="this.onerror=null;this.src='{FALLBACK_IMG}';">
+            <img src="images/食際行動家.png" class="login-logo" onerror="this.onerror=null;this.src='https://via.placeholder.com/160x160?text=Logo';">
             <div class="login-title">歡迎回來</div>
+            
+            <select class="login-select" id="login-role">
+                <option value="user">👤 一般使用者</option>
+                <option value="special">❤️ 特殊人群</option>
+            </select>
+
             <input type="text" class="login-input" placeholder="使用者帳號">
             <input type="password" class="login-input" placeholder="密碼">
-            <button class="login-btn" onclick="performLogin()">登入</button>
+            
+            <div class="login-btn-group">
+                <button class="login-btn" onclick="performLogin()">登入</button>
+                <button class="register-btn" onclick="alert('📝 註冊功能尚未開放，請先試用登入！')">註冊</button>
+            </div>
+
             <div class="login-footer">或使用 Google / Facebook 登入</div>
         </div>
     </div>
@@ -255,7 +293,6 @@ html_template = f"""
                     <div class="back-home-btn" onclick="location.reload()">⬅ 登出</div>
                 </div>
                 <div class="banner-container"><img src="images/食際行動家.png" class="banner-img" onerror="this.onerror=null;this.src='{FALLBACK_IMG}';"></div>
-                
                 <div class="category-bar" id="cat-bar">
                     <button class="cat-btn" onclick="filterCat('水果', this)">🍎 水果</button>
                     <button class="cat-btn" onclick="filterCat('蔬菜', this)">🥦 蔬菜</button>
@@ -263,9 +300,9 @@ html_template = f"""
                     <button class="cat-btn" onclick="filterCat('肉品', this)">🥩 肉品</button>
                     <button class="cat-btn" onclick="filterCat('海鮮', this)">🐟 海鮮</button>
                 </div>
-                
                 <div id="grid-products" class="grid">
-                    </div>
+                    <div style="grid-column:1/-1; text-align:center; padding:50px; color:#888;"><div style="font-size:1.5rem; margin-bottom:10px; font-weight:bold;">請選擇分類</div><div style="font-size:1rem;">點擊上方分類開始選購</div></div>
+                </div>
             </div>
 
             <div id="page-recipe" class="page">
@@ -430,12 +467,12 @@ html_template = f"""
         }}
 
         function renderProducts(list) {{
-            if(!list || list.length===0) {{ document.getElementById('grid-products').innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:50px; color:#888;"><div style="font-size:1.5rem; margin-bottom:10px; font-weight:bold;">🥦🍎🥩</div><div style="font-size:1rem;">請點擊上方分類開始選購</div></div>'; return; }}
+            if(!list || list.length===0) {{ document.getElementById('grid-products').innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:50px; color:#888;"><div style="font-size:1.5rem; margin-bottom:10px; font-weight:bold;">請選擇分類</div><div style="font-size:1rem;">點擊上方分類開始選購</div></div>'; return; }}
             document.getElementById('grid-products').innerHTML = list.map(p => {{
                 let badgeClass = p.condition === '良好' ? 'status-good' : 'status-bad';
-                let badgeText = p.condition === '良好' ? '良好' : '破損';
+                let badgeText = p.condition === '良好' ? '狀態: 良好' : '狀態: 破損';
                 
-                // 首頁卡片：純文字資訊，無詳細按鈕
+                // 首頁卡片 (純文字資訊)
                 return `
                 <div class="card">
                     <div class="card-top-click" onclick="showDetail('${{p.id}}')">
@@ -443,7 +480,7 @@ html_template = f"""
                         <div class="card-body">
                             <div class="card-title">${{p.name}}</div>
                             <div style="display:flex; justify-content:space-between; align-items:center;">
-                                <span class="status-badge ${{badgeClass}}">狀態: ${{badgeText}}</span>
+                                <span class="status-badge ${{badgeClass}}">${{badgeText}}</span>
                                 <div class="price">$${{p.price}}</div>
                             </div>
                             <div class="card-info-list">
@@ -519,7 +556,7 @@ html_template = f"""
             document.getElementById('page-'+page).style.display = 'block';
             if(page==='recipe') {{ document.getElementById('recipe-search').value=''; renderRecipes(allRecipes.filter(r=>!r.hidden)); }}
             if(page==='market') {{ 
-                if(document.getElementById('grid-products').innerHTML.includes('請點擊上方')) {{ }} 
+                if(document.getElementById('grid-products').innerHTML.includes('請選擇分類')) {{ }} 
                 else {{ }} 
             }}
             window.scrollTo(0,0);
@@ -537,11 +574,9 @@ html_template = f"""
             document.getElementById('dt-tag').innerText = p.cat;
             
             const conditionText = document.getElementById('dt-condition-text');
-            conditionText.innerText = p.condition === '良好' ? '良好' : '破損';
+            conditionText.innerText = p.condition === '良好' ? '✅ 良好' : '⚠️ 破損';
             conditionText.style.color = p.condition === '良好' ? '#28a745' : '#dc3545';
             conditionText.className = p.condition === '良好' ? 'detail-status-tag status-good' : 'detail-status-tag status-bad';
-            
-            // 詳情頁保留圖示
             document.getElementById('dt-condition-badge').innerHTML = `<span class="status-badge ${{p.condition === '良好' ? 'status-good' : 'status-bad'}}">${{p.condition === '良好' ? '✅ 良好' : '⚠️ 破損'}}</span>`;
 
             switchPage('detail');
@@ -631,7 +666,7 @@ html_template = f"""
             setTimeout(() => {{ body.innerHTML += `<div class="msg msg-bot">收到！我們將盡快回覆。</div>`; body.scrollTop = body.scrollHeight; }}, 800);
         }}
         function showBackend() {{ switchPage('backend'); renderAdmin(); }}
-        function renderAdmin() {{ document.getElementById('admin-list').innerHTML = products.map(p => `<tr><td>${{p.name}}</td><td>${{p.condition}}</td><td>$${{p.price}}</td><td><button style="color:red;border:none;background:none;cursor:pointer;" onclick="alert('刪除')">🗑️</button></td></tr>`).join(''); }}
+        function renderAdmin() {{ document.getElementById('admin-list').innerHTML = products.map(p => `<tr><td>${{p.name}}</td><td>${{p.condition}}</td><td>$${{p.price}}</td><td><button style="color:red;border:none;background:none;cursor:pointer;" onclick="alert('刪除')">刪除</button></td></tr>`).join(''); }}
 
         function openCreateRecipeModal() {{
             document.getElementById('new-r-name').value = ''; document.getElementById('new-r-cal').value = '';
@@ -646,7 +681,7 @@ html_template = f"""
             document.getElementById('new-ing-list').innerHTML = tempIngredients.length ? tempIngredients.map((ing, i) => `<div class="ing-tag">${{ing}} <span onclick="tempIngredients.splice(${{i}},1);updateCustomPreview()">✕</span></div>`).join('') : '尚未加入';
             document.getElementById('new-step-list').innerHTML = tempSteps.length ? tempSteps.map((s, i) => `<div style="border-bottom:1px dashed #ddd; padding:5px 0; display:flex; justify-content:space-between;"><span>${{i+1}}. ${{s}}</span><span onclick="tempSteps.splice(${{i}},1);updateCustomPreview()" style="color:red;cursor:pointer;">✕</span></div>`).join('') : '無步驟';
         }}
-
+        
         // --- 智慧 AI 食譜生成 (連續隨機 + 隱藏菜單判斷) ---
         function autoGenerateRichRecipe() {{
             // 1. 先檢查隱藏觸發 (酪梨 + 雞胸肉)
@@ -670,12 +705,13 @@ html_template = f"""
                 if(!tempIngredients.includes("蒜頭")) tempIngredients.push("蒜頭");
                 
                 updateCustomPreview();
+                // 移除彈窗提示
                 return;
             }}
 
             // 2. 正常 AI 隨機生成
             if (tempIngredients.length === 0) {{
-                alert("⚠️ 請先選擇至少一種食材，AI 才能幫您想食譜！");
+                alert("請先選擇至少一種食材！");
                 return;
             }}
             
@@ -743,12 +779,28 @@ html_template = f"""
             const cal = document.getElementById('new-r-cal').value;
             const hasAvocado = name.includes("酪梨") || tempIngredients.some(i => i.includes("酪梨"));
             const hasChicken = name.includes("雞胸肉") || tempIngredients.some(i => i.includes("雞胸肉"));
+            
             if (hasAvocado && hasChicken) {{
                 const unlocked = {{ ...allRecipes.find(r => r.id === "Hidden1"), id: "Unlocked_" + Date.now(), hidden: false }};
-                allRecipes.unshift(unlocked); closeModal('create'); document.getElementById('recipe-search').value = ''; renderRecipes(allRecipes.filter(r => !r.hidden)); return;
+                allRecipes.unshift(unlocked); 
+                closeModal('create'); 
+                document.getElementById('recipe-search').value = ''; 
+                renderRecipes(allRecipes.filter(r => !r.hidden)); 
+                alert("✨ 發布成功！");
+                return;
             }}
+
             if(!name || tempIngredients.length===0 || tempSteps.length===0) {{ alert("請填寫完整！"); return; }}
-            allRecipes.unshift({{id: "C"+Date.now(), name: name, img: "https://via.placeholder.com/300?text="+name, cal: cal||0, steps: [...tempSteps], ingredients: [...tempIngredients]}});
+            
+            allRecipes.unshift({{
+                id: "C"+Date.now(), 
+                name: name, 
+                img: "images/" + name + ".jpg", 
+                cal: cal||0, 
+                steps: [...tempSteps], 
+                ingredients: [...tempIngredients]
+            }});
+            
             alert("✨ 發布成功！"); closeModal('create'); document.getElementById('recipe-search').value = ''; renderRecipes(allRecipes.filter(r => !r.hidden));
         }}
 
@@ -761,6 +813,5 @@ html_template = f"""
 </html>
 """
 
-# 將 HTML 內容渲染到 Streamlit (並執行路徑替換)
 final_html = html_template.replace("images/", BASE_URL).replace("__FALLBACK_IMG__", FALLBACK_IMG)
 components.html(final_html, height=1200, scrolling=True)
