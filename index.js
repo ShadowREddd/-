@@ -35,7 +35,7 @@ function handleEvent(event) {
       // 當使用者想買東西，回傳您的 Streamlit 連結
       return client.replyMessage(event.replyToken, {
           type: 'text',
-          text: '歡迎光臨食際行動家！\n點擊下方連結開始選購：\n\nhttps://h72tshhkoqxip2jprjlb3q.streamlit.app'
+          text: '歡迎光臨食際行動家！🥦\n點擊下方連結開始選購：\n\nhttps://h72tshhkoqxip2jprjlb3q.streamlit.app'
       });
   } 
   else if (userMsg.includes('營業時間')) {
@@ -61,5 +61,3 @@ app.listen(port, () => {
   console.log(`listening on ${port}`);
 
 });
-
-
